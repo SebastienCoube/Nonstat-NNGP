@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 =======
 Vignette range locally isotropic
 ================================
