@@ -1,0 +1,49 @@
+file format : Arc/Info ASCII Grid
+file title  : glwd31.asc
+last update : 12.07.2009
+producer    : T. Hengl
+lineage     : The GLWD31 1 km grid was resampled to 5 km grid using bicubic resampling in ILWIS GIS.
+data type   : byte
+file type   : ASCII
+columns     : 940
+rows        : 592
+meas. scale : categorical
+description : Global Lakes and Wetlands
+proj4string : +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+ref. system : projected
+ref. units  : meters
+unit dist.  : 1
+min. X      : -2405000
+max. X      : 2295000
+min. Y      : 260000
+max. Y      : 3220000
+pos'n error : 1000
+resolution  : 5000
+min. value  : 1
+max. value  : 12
+display min : 1
+display max : 12
+value units : factor
+value error : unspecified
+flag value  : -1
+flag def'n  : unavailable data
+src. English: 
+src. URL    : http://www.worldwildlife.org/science/data/item1877.html
+src. scale  : 1000 m
+src. refs   : Lehner, B., Doll, P., 2004. Development and validation of a global database of lakes, reservoirs and wetlands. Journal of Hydrology 296(1-4): 1-22.
+src. date   : 2003
+src. owner  : WWF; GLWD is available for non-commercial scientific, conservation, and educational purposes.
+legend cats : 13
+category   0: other classes
+category   1: Lake           
+category   2: Reservoir      
+category   3: River          
+category   4: Freshwater Marsh, Floodplain
+category   5: Swamp Forest, Flooded Forest
+category   6: Coastal Wetland
+category   7: Pan, Brackish/Saline Wetland
+category   8: Bog, Fen, Mire (Peatland)
+category   9: Intermittent Wetland/Lake
+category  10: 50-100% Wetland
+category  11: 25-50% Wetland 
+category  12: Wetland Complex (0-25% Wetland)

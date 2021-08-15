@@ -75,7 +75,7 @@ mcmc_nngp_initialize_nonstationary =
   function(observed_locs = NULL, #spatial locations
            observed_field = NULL, # Response variable
            X = NULL, # Covariates per observation
-           m = 10, #number of Nearest Neighbors
+           m = 5, #number of Nearest Neighbors
            reordering = "maxmin", #Reordering
            covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
            noise_X = NULL, noise_range = NULL, # range for latent field of parameters, if NULL no latent field
