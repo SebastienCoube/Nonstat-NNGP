@@ -1,6 +1,6 @@
 ---
-title: "Toy example range locally isotropic"
-output: html_document
+title: "Vignette range locally isotropic"
+output: md_document
 ---
 
 This toy example shows how to model *locally isotropic range*.
@@ -12,7 +12,6 @@ It shows :
 - how to detect over-modelling with a locally anisotropic range, or with locally isotropic range and nonstationary variance
 - how to do predictions
 
-Sorry about the size of images, GitHub won't let upload big htmls.
 
 
 ```{r setup, include=FALSE}
@@ -47,12 +46,12 @@ observed_field =  as.vector(latent_field[observation_idx] +rnorm(n_obs)+ cbind(1
 
 Let's plot the latent field for the NNGP's range...
 
-```{r, dpi = 25}
+```{r}
 Bidart::plot_pointillist_painting(locs, latent_field_range)
 ```
 
 Let's plot the latent field...
-```{r, dpi = 25}
+```{r}
 Bidart::plot_pointillist_painting(locs, latent_field)
 ```
 
@@ -64,7 +63,7 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "nonstationary_exponential_isotropic", response_model = "Gaussian", # covariance model and response model
   range_range = .5, 
@@ -78,14 +77,14 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(40))
 {
   mcmc_nngp_list_range = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range, n_iterations_update = 100, n_cycles = 1)
 }
 ```
 
-Check convergence, look at the Gelman-Rubin-Broks diagnostics (they are low) 
-```{r, dpi = 50}
+Check convergence, look at the Gelman-Rubin-Broks diagnostics
+```{r}
 Bidart::diagnostic_plots(mcmc_nngp_list_range)
 ```
 
@@ -97,7 +96,7 @@ mcmc_nngp_list_stat = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
   n_chains = 3,  # number of MCMC chains
@@ -107,13 +106,13 @@ mcmc_nngp_list_stat = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(40))
 {
   mcmc_nngp_list_stat = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_stat, n_iterations_update = 100, n_cycles = 1)
 }
 ```
 
-Convergence is checked with diagnostic_plots() like before (not done here to save some html size)
+Convergence is checked with diagnostic_plots() like before.
 
 
 ## Nonstationary elliptic model (over-modelling)
@@ -124,7 +123,7 @@ mcmc_nngp_list_range_ell = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
   range_range = .5, 
@@ -138,15 +137,15 @@ mcmc_nngp_list_range_ell = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(4))
 {
   mcmc_nngp_list_range_ell = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range_ell, n_iterations_update = 100, n_cycles = 1)
 }
 ```
 
 
-Lo and behold, the two ``anisotropy" components are low ! (normally this pops up using Bidart::mcmc_nngp_run_nonstationary() )
-```{r, dpi = 50}
+Lo and behold, the two ``anisotropy" components are low ! (normally this pops up automatically)
+```{r}
 Bidart::plot_log_scale(log_scale_arrays =
                          list(
                            mcmc_nngp_list_range_ell$records$chain_1$range_log_scale,
@@ -169,7 +168,7 @@ mcmc_nngp_list_range_scale = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "nonstationary_exponential_isotropic", response_model = "Gaussian", # covariance model and response model
   range_range = .5, 
@@ -184,14 +183,14 @@ mcmc_nngp_list_range_scale = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(4))
 {
   mcmc_nngp_list_range_scale = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range_scale, n_iterations_update = 100, n_cycles = 1)
 }
 ```
 
-Lo and behold, the marginal variance's log scale is low ! (those plots pop up)
-```{r, dpi = 50}
+Lo and behold, the marginal variance's log scale is low ! (those plots pop up automatically)
+```{r}
 Bidart::plot_log_scale(log_scale_arrays =
                          list(
                            mcmc_nngp_list_range_scale$records$chain_1$scale_log_scale,
@@ -218,7 +217,7 @@ print(Bidart::DIC(mcmc_nngp_list_stat))
 predicted_locs = as.matrix(expand.grid(seq(0, 5, .1), seq(0, 5, .1)))
 pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)
 ```
-```{r, dpi = 25}
+```{r}
 par(mfrow = c(1, 1))
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")

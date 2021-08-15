@@ -1,6 +1,6 @@
 ---
 title: "Vignette objects and functions of the package"
-output: html_document
+output: md_document
 ---
 
 This vignette gives a tour of the objects and functions of the package Bidart, reviewing the arguments of the functions and the contents of the objects. 

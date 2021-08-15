@@ -1,6 +1,6 @@
 ---
-title: "Toy example heteroscedasticity"
-output: html_document
+title: "Vignette: heteroscedasticity model"
+output: md_document
 ---
 
 This toy example shows how to model *heteroscedasticity in the latent field and the noise*.
@@ -11,7 +11,6 @@ It shows :
 - how to compare the models (with a stationary model) using DIC
 - how to do predictions
 
-Sorry about the size of images, GitHub won't let upload big htmls.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -50,18 +49,18 @@ observed_field = as.vector(exp(.5*log_scale) * latent_field[observation_idx] +ex
 
 Let's plot the latent field for the NNGP's marginal variance...
 
-```{r, dpi = 25}
-Bidart::plot_pointillist_painting(locs, latent_field_scale)
+```{r}
+Bidart::plot_pointillist_painting(locs, latent_field_scale, main = "field for latent process log variance")
 ```
 
 Let's plot the latent field for the noise variance...
-```{r, dpi = 25}
-Bidart::plot_pointillist_painting(locs, latent_field_noise)
+```{r}
+Bidart::plot_pointillist_painting(locs, latent_field_noise, main = "field for noise log variance")
 ```
 
 Let's plot the latent field...
-```{r, dpi = 25}
-Bidart::plot_pointillist_painting(locs, latent_field)
+```{r}
+Bidart::plot_pointillist_painting(locs, latent_field, main = "latent field")
 ```
 
 ## Nonstationary model 
@@ -72,7 +71,7 @@ mcmc_nngp_list_nonstat = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
   noise_X = X_noise, # covariates for the noise
@@ -96,7 +95,7 @@ for(i in seq(40))
 ```
 
 Check convergence
-```{r, dpi = 50}
+```{r}
 Bidart::diagnostic_plots(mcmc_nngp_list_nonstat)
 ```
 
@@ -124,7 +123,11 @@ for(i in seq(40))
 }
 ```
 
-Convergence is checked with diagnostic_plots() (not done here to save some html size)
+Check convergence
+```{r}
+Bidart::diagnostic_plots(mcmc_nngp_list_nonstat)
+```
+
 
 ## Model comparison
 
@@ -141,9 +144,11 @@ print(Bidart::DIC(mcmc_nngp_list_stat))
 predicted_locs = as.matrix(expand.grid(seq(0, 5, .1), seq(0, 5, .1)))
 pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_nonstat, predicted_locs = predicted_locs)
 ```
-```{r, dpi = 25}
+```{r}
 par(mfrow = c(1, 1))
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$scale_field[1,,], cex = 1.8, main = "latent scale field")
 ```
+
+

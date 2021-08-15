@@ -1,6 +1,6 @@
 ---
-title: "Toy example range locally anisotropic"
-output: html_document
+title: "Vignette range locally anisotropic"
+output: md_document
 ---
   
 This toy example shows how to model *locally anisotropic range*.
@@ -11,7 +11,6 @@ It shows :
 - how to compare the models (with a stationary model) using DIC
 - how to do predictions
 
-Sorry about the size of images, GitHub won't let upload big htmls.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -21,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 set.seed(1)
 # Generate locations
-locs = cbind(5*runif(3000), 5*runif(3000))
+locs = cbind(5*runif(6000), 5*runif(6000))
 #Generate latent fields for the parameters
 latent_field_range =  
   cbind(GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs), 
@@ -36,7 +35,7 @@ X = as.data.frame(cbind(rbinom(n = n_obs, size = 1, prob = .5)))
 colnames(X) = c("binomial")
 # regression coeffs
 beta = c(100, 5)
-beta_range = matrix(c(-1,.0, .0, -1,.0, .0, 0 ,.0, .0), ncol = 3)
+beta_range = matrix(c(-1.6,.0, .0, -1.6,.0, .0, 0 ,.0, .0), ncol = 3)
 # Use NNGP to generate data
 NNarray = GpGp::find_ordered_nn(locs, 10) # Nearest Neighbor Array
 sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = beta_range, locs = locs, NNarray = NNarray, range_field =  latent_field_range, range_X = as.matrix(cbind(1, locs)))
@@ -47,12 +46,12 @@ observed_field =  as.vector(latent_field[observation_idx] +rnorm(n_obs)+ cbind(1
 
 Let's plot the latent field for the NNGP's range...
 
-```{r, dpi = 25}
+```{r}
 Bidart::plot_ellipses(locs[seq(200),], latent_field_range[seq(200),], shrink = .01, main = "range_ellipses")
 ```
 
 Let's plot the latent field...
-```{r, dpi = 25}
+```{r}
 Bidart::plot_pointillist_painting(locs, latent_field)
 ```
 
@@ -64,7 +63,7 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
   range_range = .5, 
@@ -78,15 +77,37 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(60))
 {
   mcmc_nngp_list_range = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range, n_iterations_update = 100, n_cycles = 1)
 }
 ```
 
-Check convergence. Note that you have 3 components for range_beta and 6 components for range_log_scale.
-```{r, dpi = 50}
-Bidart::diagnostic_plots(mcmc_nngp_list_range)
+Check convergence. (Normally diagnostics pop automatically or are all generated using diagnostic_plots() and look great in Rstudio, but in order to get decent pictures in the md lower functions are called)
+```{r}
+# normally one should use diagnostic_plots()  , but in order to get good pictures lower functions are used
+name = "range_log_scale"
+Bidart::plot_PSRF(PSRF = Bidart::grb_diags_field(record_arrays = lapply(mcmc_nngp_list_range$records, function(x)x[[name]]), iterations = mcmc_nngp_list_range$iterations$thinning), varname = name, individual_varnames = row.names(mcmc_nngp_list_range$states$chain_1$params[[name]]))
+```
+```{r}
+# normally one should use diagnostic_plots()  , but in order to get good pictures lower functions are used
+name = "range_beta"
+Bidart::plot_PSRF(PSRF = Bidart::grb_diags_field(record_arrays = lapply(mcmc_nngp_list_range$records, function(x)x[[name]]), iterations = mcmc_nngp_list_range$iterations$thinning), varname = name, individual_varnames = row.names(mcmc_nngp_list_range$states$chain_1$params[[name]]))
+```
+```{r}
+# normally one should use diagnostic_plots()  , but in order to get good pictures lower functions are used
+name = "scale_beta"
+Bidart::plot_PSRF(PSRF = Bidart::grb_diags_field(record_arrays = lapply(mcmc_nngp_list_range$records, function(x)x[[name]]), iterations = mcmc_nngp_list_range$iterations$thinning), varname = name, individual_varnames = row.names(mcmc_nngp_list_range$states$chain_1$params[[name]]))
+```
+```{r}
+# normally one should use diagnostic_plots()  , but in order to get good pictures lower functions are used
+name = "noise_beta"
+Bidart::plot_PSRF(PSRF = Bidart::grb_diags_field(record_arrays = lapply(mcmc_nngp_list_range$records, function(x)x[[name]]), iterations = mcmc_nngp_list_range$iterations$thinning), varname = name, individual_varnames = row.names(mcmc_nngp_list_range$states$chain_1$params[[name]]))
+```
+```{r}
+# normally one should use diagnostic_plots()  , but in order to get good pictures lower functions are used
+name = "beta"
+Bidart::plot_PSRF(PSRF = Bidart::grb_diags_field(record_arrays = lapply(mcmc_nngp_list_range$records, function(x)x[[name]]), iterations = mcmc_nngp_list_range$iterations$thinning), varname = name, individual_varnames = row.names(mcmc_nngp_list_range$states$chain_1$params[[name]]))
 ```
 
 ## Stationary model 
@@ -97,7 +118,7 @@ mcmc_nngp_list_stat = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
   X = X, # Covariates for the observed field
-  m = 10, #number of Nearest Neighbors
+  m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
   n_chains = 3,  # number of MCMC chains
@@ -107,7 +128,7 @@ mcmc_nngp_list_stat = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(1))
+for(i in seq(40))
 {
   mcmc_nngp_list_stat = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_stat, n_iterations_update = 100, n_cycles = 1)
 }
@@ -130,9 +151,9 @@ print(Bidart::DIC(mcmc_nngp_list_stat))
 predicted_locs = as.matrix(expand.grid(seq(0, 5, .1), seq(0, 5, .1)))
 pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)
 ```
-```{r, dpi = 25}
+```{r}
 par(mfrow = c(1, 1))
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
 Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
-Bidart::plot_ellipses(pred$predicted_locs, log_range = pred$summaries$range_field[1,,], shrink = .01, main = "range ellipses (a posteriori mean)")
+Bidart::plot_ellipses(pred$predicted_locs, log_range = pred$summaries$range_field[1,,], shrink = .01, main = "range ellipses (a posteriori mean of log-range parameters)")
 ```
