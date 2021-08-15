@@ -1,6 +1,3 @@
-=======
-Vignette range locally isotropic
-================================
 
 This toy example shows how to model *locally isotropic range*. It presents:
 
