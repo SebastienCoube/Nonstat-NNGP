@@ -3,9 +3,7 @@
 Vignette range locally isotropic
 ================================
 
->>>>>>> 753b47ad3d8530eab5db3e749c2ecff1bf2017da
-This toy example shows how to model *locally isotropic range*. It shows
-:
+This toy example shows how to model *locally isotropic range*. It presents:
 
 -   how to initialize the model
 -   how to diagnose convergence
