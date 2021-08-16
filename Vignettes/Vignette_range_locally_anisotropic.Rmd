@@ -18,30 +18,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Generate synthetic data
 ```{r}
-set.seed(1)
-# Generate locations
-locs = cbind(5*runif(6000), 5*runif(6000))
-#Generate latent fields for the parameters
-latent_field_range =  
-  cbind(GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs), 
-        GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs), 
-        GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs))
-# observing with duplicates
-n_obs = 2 * nrow(locs)
-observation_idx = c(sample(nrow(locs), nrow(locs) , replace =F), sample(nrow(locs), n_obs - nrow(locs) , replace =T))
+set.seed(1)  
+# locations and latent fields
+locs = 5 * matrix(runif(20000), ncol = 2)
+locs = locs[GpGp::order_maxmin(locs),]
+latent_field_range = cbind(
+  GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs),
+  GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs),
+  GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs))
+latent_field_range = latent_field_range %*% matrix(c(1/sqrt(2), 1/sqrt(2), 0, 1/sqrt(2), -1/sqrt(2), 0, 0, 0, 1), 3)
+
+range_beta = c(log(.1)/sqrt(2), log(.1)/sqrt(2), 0)
+  
+# observing observations, with duplicates
+n_obs = 20000
+observation_idx = c(sample(10000, 10000 , replace =F), sample(10000, n_obs - 10000 , replace =T))
 observed_locs = locs[observation_idx,]
-# covariates
-X = as.data.frame(cbind(rbinom(n = n_obs, size = 1, prob = .5)))
-colnames(X) = c("binomial")
-# regression coeffs
-beta = c(100, 5)
-beta_range = matrix(c(-1.6,.0, .0, -1.6,.0, .0, 0 ,.0, .0), ncol = 3)
-# Use NNGP to generate data
-NNarray = GpGp::find_ordered_nn(locs, 10) # Nearest Neighbor Array
-sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = beta_range, locs = locs, NNarray = NNarray, range_field =  latent_field_range, range_X = as.matrix(cbind(1, locs)))
-# get latent NNGP field and observed Gaussian field
+  
+# computing sparse chol
+NNarray = GpGp::find_ordered_nn(locs, 5)
+sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, range_field =  latent_field_range, range_X = matrix(rep(1, nrow(locs))))
+  
+# latent field
 latent_field = GpGp::fast_Gp_sim_Linv(Linv = sparse_chol[[1]], NNarray = NNarray)
-observed_field =  as.vector(latent_field[observation_idx] +rnorm(n_obs)+ cbind(1, as.matrix(X))%*%beta)
+# observed field
+observed_field = as.vector(latent_field[observation_idx] + rnorm(n_obs)* exp(.5 * log(.5))) 
+  
 ```
 
 Let's plot the latent field for the NNGP's range...
@@ -62,7 +64,6 @@ Initialize
 mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
-  X = X, # Covariates for the observed field
   m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
@@ -117,7 +118,6 @@ Initialize
 mcmc_nngp_list_stat = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   observed_field = c(observed_field), # Response variable
-  X = X, # Covariates for the observed field
   m = 5, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
   covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
