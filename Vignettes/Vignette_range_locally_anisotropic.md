@@ -65,11 +65,11 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 2.89515042304993 s elapsed
+    ## Setup done, 2.80205702781677 s elapsed
 
 Run
 
-    for(i in seq(60))
+    for(i in seq(80))
     {
       mcmc_nngp_list_range = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range, n_iterations_update = 100, n_cycles = 1)
     }
@@ -123,7 +123,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.08433866500854 s elapsed
+    ## Setup done, 1.0403151512146 s elapsed
 
 Run
 
@@ -139,11 +139,11 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 47431.66
+    ## [1] 47429.95
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 47606.6
+    ## [1] 47595.51
 
 Prediction
 ----------

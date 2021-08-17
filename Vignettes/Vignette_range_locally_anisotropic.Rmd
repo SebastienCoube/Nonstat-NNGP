@@ -78,7 +78,7 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
 
 Run
 ```{r, fig.show='hide', results='hide'}
-for(i in seq(60))
+for(i in seq(80))
 {
   mcmc_nngp_list_range = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range, n_iterations_update = 100, n_cycles = 1)
 }
