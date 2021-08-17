@@ -77,7 +77,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.44101047515869 s elapsed
+    ## Setup done, 1.48375964164734 s elapsed
 
 Run
 
@@ -108,7 +108,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.497149705886841 s elapsed
+    ## Setup done, 0.662520170211792 s elapsed
 
 Run
 
@@ -132,7 +132,7 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_nonstat))
 
-    ## [1] 19772.49
+    ## [1] 19765.62
 
     print("DIC stat")
 
@@ -140,7 +140,7 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 21710.78
+    ## [1] 21707.87
 
 Prediction
 ----------

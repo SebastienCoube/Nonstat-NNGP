@@ -1,5 +1,5 @@
-
-This toy example shows how to model *locally isotropic range*. It presents:
+This toy example shows how to model *locally isotropic range*. It shows
+:
 
 -   how to initialize the model
 -   how to diagnose convergence
@@ -65,7 +65,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.505619764328 s elapsed
+    ## Setup done, 2.95530295372009 s elapsed
 
 Run
 
@@ -96,7 +96,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.51277232170105 s elapsed
+    ## Setup done, 0.414673805236816 s elapsed
 
 Run
 
@@ -126,7 +126,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.872808933258057 s elapsed
+    ## Setup done, 0.917211532592773 s elapsed
 
 Run
 
@@ -171,7 +171,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.586896419525146 s elapsed
+    ## Setup done, 0.632514953613281 s elapsed
 
 Run
 
@@ -201,11 +201,11 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 18530.65
+    ## [1] 18529.15
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 18621
+    ## [1] 18622.48
 
 Prediction
 ----------
