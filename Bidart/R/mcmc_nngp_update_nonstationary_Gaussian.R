@@ -78,6 +78,15 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$range_beta_ancillary =  0*acceptance_records$range_beta_ancillary
         }
       }
+      # updating MALA kernel
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_beta_ancillary)<.11)state$transition_kernels$range_beta_ancillary = state$transition_kernels$range_beta_ancillary - rnorm(1, .2, .05)
+          acceptance_records$range_beta_ancillary =  0*acceptance_records$range_beta_ancillary
+        }
+      }
     }
     ######################################
     # Stationary range beta (sufficient) #
@@ -112,7 +121,15 @@ mcmc_nngp_update_Gaussian = function(data,
         if(iter %/% 50 ==iter / 50)
         {
           if(mean(acceptance_records$range_beta_sufficient)>.41)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_beta_sufficient)<.21)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_beta_sufficient)<.11)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient - rnorm(1, .4, .05)
+          acceptance_records$range_beta_sufficient =  0*acceptance_records$range_beta_sufficient
+        }
+      }
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_beta_sufficient)<.11)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient - rnorm(1, .2, .05)
           acceptance_records$range_beta_sufficient =  0*acceptance_records$range_beta_sufficient
         }
       }
@@ -130,7 +147,7 @@ mcmc_nngp_update_Gaussian = function(data,
           + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
         )
       # MALA whitened
-      state$momenta$range_beta_ancillary = sqrt(.9) * state$momenta$range_beta_ancillary + sqrt(.1)*matrix(rnorm(length(q)), nrow = nrow(q))
+      state$momenta$range_beta_ancillary = sqrt(.95) * state$momenta$range_beta_ancillary + sqrt(.05)*matrix(rnorm(length(q)), nrow = nrow(q))
       p = state$momenta$range_beta_ancillary
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_ancillary) *
@@ -214,6 +231,14 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$range_beta_ancillary =  0*acceptance_records$range_beta_ancillary
         }
       }
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))      
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_beta_ancillary)<.61)state$transition_kernels$range_beta_ancillary = state$transition_kernels$range_beta_ancillary - rnorm(1, .2, .05)
+          acceptance_records$range_beta_ancillary =  0*acceptance_records$range_beta_ancillary
+        }
+      }
     }
     #######################################
     # Nonstationary range beta (centered) #
@@ -252,7 +277,7 @@ mcmc_nngp_update_Gaussian = function(data,
           - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
         )
       # MALA whitened
-      state$momenta$range_beta_sufficient = sqrt(.9) * state$momenta$range_beta_sufficient + sqrt(.1)*matrix(rnorm(length(q)), nrow = nrow(q))
+      state$momenta$range_beta_sufficient = sqrt(.95) * state$momenta$range_beta_sufficient + sqrt(.05)*matrix(rnorm(length(q)), nrow = nrow(q))
       p = state$momenta$range_beta_sufficient
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
@@ -314,8 +339,6 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$range_beta_sufficient[iter - 50*(iter %/% 50) ] = acceptance_records$range_beta_sufficient[iter - 50*(iter %/% 50) ] + 1
         }
       }
-      
-      
       # updating MALA kernel
       if(iter_start + iter < 1000)
       {
@@ -323,6 +346,14 @@ mcmc_nngp_update_Gaussian = function(data,
         {
           if(mean(acceptance_records$range_beta_sufficient)>.91)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient + rnorm(1, .4, .05)
           if(mean(acceptance_records$range_beta_sufficient)<.61)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient - rnorm(1, .4, .05)
+          acceptance_records$range_beta_sufficient =  0*acceptance_records$range_beta_sufficient
+        }
+      }
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_beta_sufficient)>.91)state$transition_kernels$range_beta_sufficient = state$transition_kernels$range_beta_sufficient + rnorm(1, .2, .05)
           acceptance_records$range_beta_sufficient =  0*acceptance_records$range_beta_sufficient
         }
       }
@@ -445,8 +476,16 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$range_field_ancillary_mala)>.81)state$transition_kernels$range_field_ancillary_mala = state$transition_kernels$range_field_ancillary_mala + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_field_ancillary_mala)<.51)state$transition_kernels$range_field_ancillary_mala = state$transition_kernels$range_field_ancillary_mala - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_field_ancillary_mala)>.91)state$transition_kernels$range_field_ancillary_mala = state$transition_kernels$range_field_ancillary_mala + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_field_ancillary_mala)<.61)state$transition_kernels$range_field_ancillary_mala = state$transition_kernels$range_field_ancillary_mala - rnorm(1, .4, .05)
+          acceptance_records$range_field_ancillary_mala =  0*acceptance_records$range_field_ancillary_mala
+        }
+      }
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))      
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_field_ancillary_mala)<.61)state$transition_kernels$range_field_ancillary_mala = state$transition_kernels$range_field_ancillary_mala - rnorm(1, .2, .05)
           acceptance_records$range_field_ancillary_mala =  0*acceptance_records$range_field_ancillary_mala
         }
       }
@@ -532,8 +571,16 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$range_field_sufficient_mala)>.8)state$transition_kernels$range_field_sufficient_mala = state$transition_kernels$range_field_sufficient_mala + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_field_sufficient_mala)<.51)state$transition_kernels$range_field_sufficient_mala = state$transition_kernels$range_field_sufficient_mala - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_field_sufficient_mala)>.91)state$transition_kernels$range_field_sufficient_mala = state$transition_kernels$range_field_sufficient_mala + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_field_sufficient_mala)<.61)state$transition_kernels$range_field_sufficient_mala = state$transition_kernels$range_field_sufficient_mala - rnorm(1, .4, .05)
+          acceptance_records$range_field_sufficient_mala =  0*acceptance_records$range_field_sufficient_mala
+        }
+      }
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_field_sufficient_mala)<.61)state$transition_kernels$range_field_sufficient_mala = state$transition_kernels$range_field_sufficient_mala - rnorm(1, .2, .05)
           acceptance_records$range_field_sufficient_mala =  0*acceptance_records$range_field_sufficient_mala
         }
       }
@@ -669,16 +716,16 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$range_log_scale_sufficient)>.81)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_log_scale_sufficient)<.51)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_sufficient)>.91)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_sufficient)<.61)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
           acceptance_records$range_log_scale_sufficient =  0*acceptance_records$range_log_scale_sufficient
         }
       }
-      if((iter_start + iter > 1000) & (iter_start + iter < 1500))
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$range_log_scale_sufficient)<.51)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_sufficient)<.61)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .2, .05)
           acceptance_records$range_log_scale_sufficient =  0*acceptance_records$range_log_scale_sufficient
         }
       }
@@ -843,17 +890,17 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if((mean(acceptance_records$range_log_scale_ancillary)>.81) )state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_log_scale_ancillary)<.51)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
+          if((mean(acceptance_records$range_log_scale_ancillary)>.91) )state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_ancillary)<.61)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
           acceptance_records$range_log_scale_ancillary =  0*acceptance_records$range_log_scale_ancillary
         }
       }
       
-      if((iter_start + iter > 1000)&(iter_start + iter < 1500))
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))      
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$range_log_scale_ancillary)<.51)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_ancillary)<.61)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .2, .05)
           acceptance_records$range_log_scale_ancillary =  0*acceptance_records$range_log_scale_ancillary
         }
       }
@@ -895,42 +942,138 @@ mcmc_nngp_update_Gaussian = function(data,
     ##############
     # Noise beta #
     ##############
-    # MH sampling within Gibbs sweep over all regression coefficients (which are only an intercept in the stationary case)
-    whitened_noise_beta = t(solve(data$covariates$noise_X$chol_solve_crossprod_X)) %*% state$params$noise_beta
-    for(i in seq(ncol(data$covariates$noise_X$X_white)))
-    {
-      innovation = rnorm(1, 0, exp(state$transition_kernels$noise_beta[i]))
-      new_noise = state$sparse_chol_and_stuff$noise * exp(data$covariates$noise_X$X_white[,i])^innovation
-      if(
-        -.5* sum(log(new_noise))-.5*sum(squared_residuals/new_noise)
-        +.5* sum(log(state$sparse_chol_and_stuff$noise))+.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise)
-        > log(runif(1))
+    #### MH sampling within Gibbs sweep over all regression coefficients (which are only an intercept in the stationary case)
+    ###whitened_noise_beta = t(solve(data$covariates$noise_X$chol_solve_crossprod_X)) %*% state$params$noise_beta
+    ###for(i in seq(ncol(data$covariates$noise_X$X_white)))
+    ###{
+    ###  innovation = rnorm(1, 0, exp(state$transition_kernels$noise_beta[i]))
+    ###  new_noise = state$sparse_chol_and_stuff$noise * exp(data$covariates$noise_X$X_white[,i])^innovation
+    ###  if(
+    ###    -.5* sum(log(new_noise))-.5*sum(squared_residuals/new_noise)
+    ###    +.5* sum(log(state$sparse_chol_and_stuff$noise))+.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise)
+    ###    > log(runif(1))
+    ###  )
+    ###  {
+    ###    state$sparse_chol_and_stuff$noise = new_noise 
+    ###    whitened_noise_beta[i] = whitened_noise_beta[i] + innovation
+    ###    acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] = acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] + 1
+    ###  }
+    ###}
+    ###state$params$noise_beta[] = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% whitened_noise_beta
+    #### updating MALA kernel
+    ###if(iter_start + iter <1000)
+    ###{
+    ###  if(iter %/% 50 ==iter / 50)
+    ###  {
+    ###    acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
+    ###    state$transition_kernels$noise_beta[acceptance_means>.41] = state$transition_kernels$noise_beta[acceptance_means>.41] + rnorm(sum(acceptance_means>.41), .4, .05)
+    ###    state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
+    ###    acceptance_records$noise_beta =  0*acceptance_records$noise_beta
+    ###  }
+    ###}
+    
+    ###if(iter_start + iter <1000 & iter_start + iter >1000)
+    ###{
+    ###  if(iter %/% 50 ==iter / 50)
+    ###  {
+    ###    acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
+    ###    state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
+    ###    acceptance_records$noise_beta =  0*acceptance_records$noise_beta
+    ###  }
+    ###}
+    
+    # HMC update
+    q = t(solve(data$covariates$noise_X$chol_solve_crossprod_X)) %*% state$params$noise_beta
+    current_U =
+      (
+        0 # improper prior 
+        +.5* sum(log(state$sparse_chol_and_stuff$noise)) # det
+        +.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise) # observations
       )
+    # HMC whitened
+    state$momenta$noise_beta = sqrt(.9) * state$momenta$noise_beta + sqrt(.1)*rnorm(length(state$momenta$noise_beta))
+    p = state$momenta$noise_beta
+
+    # Make a half step for momentum at the beginning
+    p = p - exp(state$transition_kernels$noise_beta_mala) *
+      solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
+            t(data$covariates$noise_X$X) %*%
+              (
+                .5 # determinant part of normal likelihood
+                - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
+              )
+      )/ 2
+    # checking gradient with finite differences
+    ###noise_beta_ = state$params$noise_beta 
+    ###noise_beta_[1] = noise_beta_[1] + 0.0001
+    ###noise_ = Bidart::variance_field(beta = noise_beta_, field = state$params$noise_field[vecchia_approx$locs_match], data$covariates$noise_X$X)
+    ###U_ =
+    ###  (
+    ###    0 # improper prior 
+    ###    +.5* sum(log(noise_)) # det
+    ###    +.5*sum(squared_residuals/noise_) # observations
+    ###  )
+    ###print(10000*(U_- current_U))
+    ###print(
+    ###  (t(data$covariates$noise_X$X) %*%
+    ###    (
+    ###      .5 # determinant part of normal likelihood
+    ###      - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
+    ###    ))[1]
+    ###)
+    # Make a full step for the position
+    q = q + exp(state$transition_kernels$noise_beta_mala) * p
+    new_noise_beta = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% q
+    new_noise = Bidart::variance_field(new_noise_beta, state$params$noise_field[vecchia_approx$locs_match], data$covariates$noise_X$X)
+    # Make a half step for momentum at the beginning
+    p = p - exp(state$transition_kernels$noise_beta_mala) *
+      solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
+            t(data$covariates$noise_X$X) %*%
+              (
+                .5 # determinant part of normal likelihood
+                - (squared_residuals/new_noise)/2 # exponential part of normal likelihood
+              )
+      )/ 2
+    
+    # Evaluate potential and kinetic energies at start and end of trajectory
+    current_K = sum (state$momenta$noise_beta ^2) / 2
+    proposed_U = 
+      (
+        0 # improper prior 
+        +.5* sum(log(new_noise)) # det
+        +.5*sum(squared_residuals/new_noise) # observations
+      )
+    proposed_K = sum(p^2) / 2
+    print(iter)
+    print(current_U-proposed_U)
+    print(current_U-proposed_U)
+    if(!is.nan(current_U-proposed_U+current_K- proposed_K))
+    {
+      if (log(runif(1)) < current_U-proposed_U+current_K- proposed_K)
       {
-        state$sparse_chol_and_stuff$noise = new_noise 
-        whitened_noise_beta[i] = whitened_noise_beta[i] + innovation
-        acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] = acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] + 1
+      print("tatato")
+        state$momenta$noise_beta = p
+        state$params$noise_beta[] = new_noise_beta
+        state$sparse_chol_and_stuff$noise = new_noise
+        acceptance_records$noise_beta_mala[iter - 50*(iter %/% 50) ] = acceptance_records$noise_beta_mala[iter - 50*(iter %/% 50) ] + 1
       }
     }
-    state$params$noise_beta[] = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% whitened_noise_beta
     # updating MALA kernel
-    if(iter_start + iter <1000)
+    if(iter_start + iter < 1000)
     {
       if(iter %/% 50 ==iter / 50)
       {
-        acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
-        state$transition_kernels$noise_beta[acceptance_means>.41] = state$transition_kernels$noise_beta[acceptance_means>.41] + rnorm(sum(acceptance_means>.41), .4, .05)
-        state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-        acceptance_records$noise_beta =  0*acceptance_records$noise_beta
+        if(mean(acceptance_records$noise_beta_mala)>.91)state$transition_kernels$noise_beta_mala = state$transition_kernels$noise_beta_mala +rnorm(1, .4, .05)
+        if(mean(acceptance_records$noise_beta_mala)<.61)state$transition_kernels$noise_beta_mala = state$transition_kernels$noise_beta_mala -rnorm(1, .4, .05)
+        acceptance_records$noise_beta_mala =  0*acceptance_records$noise_beta_mala
       }
     }
-    if(iter_start + iter <1500 & iter_start + iter >1000)
+    if((iter_start + iter > 1000)&(iter_start + iter < 2000))    
     {
       if(iter %/% 50 ==iter / 50)
       {
-        acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
-        state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-        acceptance_records$noise_beta =  0*acceptance_records$noise_beta
+        if(mean(acceptance_records$noise_beta_mala)<.61)state$transition_kernels$noise_beta_mala = state$transition_kernels$noise_beta_mala -rnorm(1, .2, .05)
+        acceptance_records$noise_beta_mala =  0*acceptance_records$noise_beta_mala
       }
     }
     
@@ -1022,23 +1165,24 @@ mcmc_nngp_update_Gaussian = function(data,
           }
         }
         # updating MALA kernel
-        if(iter_start + iter <1000)
+        if(iter_start + iter < 1000)
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$noise_field_mala)>.81)state$transition_kernels$noise_field_mala= state$transition_kernels$noise_field_mala + rnorm(1, .4, .05)
-            if(mean(acceptance_records$noise_field_mala)<.51)state$transition_kernels$noise_field_mala = state$transition_kernels$noise_field_mala - rnorm(1, .4, .05)
+            if(mean(acceptance_records$noise_field_mala)>.91)state$transition_kernels$noise_field_mala= state$transition_kernels$noise_field_mala + rnorm(1, .4, .05)
+            if(mean(acceptance_records$noise_field_mala)<.61)state$transition_kernels$noise_field_mala = state$transition_kernels$noise_field_mala - rnorm(1, .4, .05)
             acceptance_records$noise_field_mala =  0*acceptance_records$noise_field_mala
           }
         }
-        if(iter_start + iter <1500 & iter_start + iter >1000)
+        if((iter_start + iter > 1000)&(iter_start + iter < 2000))
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$noise_field_mala)<.51)state$transition_kernels$noise_field_mala = state$transition_kernels$noise_field_mala - rnorm(1, .4, .05)
+            if(mean(acceptance_records$noise_field_mala)<.61)state$transition_kernels$noise_field_mala = state$transition_kernels$noise_field_mala - rnorm(1, .2, .05)
             acceptance_records$noise_field_mala =  0*acceptance_records$noise_field_mala
           }
         }
+
       }
       ####################################################
       # Variance of the nonstationary noise latent field #
@@ -1065,7 +1209,7 @@ mcmc_nngp_update_Gaussian = function(data,
         state$sparse_chol_and_stuff$noise = new_noise
         acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ] = acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ]+1
       }
-      if(iter_start + iter <1000)
+      if(iter_start + iter < 1000)
       {
         if(iter %/% 50 ==iter / 50)
         {
@@ -1074,11 +1218,11 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$noise_log_scale =  0*acceptance_records$noise_log_scale
         }
       }
-      if(iter_start + iter <1500 & iter_start + iter >1000)
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$noise_log_scale)<.11)state$transition_kernels$noise_log_scale = state$transition_kernels$noise_log_scale - rnorm(1, .4, .05)
+          if(mean(acceptance_records$noise_log_scale)<.11)state$transition_kernels$noise_log_scale = state$transition_kernels$noise_log_scale - rnorm(1, .2, .05)
           acceptance_records$noise_log_scale =  0*acceptance_records$noise_log_scale
         }
       }
@@ -1139,7 +1283,7 @@ mcmc_nngp_update_Gaussian = function(data,
     #        acceptance_records$scale_ancillary_beta =  0*acceptance_records$scale_ancillary_beta
     #      }
     #    }
-    #    if(iter_start + iter <1500 & iter_start + iter >1000)
+    #    if(iter_start + iter <1000 & iter_start + iter >1000)
     #    {
     #      if(iter %/% 50 ==iter / 50)
     #      {
@@ -1190,7 +1334,7 @@ mcmc_nngp_update_Gaussian = function(data,
     #        acceptance_records$scale_sufficient_beta =  0*acceptance_records$scale_sufficient_beta
     #      }
     #    }
-    #    if(iter_start + iter <1500 & iter_start + iter >1000)
+    #    if(iter_start + iter <1000 & iter_start + iter >1000)
     #    {
     #      if(iter %/% 50 ==iter / 50)
     #      {
@@ -1220,9 +1364,9 @@ mcmc_nngp_update_Gaussian = function(data,
         +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
       )
     # HMC whitened
-    state$momenta$scale_beta_sufficient = sqrt(.9) * state$momenta$scale_beta_sufficient + sqrt(.1)*rnorm(ncol(data$covariates$scale_X$X_locs))
+    state$momenta$scale_beta_sufficient = sqrt(.95) * state$momenta$scale_beta_sufficient + sqrt(.05)*rnorm(ncol(data$covariates$scale_X$X_locs))
     p = state$momenta$scale_beta_sufficient
-    # Make a. half step for momentum at the beginning
+    # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
       solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
             t(data$covariates$scale_X$X_locs) %*%
@@ -1231,7 +1375,25 @@ mcmc_nngp_update_Gaussian = function(data,
                 -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
               )
       )/ 2
-    
+    # testing gradient vs finite difference
+###scale_beta_ = state$params$scale_beta 
+###scale_beta_[1] = scale_beta_[1] + .001
+###scale_ = Bidart::variance_field(beta = scale_beta_, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
+###finite_diff_grad = 
+###  (
+###    +0.5*sum(log(scale_))# determinant part
+###    +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/scale_))^2)# covmat product part
+###    -0.5*sum(log(state$sparse_chol_and_stuff$scale))# determinant part
+###    -0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
+###  )/.001
+###print(finite_diff_grad)
+###print(
+###  (t(data$covariates$scale_X$X_locs) %*%
+###    (
+###      .5  # determinant part 
+###      -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
+###      ))[1]
+###  )
     for(i in seq(5))
     {
       # Make a full step for the position
@@ -1278,12 +1440,20 @@ mcmc_nngp_update_Gaussian = function(data,
       }
     }
     # updating MALA kernel
-    if(iter_start + iter <1000)
+    if(iter_start + iter < 1000)
     {
       if(iter %/% 50 ==iter / 50)
       {
-        if(mean(acceptance_records$scale_beta_sufficient_mala)>.81)state$transition_kernels$scale_beta_sufficient_mala = state$transition_kernels$scale_beta_sufficient_mala +rnorm(1, .4, .05)
-        if(mean(acceptance_records$scale_beta_sufficient_mala)<.51)state$transition_kernels$scale_beta_sufficient_mala = state$transition_kernels$scale_beta_sufficient_mala -rnorm(1, .4, .05)
+        if(mean(acceptance_records$scale_beta_sufficient_mala)>.91)state$transition_kernels$scale_beta_sufficient_mala = state$transition_kernels$scale_beta_sufficient_mala +rnorm(1, .4, .05)
+        if(mean(acceptance_records$scale_beta_sufficient_mala)<.61)state$transition_kernels$scale_beta_sufficient_mala = state$transition_kernels$scale_beta_sufficient_mala -rnorm(1, .4, .05)
+        acceptance_records$scale_beta_sufficient_mala =  0*acceptance_records$scale_beta_sufficient_mala
+      }
+    }
+    if((iter_start + iter > 1000)&(iter_start + iter < 2000))    
+    {
+      if(iter %/% 50 ==iter / 50)
+      {
+        if(mean(acceptance_records$scale_beta_sufficient_mala)<.61)state$transition_kernels$scale_beta_sufficient_mala = state$transition_kernels$scale_beta_sufficient_mala -rnorm(1, .2, .05)
         acceptance_records$scale_beta_sufficient_mala =  0*acceptance_records$scale_beta_sufficient_mala
       }
     }
@@ -1368,12 +1538,20 @@ mcmc_nngp_update_Gaussian = function(data,
       }
     }
     # updating MALA kernel
-    if(iter_start + iter <1000)
+    if(iter_start + iter < 1000)
     {
       if(iter %/% 50 ==iter / 50)
       {
-        if(mean(acceptance_records$scale_beta_ancillary_mala)>.81)state$transition_kernels$scale_beta_ancillary_mala = state$transition_kernels$scale_beta_ancillary_mala +rnorm(1, .4, .05)
-        if(mean(acceptance_records$scale_beta_ancillary_mala)<.51)state$transition_kernels$scale_beta_ancillary_mala = state$transition_kernels$scale_beta_ancillary_mala -rnorm(1, .4, .05)
+        if(mean(acceptance_records$scale_beta_ancillary_mala)>.91)state$transition_kernels$scale_beta_ancillary_mala = state$transition_kernels$scale_beta_ancillary_mala +rnorm(1, .4, .05)
+        if(mean(acceptance_records$scale_beta_ancillary_mala)<.61)state$transition_kernels$scale_beta_ancillary_mala = state$transition_kernels$scale_beta_ancillary_mala -rnorm(1, .4, .05)
+        acceptance_records$scale_beta_ancillary_mala =  0*acceptance_records$scale_beta_ancillary_mala
+      }
+    }
+    if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+    {
+      if(iter %/% 50 ==iter / 50)
+      {
+        if(mean(acceptance_records$scale_beta_ancillary_mala)<.61)state$transition_kernels$scale_beta_ancillary_mala = state$transition_kernels$scale_beta_ancillary_mala -rnorm(1, .2, .05)
         acceptance_records$scale_beta_ancillary_mala =  0*acceptance_records$scale_beta_ancillary_mala
       }
     }
@@ -1477,20 +1655,20 @@ mcmc_nngp_update_Gaussian = function(data,
           }
         }
         # updating MALA kernel
-        if(iter_start + iter <1000)
+        if(iter_start + iter < 1000)
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$scale_field_sufficient_mala)>.81)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala +rnorm(1, .4, .05)
-            if(mean(acceptance_records$scale_field_sufficient_mala)<.51)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala -rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_sufficient_mala)>.91)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala +rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_sufficient_mala)<.61)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala -rnorm(1, .4, .05)
             acceptance_records$scale_field_sufficient_mala =  0*acceptance_records$scale_field_sufficient_mala
           }
         }
-        if(iter_start + iter <1500 & iter_start + iter >1000)
+        if((iter_start + iter > 1000)&(iter_start + iter < 2000))        
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$scale_field_sufficient_mala)<.51)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala -rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_sufficient_mala)<.61)state$transition_kernels$scale_field_sufficient_mala = state$transition_kernels$scale_field_sufficient_mala -rnorm(1, .2, .05)
             acceptance_records$scale_field_sufficient_mala =  0*acceptance_records$scale_field_sufficient_mala
           }
         }
@@ -1568,20 +1746,20 @@ mcmc_nngp_update_Gaussian = function(data,
           }
         }
         # updating MALA kernel
-        if(iter_start + iter <1000)
+        if(iter_start + iter < 1000)
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$scale_field_ancillary_mala)>.81)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala +rnorm(1, .4, .05)
-            if(mean(acceptance_records$scale_field_ancillary_mala)<.51)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala -rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_ancillary_mala)>.91)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala +rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_ancillary_mala)<.61)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala -rnorm(1, .4, .05)
             acceptance_records$scale_field_ancillary_mala =  0*acceptance_records$scale_field_ancillary_mala
           }
         }
-        if(iter_start + iter <1500 & iter_start + iter >1000)
+        if((iter_start + iter > 1000)&(iter_start + iter < 2000))
         {
           if(iter %/% 50 ==iter / 50)
           {
-            if(mean(acceptance_records$scale_field_ancillary_mala)<.51)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala -rnorm(1, .4, .05)
+            if(mean(acceptance_records$scale_field_ancillary_mala)<.61)state$transition_kernels$scale_field_ancillary_mala = state$transition_kernels$scale_field_ancillary_mala -rnorm(1, .2, .05)
             acceptance_records$scale_field_ancillary_mala =  0*acceptance_records$scale_field_ancillary_mala
           }
         }
@@ -1612,7 +1790,7 @@ mcmc_nngp_update_Gaussian = function(data,
         acceptance_records$scale_sufficient_log_scale[iter - 50*(iter %/% 50)] = acceptance_records$scale_sufficient_log_scale[iter - 50*(iter %/% 50)] +1
       }
       # updating MALA kernel
-      if(iter_start + iter <1000)
+      if(iter_start + iter < 1000)
       {
         if(iter %/% 50 ==iter / 50)
         {
@@ -1621,14 +1799,15 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$scale_sufficient_log_scale =  0*acceptance_records$scale_sufficient_log_scale
         }
       }
-      if(iter_start + iter <1500 & iter_start + iter >1000)
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))      
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$scale_sufficient_log_scale)<.11)state$transition_kernels$scale_sufficient_log_scale = state$transition_kernels$scale_sufficient_log_scale -rnorm(1, .4, .05)
+          if(mean(acceptance_records$scale_sufficient_log_scale)<.11)state$transition_kernels$scale_sufficient_log_scale = state$transition_kernels$scale_sufficient_log_scale -rnorm(1, .2, .05)
           acceptance_records$scale_sufficient_log_scale =  0*acceptance_records$scale_sufficient_log_scale
         }
       }
+
       
       # sufficient -- sufficient
       unscaled_thingy = sum((hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% state$params$scale_field)^2)
@@ -1669,7 +1848,7 @@ mcmc_nngp_update_Gaussian = function(data,
         acceptance_records$scale_ancillary_log_scale[iter - 50*(iter %/% 50)] = acceptance_records$scale_ancillary_log_scale[iter - 50*(iter %/% 50)] +1
       }
       # updating MALA kernel
-      if(iter_start + iter <1000)
+      if(iter_start + iter < 1000)
       {
         if(iter %/% 50 ==iter / 50)
         {
@@ -1678,11 +1857,11 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$scale_ancillary_log_scale =  0*acceptance_records$scale_ancillary_log_scale
         }
       }
-      if(iter_start + iter <1500 & iter_start + iter >1000)
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$scale_ancillary_log_scale)<.11)state$transition_kernels$scale_ancillary_log_scale = state$transition_kernels$scale_ancillary_log_scale -rnorm(1, .4, .05)
+          if(mean(acceptance_records$scale_ancillary_log_scale)<.11)state$transition_kernels$scale_ancillary_log_scale = state$transition_kernels$scale_ancillary_log_scale -rnorm(1, .2, .05)
           acceptance_records$scale_ancillary_log_scale =  0*acceptance_records$scale_ancillary_log_scale
         }
       }
@@ -1821,7 +2000,7 @@ mcmc_nngp_update_Gaussian = function(data,
         }
       }
       # updating MALA kernel
-      if(iter_start + iter <1000)
+      if(iter_start + iter < 1000)
       {
         if(iter %/% 50 ==iter / 50)
         {
@@ -1830,11 +2009,11 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
         }
       }
-      if(iter_start + iter <1500 & iter_start + iter >1000)
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$latent_field_mala / field_n_mala)<.51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .4, .05)
+          if(mean(acceptance_records$latent_field_mala)<.51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .2, .05)
           acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
         }
       }

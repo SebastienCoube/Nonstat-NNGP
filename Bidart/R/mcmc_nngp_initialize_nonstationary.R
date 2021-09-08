@@ -1,5 +1,5 @@
 #' @export
-process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info = NULL)
+process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info = NULL, locs_match_matrix = F)
 {
   # covariates in the observed field #
   res = list()
@@ -39,6 +39,7 @@ process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info 
   res$chol_solve_crossprod_X_locs = chol(res$solve_crossprod_X_locs)
   # whitening X_locs
   res$X_locs_white = res$X_locs %*% t(res$chol_solve_crossprod_X_locs)
+  # if needed multiplying by log-NNGP prior sparse chol
   if(!is.null(NNGP_prior_info))
   {
     res$sparse_chol_X_locs = as.matrix(NNGP_prior_info$sparse_chol %*% res$X_locs)
@@ -46,6 +47,12 @@ process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info 
     res$solve_crossprod_sparse_chol_X_locs = solve(res$crossprod_sparse_chol_X_locs, tol = min(rcond(res$crossprod_sparse_chol_X_locs),.Machine$double.eps))
     res$chol_solve_crossprod_sparse_chol_X_locs = chol(res$solve_crossprod_sparse_chol_X_locs)
   }
+  # if needed multiplying by locs match matrix (useful for the noise)
+  if(locs_match_matrix)
+  {
+    locs_match_X_white = vecchia_approx$locs_match_matrix %*% res$X_white
+  }
+  
   res
 }
 
@@ -227,7 +234,7 @@ mcmc_nngp_initialize_nonstationary =
     ##############
     covariates = list()
     
-    covariates$X =       process_covariates(X      , observed_locs, vecchia_approx)  
+    covariates$X = process_covariates(X, observed_locs, vecchia_approx)  
     covariates$X$X_locs_white = NULL ; covariates$X$X_white = NULL;
     
     covariates$range_X = process_covariates(range_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$range_NNGP_prior)
@@ -238,7 +245,7 @@ mcmc_nngp_initialize_nonstationary =
     if(!identical(covariates$scale_X$which_locs, seq(ncol(covariates$scale_X$X))))stop("The covariates scale_X cannot vary within one spatial location of observed_locs")
     covariates$scale_X$X = NULL ; covariates$scale_X$X_white = NULL;
     
-    covariates$noise_X = process_covariates(noise_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$noise_NNGP_prior)
+    covariates$noise_X = process_covariates(noise_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$noise_NNGP_prior, locs_match_matrix = T)
     covariates$noise_X$X_locs_white = NULL 
     
     ################
@@ -336,6 +343,7 @@ mcmc_nngp_initialize_nonstationary =
       # noise variance
       states[[i]]$transition_kernels$noise_field_mala = -3
       states[[i]]$transition_kernels$noise_beta = rep(0, ncol(covariates$noise_X$X))
+      states[[i]]$transition_kernels$noise_beta_mala = -1
       states[[i]]$transition_kernels$noise_log_scale = -3
       # MALA for latent field 
       states[[i]]$transition_kernels$latent_field_mala = -2
@@ -370,6 +378,7 @@ mcmc_nngp_initialize_nonstationary =
         states[[i]]$params$noise_beta    = matrix(rep(0, ncol(covariates$noise_X$X)), ncol = 1) #random starting values
         states[[i]]$params$noise_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) +rnorm(1, 0, .5) # setting sensible value for the intercept
         row.names(states[[i]]$params$noise_beta) = colnames(covariates$noise_X$X)
+        states[[i]]$momenta$noise_beta = rnorm(colnames(covariates$noise_X$X))
         # field  when required
         if(!is.null(hierarchical_model$hyperprior_covariance$noise))
         {

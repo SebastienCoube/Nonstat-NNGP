@@ -36,7 +36,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
   gc()
   cl = parallel::makeCluster(n_cores, outfile = debug_outfile)
   mcmc_nngp_list_ = mcmc_nngp_list[-match(c("records", "states"), names(mcmc_nngp_list))]
-  parallel::clusterExport(cl = cl, varlist = c("mcmc_nngp_list_", "mcmc_nngp_update_Gaussian"), envir = environment())
+  parallel::clusterExport(cl = cl, varlist = c("mcmc_nngp_list_", "mcmc_nngp_update_Gaussian", "seed"), envir = environment())
   rm(mcmc_nngp_list_);gc()
   #parallel::clusterEvalQ(cl = cl, expr = "library(Matrix);library(GpGp);library(Bidart);library(expm);library(MfUSampler)")
   #parallel::clusterEvalQ(cl = cl, expr = "library(Matrix, lib.loc = '/home/user/s/scoube/R_packages/');library(GpGp, lib.loc = '/home/user/s/scoube/R_packages/');library(Bidart, lib.loc = '/home/user/s/scoube/R_packages/');library(expm, lib.loc = '/home/user/s/scoube/R_packages/');library(MfUSampler, lib.loc = '/home/user/s/scoube/R_packages/')")
