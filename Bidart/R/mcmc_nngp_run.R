@@ -1,10 +1,10 @@
 #' @export
 mcmc_nngp_run_nonstationary = function(mcmc_nngp_list, 
-                         burn_in = .5, seed = 1, # MCMC parameters
+                         burn_in = .5, seed = 1, swap_range_scale = F, # MCMC parameters
                          n_cores = NULL, thinning = .1, n_iterations_update = 300, #run parameters
                          n_cycles = 5, plot_diags = T, 
                          field_n_chromatic = 3, field_n_mala = 1, 
-                         plot_PSRF_fields = F, debug_outfile = "debug_mcmc_nngp.txt"
+                         plot_PSRF_fields = F, debug_outfile = NULL
                          )
 {
   t_start = Sys.time()
@@ -57,7 +57,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
         n_iterations_update = n_iterations_update, thinning = thinning, 
         field_n_chromatic = field_n_chromatic, field_n_mala = field_n_mala, 
         iter_start = iter_start, 
-        seed = seed + iter_start + i
+        seed = seed + iter_start + i, swap_range_scale = swap_range_scale
         )
       )
     gc()

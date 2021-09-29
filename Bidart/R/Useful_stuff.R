@@ -73,10 +73,33 @@ variance_field = function(beta, field = NULL, X)
 compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, range_field = NULL, range_X = NULL, compute_derivative = T)
 {
   
-  if(covfun_name=="exponential_isotropic") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_isotropic", locs = locs, NNarray = NNarray)))
-  if(covfun_name=="exponential_sphere")    return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_sphere", locs = locs, NNarray = NNarray)))
-  if(covfun_name=="exponential_spacetime") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_spacetime", locs = locs, NNarray = NNarray)))
-  if(covfun_name=="exponential_anisotropic") return(Bidart::nonstat_vecchia_Linv(log_range = matrix(1, nrow(locs), 1)%*%(range_beta*2), covfun_name = "nonstationary_exponential_anisotropic", sphere = F, locs = locs, NNarray = NNarray, compute_derivative = T))
+  if((covfun_name=="exponential_isotropic")|(covfun_name=="exponential_sphere")|(covfun_name=="exponential_spacetime"))  
+  {
+    res = list()
+    res[[1]] = GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = covfun_name, locs = locs, NNarray = NNarray)
+    res[[2]] = list()
+    #for(i in seq(length(range_beta)))
+    #{
+    #  range_beta_ = range_beta
+    #  range_beta_[i] = range_beta_[i] + 0.000001
+    #  res[[2]][[i]] = (GpGp::vecchia_Linv(c(1, exp(range_beta_), 0), covfun_name = covfun_name, locs = locs, NNarray = NNarray) - res[[1]])/0.000001
+    #}
+    return(res)
+  }
+  if((covfun_name=="exponential_anisotropic2D"))  
+  {
+    res = list()
+    #
+    res[[1]] = GpGp::vecchia_Linv(c(1, solve(t(Bidart::expmat(range_beta)))[cbind(c(1, 2, 2), c(1, 1, 2))] , 0), covfun_name = covfun_name, locs = locs, NNarray = NNarray)
+    res[[2]] = list()
+    #for(i in seq(length(range_beta)))
+    #{
+    #  range_beta_ = range_beta
+    #  range_beta_[i] = range_beta_[i] + 0.000001
+    #  res[[2]][[i]] = (GpGp::vecchia_Linv(c(1, solve(t(Bidart::expmat(range_beta_)))[cbind(c(1, 2, 2), c(1, 1, 2))], 0), covfun_name = covfun_name, locs = locs, NNarray = NNarray) - res[[1]])/0.000001
+    #}
+    return(res)
+  }
   if(!is.null(range_X)) log_range = range_X%*%range_beta
   if(!is.null(range_field)) log_range = log_range+range_field
   if(!is.null(log_range)) log_range = as.matrix(log_range)
@@ -87,6 +110,24 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   res[[2]] = lapply(res[[2]], function(x)x*2)
   return(res)
 }
+
+#compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, range_field = NULL, range_X = NULL, compute_derivative = T)
+#{
+#  
+#  if(covfun_name=="exponential_isotropic")   return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_isotropic", locs = locs, NNarray = NNarray)))
+#  if(covfun_name=="exponential_sphere")      return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_sphere", locs = locs, NNarray = NNarray)))
+#  if(covfun_name=="exponential_spacetime")   return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_spacetime", locs = locs, NNarray = NNarray)))
+#  if(covfun_name=="exponential_anisotropic") return(Bidart::nonstat_vecchia_Linv(log_range = matrix(1, nrow(locs), 1)%*%(range_beta*2), covfun_name = "nonstationary_exponential_anisotropic", sphere = F, locs = locs, NNarray = NNarray, compute_derivative = F))
+#  if(!is.null(range_X)) log_range = range_X%*%range_beta
+#  if(!is.null(range_field)) log_range = log_range+range_field
+#  if(!is.null(log_range)) log_range = as.matrix(log_range)
+#  if(covfun_name=="nonstationary_exponential_isotropic")          res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_isotropic"  , sphere = F, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative)
+#  if(covfun_name=="nonstationary_exponential_isotropic_sphere")   res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_isotropic"  , sphere = T, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative)
+#  if(covfun_name=="nonstationary_exponential_anisotropic")        res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_anisotropic", sphere = F, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative)
+#  if(covfun_name=="nonstationary_exponential_anisotropic_sphere") res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_anisotropic", sphere = T, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative)
+#  res[[2]] = lapply(res[[2]], function(x)x*2)
+#  return(res)
+#}
 
 #' @export
 derivative_chol_expmat = function(coords)

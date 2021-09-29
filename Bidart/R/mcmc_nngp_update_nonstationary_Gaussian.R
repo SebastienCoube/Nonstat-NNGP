@@ -4,7 +4,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                      state, # model state
                                      n_iterations_update = 400, thinning = .1, iter_start = 0, seed = 1,# practical settings
                                      field_n_chromatic = 1,  # number of chromatic steps for the latent field at each iteration
-                                     field_n_mala = 1  # number of mala steps for the latent field at each iteration
+                                     field_n_mala = 1,  # number of mala steps for the latent field at each iteration
+                                     swap_range_scale = F # additional step in case of badly identified range and variance in small geographic areas
 )
 {
   #################
@@ -37,6 +38,66 @@ mcmc_nngp_update_Gaussian = function(data,
   for(iter in seq(1, n_iterations_update))
   {
     gc()
+    
+    
+    #########################################################
+    # swapping range and scale for small geographical areas #
+    #########################################################
+    
+    if(swap_range_scale)
+    {
+      innovation = rnorm(1, 0, exp(state$transition_kernels$range_scale_joint))
+      new_scale_beta = state$params$scale_beta
+      new_scale_beta[1] = new_scale_beta[1]+innovation
+      new_scale = state$sparse_chol_and_stuff$scale * exp(innovation)
+      new_range_beta = state$params$range_beta
+      if(ncol(new_range_beta)==3)new_range_beta[1, c(1, 2)] = new_range_beta[1, c(1, 2)] + innovation
+      if(ncol(new_range_beta)==1)new_range_beta[1, 1] = new_range_beta[1, 1] + innovation/sqrt(2)
+      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+                                                                        locs = data$locs, 
+                                                                        range_field = state$params$range_field, 
+                                                                        range_X = data$covariates$range_X$X_locs)
+      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+      if(log(runif(1))< 
+         sum(log(new_compressed_sparse_chol_and_grad[[1]][,1])) - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
+         -0.5*sum(log(new_scale)) +0.5*sum(log(state$sparse_chol_and_stuff$scale))
+         -.5 * sum((new_sparse_chol                         %*% (state$params$field /sqrt(new_scale                        )))^2)
+         +.5 * sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field /sqrt(state$sparse_chol_and_stuff$scale)))^2)
+      )
+      {
+        # range
+        state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
+        state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
+        state$params$range_beta[] = new_range_beta
+        state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
+        # scale
+        state$sparse_chol_and_stuff$scale = new_scale 
+        state$params$scale_beta = new_scale_beta
+        # acceptance
+        acceptance_records$range_scale_joint[iter - 50*(iter %/% 50) ] = acceptance_records$range_scale_joint[iter - 50*(iter %/% 50) ] + 1
+      }
+      # updating MALA kernel
+      if(iter_start + iter < 1000)
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_scale_joint)>.51)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_scale_joint)<.11)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint - rnorm(1, .4, .05)
+          acceptance_records$range_scale_joint =  0*acceptance_records$range_scale_joint
+        }
+      }
+      # updating MALA kernel
+      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_scale_joint)<.11)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint - rnorm(1, .2, .05)
+          acceptance_records$range_scale_joint =  0*acceptance_records$range_scale_joint
+        }
+      }
+    }
+    
     #########
     # Range #
     #########
@@ -51,7 +112,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = new_range_beta_0, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = NULL, 
-                                                                        range_X = NULL
+                                                                        range_X = NULL, 
+                                                                        compute_derivative = F
       )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
@@ -99,7 +161,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = new_range_beta_0, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = NULL, 
-                                                                        range_X = NULL
+                                                                        range_X = NULL, 
+                                                                        compute_derivative = F
       )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       
@@ -993,7 +1056,7 @@ mcmc_nngp_update_Gaussian = function(data,
     # HMC whitened
     state$momenta$noise_beta = sqrt(.9) * state$momenta$noise_beta + sqrt(.1)*rnorm(length(state$momenta$noise_beta))
     p = state$momenta$noise_beta
-
+    
     # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$noise_beta_mala) *
       solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
@@ -1051,7 +1114,6 @@ mcmc_nngp_update_Gaussian = function(data,
     {
       if (log(runif(1)) < current_U-proposed_U+current_K- proposed_K)
       {
-      print("tatato")
         state$momenta$noise_beta = p
         state$params$noise_beta[] = new_noise_beta
         state$sparse_chol_and_stuff$noise = new_noise
@@ -1182,7 +1244,7 @@ mcmc_nngp_update_Gaussian = function(data,
             acceptance_records$noise_field_mala =  0*acceptance_records$noise_field_mala
           }
         }
-
+        
       }
       ####################################################
       # Variance of the nonstationary noise latent field #
@@ -1376,24 +1438,24 @@ mcmc_nngp_update_Gaussian = function(data,
               )
       )/ 2
     # testing gradient vs finite difference
-###scale_beta_ = state$params$scale_beta 
-###scale_beta_[1] = scale_beta_[1] + .001
-###scale_ = Bidart::variance_field(beta = scale_beta_, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
-###finite_diff_grad = 
-###  (
-###    +0.5*sum(log(scale_))# determinant part
-###    +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/scale_))^2)# covmat product part
-###    -0.5*sum(log(state$sparse_chol_and_stuff$scale))# determinant part
-###    -0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
-###  )/.001
-###print(finite_diff_grad)
-###print(
-###  (t(data$covariates$scale_X$X_locs) %*%
-###    (
-###      .5  # determinant part 
-###      -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
-###      ))[1]
-###  )
+    ###scale_beta_ = state$params$scale_beta 
+    ###scale_beta_[1] = scale_beta_[1] + .001
+    ###scale_ = Bidart::variance_field(beta = scale_beta_, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
+    ###finite_diff_grad = 
+    ###  (
+    ###    +0.5*sum(log(scale_))# determinant part
+    ###    +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/scale_))^2)# covmat product part
+    ###    -0.5*sum(log(state$sparse_chol_and_stuff$scale))# determinant part
+    ###    -0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
+    ###  )/.001
+    ###print(finite_diff_grad)
+    ###print(
+    ###  (t(data$covariates$scale_X$X_locs) %*%
+    ###    (
+    ###      .5  # determinant part 
+    ###      -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
+    ###      ))[1]
+    ###  )
     for(i in seq(5))
     {
       # Make a full step for the position
@@ -1807,7 +1869,7 @@ mcmc_nngp_update_Gaussian = function(data,
           acceptance_records$scale_sufficient_log_scale =  0*acceptance_records$scale_sufficient_log_scale
         }
       }
-
+      
       
       # sufficient -- sufficient
       unscaled_thingy = sum((hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% state$params$scale_field)^2)
@@ -2029,8 +2091,6 @@ mcmc_nngp_update_Gaussian = function(data,
         params_records[[name]][,,thinning*iter] = state$params[[name]]
       }
     }
-    
-    
   }
   return(list("state" = state, "params_records" = params_records))
 }

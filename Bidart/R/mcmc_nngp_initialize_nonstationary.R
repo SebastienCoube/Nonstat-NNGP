@@ -106,7 +106,7 @@ mcmc_nngp_initialize_nonstationary =
     
     # allowed functions
     if(!reordering[1] %in% c("maxmin", "random", "coord", "dist_to_point", "middleout"))stop("reordering should be chosen among : maxmin, random, coord, dist_to_point, middleout")
-    if(!covfun %in% c("exponential_isotropic", "exponential_sphere", "exponential_spacetime", "exponential_spheretime", "exponential_anisotropic", "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"))stop("covfun should be chosen among : exponential_isotropic, exponential_sphere, exponential_spacetime, exponential_spheretime, nonstationary_exponential_isotropic, nonstationary_exponential_isotropic_sphere, nonstationary_exponential_anisotropic, nonstationary_exponential_anisotropic_sphere")
+    if(!covfun %in% c("exponential_isotropic", "exponential_sphere", "exponential_spacetime", "exponential_spheretime", "exponential_anisotropic2D", "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"))stop("covfun should be chosen among : exponential_isotropic, exponential_sphere, exponential_spacetime, exponential_spheretime, exponential_anisotropic2D, nonstationary_exponential_isotropic, nonstationary_exponential_isotropic_sphere, nonstationary_exponential_anisotropic, nonstationary_exponential_anisotropic_sphere")
     if(response_model!="Gaussian") stop("response_model should be chosen among : Gaussian")
     # format
     if(!is.matrix(observed_locs))stop("observed_locs should be a matrix")
@@ -278,8 +278,8 @@ mcmc_nngp_initialize_nonstationary =
       if(covfun == "exponential_isotropic")                             states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
       if(covfun == "exponential_sphere")                                states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
       if(covfun == "exponential_spacetime_sphere")                      states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))   , nrow = 1)
-      if(covfun == "exponential_anisotropic")                           states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
       if(covfun == "nonstationary_exponential_isotropic")               states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
+      if(covfun == "exponential_anisotropic2D")                         states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
       if(covfun == "nonstationary_exponential_anisotropic")             states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
       if(covfun == "nonstationary_exponential_isotropic_sphere")        states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
       if(covfun == "nonstationary_exponential_anisotropic_sphere")      states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
@@ -325,6 +325,7 @@ mcmc_nngp_initialize_nonstationary =
       # can be used in both stationary and nonstationary cases respectively as a random walk Metropolis or MALA step size 
       # have an ancillary and a sufficient version when applicable
       # range
+      states[[i]]$transition_kernels$range_scale_joint = -4
       states[[i]]$transition_kernels$range_field_sufficient_mala = -2
       states[[i]]$transition_kernels$range_field_ancillary_mala  = -2
       states[[i]]$transition_kernels$range_log_scale_sufficient = -4
@@ -378,7 +379,7 @@ mcmc_nngp_initialize_nonstationary =
         states[[i]]$params$noise_beta    = matrix(rep(0, ncol(covariates$noise_X$X)), ncol = 1) #random starting values
         states[[i]]$params$noise_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) +rnorm(1, 0, .5) # setting sensible value for the intercept
         row.names(states[[i]]$params$noise_beta) = colnames(covariates$noise_X$X)
-        states[[i]]$momenta$noise_beta = rnorm(colnames(covariates$noise_X$X))
+        states[[i]]$momenta$noise_beta = rnorm(ncol(covariates$noise_X$X))
         # field  when required
         if(!is.null(hierarchical_model$hyperprior_covariance$noise))
         {

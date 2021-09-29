@@ -14,6 +14,9 @@ get_array_summary = function(samples)
 predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = NULL, X_scale_pred = NULL, burn_in = .5, n_cores = 1, 
                                 predict_range = F, predict_scale = F)
 {
+  # Sanity checks
+  if(!is.null(X_range_pred))if(nrow(X_range_pred)!=nrow(predicted_locs))stop("X_range_pred must have the same number of rows as predicted_locs")
+  if(!is.null(X_scale_pred))if(nrow(X_scale_pred)!=nrow(predicted_locs))stop("X_scale_pred must have the same number of rows as predicted_locs")
   # adding intercept to prediction regressors
   X_range_pred = cbind(rep(1, nrow(predicted_locs)), X_range_pred)
   X_scale_pred = cbind(rep(1, nrow(predicted_locs)), X_scale_pred)
@@ -53,6 +56,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                              locs = locs)[NNarray_non_NA]
     )
   }
+  
   # burn in
   kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
   i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
@@ -64,58 +68,22 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                           {
                                             res = list()
                                             # creating arrays
-                                            
                                             # fields
                                             res$scale_field = NULL 
                                             res$range_field = NULL
                                             if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$scale_NNGP_prior))res$scale_field = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
                                             if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$range_NNGP_prior))res$range_field = array(0, dim = c(nrow(predicted_locs), dim(mcmc_nngp_list$states$chain_1$params$range_beta)[2], n_samples))
                                             res$field = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
-                                            # individual fixed effects
-                                            if(predict_scale)
-                                            {
-                                              for(name in row.names(mcmc_nngp_list$states$chain_1$params$scale_beta))
-                                              {
-                                                res[[paste("scale_", name, sep = "")]] = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
-                                              }
-                                              res$log_scale = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
-                                            }
-                                            if(predict_range)
-                                            {
-                                              for(name in row.names(mcmc_nngp_list$states$chain_1$params$range_beta))
-                                              {
-                                                res[[paste("range_", name, sep = "")]] = array(0, dim = c(nrow(predicted_locs), dim(mcmc_nngp_list$states$chain_1$params$range_beta)[2], n_samples))
-                                              }
-                                              res$log_range = array(0, dim = c(nrow(predicted_locs), dim(mcmc_nngp_list$states$chain_1$params$range_beta)[2], n_samples))
-                                            }
+                                            # total effects
+                                            if(predict_scale) res$log_scale = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
+                                            if(predict_range) res$log_range = array(0, dim = c(nrow(predicted_locs), dim(mcmc_nngp_list$states$chain_1$params$range_beta)[2], n_samples))
+                                            # linear_effects effects
+                                            if(predict_scale) res$log_scale_linear = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
+                                            if(predict_range) res$log_range_linear = array(0, dim = c(nrow(predicted_locs), dim(mcmc_nngp_list$states$chain_1$params$range_beta)[2], n_samples))
                                             # looping over saved observations
                                             for(i_predict in seq(n_samples))
                                             {
                                               gc()
-                                              # predicting individual fixed effect of scale and range
-                                              # scale
-                                              if(predict_scale)
-                                              {
-                                                for(name in row.names(mcmc_nngp_list$states$chain_1$params$scale_beta))
-                                                {
-                                                  idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$scale_beta))
-                                                  #print(res[[paste("scale_", name, sep = "")]][,,i_predict] )
-                                                  res[[paste("scale_", name, sep = "")]][,,i_predict] = chain$scale_beta[idx,,i_start + i_predict] * X_scale_pred[,idx]
-                                                }
-                                                # correcting centering of the regressors
-                                                res[["scale_(Intercept)"]][,,i_predict] = sum(chain$scale_beta[,,i_start + i_predict] * c(1, -mcmc_nngp_list$data$covariates$scale_X$X_mean[-1]))
-                                              }
-                                              # range
-                                              if(predict_range)
-                                              {
-                                                for(name in row.names(mcmc_nngp_list$states$chain_1$params$range_beta))
-                                                {
-                                                  idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$range_beta))
-                                                  res[[paste("range_", name, sep = "")]][,,i_predict] = tcrossprod(X_range_pred[,idx], chain$range_beta[idx,,i_start + i_predict])
-                                                }
-                                                # correcting centering of the regressors
-                                                res[["range_(Intercept)"]][,,i_predict] =   tcrossprod(rep(1, nrow(predicted_locs)), c(c(1, -mcmc_nngp_list$data$covariates$range_X$X_mean[-1]) %*% chain$range_beta[,,i_start + i_predict]))
-                                              }
                                               #  predicting scale latent field using log NNGP prior
                                               if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
                                               {
@@ -131,6 +99,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                                  if(predict_scale)res$log_scale[,,i_predict] = res$scale_field[,,i_predict] + matrix(X_scale[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_scale))  %*% chain$scale_beta[,,i_start + i_predict]
                                               }
                                               if(is.null(res$scale_field) & predict_scale)res$log_scale[,,i_predict] = matrix(X_scale[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_scale)) %*% chain$scale_beta[,,i_start + i_predict]
+                                              if(predict_scale)res$log_scale_linear[,,i_predict] = matrix(X_scale[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_scale)) %*% chain$scale_beta[,,i_start + i_predict]
                                               #  predicting range latent field using log NNGP prior
                                               range_field_complete = NULL
                                               if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$range_NNGP_prior))
@@ -151,6 +120,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                                  if(predict_range)res$log_range[,,i_predict] = res$range_field[,,i_predict] + matrix(X_range[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_range)) %*% chain$range_beta[,,i_start + i_predict]
                                               }
                                               if(is.null(res$range_field)& predict_range)res$log_range[,,i_predict] = matrix(X_range[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_range)) %*% chain$range_beta[,,i_start + i_predict]
+                                              if(predict_range) res$log_range_linear[,,i_predict] = matrix(X_range[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_range)) %*% chain$range_beta[,,i_start + i_predict]
                                               # computing scale of the observations
                                               # computing NNGP factor
                                               sparse_chol = 

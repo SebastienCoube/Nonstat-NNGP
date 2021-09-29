@@ -1,9 +1,9 @@
 #' @export
-plot_ellipses = function(locs, log_range, shrink = .1, main)
+plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
 {
   if(ncol(log_range) ==3)matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
   if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)exp(x) * diag(1/sqrt(ncol(locs)), ncol(locs)))
-  plot(locs, type = "n", xlab = "", ylab = "", main = main)
+  if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
   for(i in seq(nrow(locs)))
   {
     ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
