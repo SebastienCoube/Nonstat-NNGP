@@ -15,8 +15,10 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                 predict_range = F, predict_scale = F)
 {
   # Sanity checks
+  if(length(intersect(split(predicted_locs, row(predicted_locs)), split(mcmc_nngp_list$data$locs, row(mcmc_nngp_list$data$locs)) )) > 0) stop("the predicted locations must contain none of the original observed locations")
   if(!is.null(X_range_pred))if(nrow(X_range_pred)!=nrow(predicted_locs))stop("X_range_pred must have the same number of rows as predicted_locs")
   if(!is.null(X_scale_pred))if(nrow(X_scale_pred)!=nrow(predicted_locs))stop("X_scale_pred must have the same number of rows as predicted_locs")
+  if(any(duplicated(predicted_locs)))stop("there should not be duplicated locations")
   # adding intercept to prediction regressors
   X_range_pred = cbind(rep(1, nrow(predicted_locs)), X_range_pred)
   X_scale_pred = cbind(rep(1, nrow(predicted_locs)), X_scale_pred)
@@ -170,11 +172,19 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
 
 
 
+
 #' @export
-predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores = 1)
+predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
 {
+  if(ncol(X_pred)!=ncol(mcmc_nngp_list$data$covariates$X$arg))stop("The number of provided covariates does not match")
   # adding intercept to prediction regressors
-  X_pred = cbind(rep(1, nrow(predicted_locs)), X_pred)
+  X_pred = cbind(rep(1, nrow(X_pred)), X_pred)
+  colnames(X_pred)[1] = "(Intercept)"
+  # which individual fixed effects are kept
+  removed_fixed_effects = setdiff(c(colnames(X_pred)), individual_fixed_effects)
+  if(!is.null(individual_fixed_effects))if(individual_fixed_effects == "all_fixed_effects")removed_fixed_effects= NULL
+  # removing mean for prediction
+  if(ncol(X_pred)>1)X_pred[,-1]  = X_pred[,-1] - matrix(rep(mcmc_nngp_list$data$covariates$X$X_mean[-1], each = nrow(X_pred)), nrow(X_pred))
   # burn in
   kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
   i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
@@ -191,7 +201,7 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores =
                                             # creating arrays
                                             for(name in row.names(mcmc_nngp_list$states$chain_1$params$beta))
                                             {
-                                              res[[name]] = array(0, dim = c(nrow(predicted_locs), 1, n_samples))
+                                              res[[name]] = array(0, dim = c(nrow(X_pred), 1, n_samples))
                                             }
                                             # looping over saved observations
                                             for(i_predict in seq(n_samples))
@@ -202,10 +212,64 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores =
                                                 idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$beta))
                                                 res[[name]][,,i_predict] = X_pred[,idx] * chain$beta[idx,,i_start + i_predict]
                                               }
-                                              # correcting centering of the regressors
-                                              res[["(Intercept)"]][,,i_predict] =   tcrossprod(rep(1, nrow(predicted_locs)), c(1, -mcmc_nngp_list$data$covariates$X$X_mean[-1]) %*% chain$beta[,,i_start + i_predict])
                                             }
-                                            res$summed_fised_effects = Reduce("+", res)
+                                            res$total_linear_effects = Reduce("+", res)
+                                            res[match(removed_fixed_effects, c(colnames(X_pred)))]=NULL
+                                            return(res)
+                                          })
+  summaries = list()
+  for(name in names(predicted_samples[[1]]))
+  {
+    summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]])))
+  }
+  return(list("predicted_samples" = predicted_samples, "summaries" = summaries))
+}
+#' @export
+predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
+{
+  message("only fixed effects for now")
+  if(is.null(X_noise_pred)&(mcmc_nngp_list$data$covariates$noise_X$arg!="No covariates were provided")) stop("No covariates were provided for prediction, while covariates were provided for fit")
+  if(!is.null(X_noise_pred)&(mcmc_nngp_list$data$covariates$noise_X$arg=="No covariates were provided")) stop("Covariates were provided for prediction, while no covariates were provided for fit")
+  if(!is.null(X_noise_pred)) if(ncol(X_noise_pred)!=ncol(mcmc_nngp_list$data$covariates$noise_X$arg))stop("The number of provided covariates does not match")
+  # adding intercept to prediction regressors
+  if(!is.null(X_noise_pred))X_noise_pred = cbind(rep(1, nrow(X_noise_pred)), X_noise_pred)
+  if(is.null(X_noise_pred))X_noise_pred = matrix(1, 1, 1)
+  colnames(X_noise_pred)[1] = "(Intercept)"
+  # which individual fixed effects are kept
+  removed_fixed_effects = setdiff(colnames(X_noise_pred), individual_fixed_effects)
+  if(!is.null(individual_fixed_effects))if(individual_fixed_effects == "all_fixed_effects")removed_fixed_effects= NULL
+  # removing mean for prediction
+  if(ncol(X_noise_pred)>1)X_noise_pred[,-1]  = X_noise_pred[,-1] - matrix(rep(mcmc_nngp_list$data$covariates$noise_X$X_mean[-1], each = nrow(X_noise_pred)), nrow(X_noise_pred))
+  # burn in
+  kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
+  i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
+  # parallelization
+  n_samples = length(kept_iterations)
+  cl = parallel::makeCluster(n_cores)
+  predicted_samples = #parallel::parL
+  lapply(#cl = cl, 
+                                          X = mcmc_nngp_list$records, 
+                                          #fun  
+                                          FUN = function(chain)
+                                          {
+                                            res = list()
+                                            # creating arrays
+                                            for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                                            {
+                                              res[[name]] = array(0, dim = c(nrow(X_noise_pred), 1, n_samples))
+                                            }
+                                            # looping over saved observations
+                                            for(i_predict in seq(n_samples))
+                                            {
+                                             # range
+                                              for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                                              {
+                                                idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                                                res[[name]][,,i_predict] = X_noise_pred[,idx] * chain$noise_beta[idx,,i_start + i_predict]
+                                              }
+                                            }
+                                            res$total_linear_effects = Reduce("+", res)
+                                            res[match(removed_fixed_effects, c(colnames(X_noise_pred)))]=NULL
                                             return(res)
                                           })
   summaries = list()
@@ -286,5 +350,27 @@ DIC = function(mcmc_nngp_list, burn_in = .5)
   mean_beta  = mean_beta  / (length(kept_iterations)*length(mcmc_nngp_list$states))
   ll_ = sum(dnorm(mcmc_nngp_list$data$observed_field - mean_field[mcmc_nngp_list$vecchia_approx$locs_match]-mcmc_nngp_list$data$covariates$X$X%*%mean_beta, 0, sqrt(mean_noise), log = T))
   -2 * (2 * mean(ll) - ll_)
+}
+
+#' @export
+log_score_Gaussian = function(observed_field, latent_field_samples, log_noise_samples, fixed_effects_samples)
+{
+  if(length(dim(latent_field_samples))==2)nsamples =  ncol(latent_field_samples)
+  if(length(dim(latent_field_samples))==0)nsamples = 1
+    dnorm(
+      observed_field, 
+      latent_field_samples + fixed_effects_samples, 
+      exp(.5 * log_noise_samples), 
+      log = T
+    )
+  sum(
+    dnorm(
+      observed_field, 
+      latent_field_samples + fixed_effects_samples, 
+      exp(.5 * log_noise_samples), 
+      log = T
+    )
+  )/nsamples
+  
 }
 

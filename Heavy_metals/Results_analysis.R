@@ -2,20 +2,24 @@
 
 # full model wins ! 
 
-remove(list = ls());gc()
-run = readRDS("Heavy_metals/run_nsr")
-Bidart::DIC(run)
-run = readRDS("Heavy_metals/run_nsr_basis")
-Bidart::DIC(run)
-remove(list = ls());gc()
-run = readRDS("Heavy_metals/run_ns")
-Bidart::DIC(run)
-run = readRDS("Heavy_metals/run_stat")
-Bidart::DIC(run)
+##DICs = c()
+##run = readRDS("Heavy_metals/run_nsr")
+##DICs = c(DICs, Bidart::DIC(run))
+##run = readRDS("Heavy_metals/run_nsr_basis")
+##DICs = c(DICs, Bidart::DIC(run))
+##run = readRDS("Heavy_metals/run_nsr_basis_only")
+##DICs = c(DICs, Bidart::DIC(run))
+##run = readRDS("Heavy_metals/run_ns")
+##DICs = c(DICs, Bidart::DIC(run))
+##run = readRDS("Heavy_metals/run_ns_basis")
+##DICs = c(DICs, Bidart::DIC(run))
+##run = readRDS("Heavy_metals/run_stat")
+##DICs = c(DICs, Bidart::DIC(run))
+##remove(run);gc()
 
 
 # getting US map
-remove(list = ls());gc()
+#remove(list = ls());gc()
 library(magrittr)
 usa <- maps::map("state", fill = T, plot = F)
 IDs <- sapply(strsplit(usa$names, ":"), function(x) x[1])
@@ -50,24 +54,26 @@ non_na_indices = (!is.na(gridmaps_overlay))&(!apply(X_pred, 1, anyNA))
 predicted_coords = predicted_coords[non_na_indices,]
 X_pred = X_pred[non_na_indices,]
 # adding spatial basis
-KL_decomposition = readRDS("Heavy_metals/KL_decomposition.RDS") # loading karhunen loeve decomposition
-locs = readRDS("Heavy_metals/processed_data.RDS")$observed_locs # getting PP basis
-locs_ = unique(locs) 
-set.seed(1)
-locs_ = locs_[GpGp::order_maxmin(locs_),]
-locs_ = rbind(locs_, predicted_coords)
-NNarray = GpGp::find_ordered_nn(locs_, 5)
-PP_basis = Matrix::solve(
-  Matrix::sparseMatrix(i = row(NNarray)[!is.na(NNarray)], 
-                       j = NNarray[!is.na(NNarray)], 
-                       x = GpGp::vecchia_Linv(c(1, 3, 1, 0), "matern_isotropic", locs_, NNarray)[!is.na(NNarray)], 
-                       triangular = T
-  ), 
-  diag(1, nrow(locs_), 1000)
-)
-KL_basis = (PP_basis %*% KL_decomposition$v[,seq(20)] %*% diag(1/KL_decomposition$d[seq(20)]))[,seq(20)]
-rm(PP_basis); rm(KL_decomposition); gc()
-
+####KL_decomposition = readRDS("Heavy_metals/KL_decomposition.RDS") # loading karhunen loeve decomposition
+####locs = readRDS("Heavy_metals/processed_data.RDS")$observed_locs # getting PP basis
+####locs_ = unique(locs) 
+####set.seed(1)
+####locs_ = locs_[GpGp::order_maxmin(locs_),]
+####locs_ = rbind(locs_, predicted_coords)
+####NNarray = GpGp::find_ordered_nn(locs_, 5)
+####PP_basis = Matrix::solve(
+####  Matrix::sparseMatrix(i = row(NNarray)[!is.na(NNarray)], 
+####                       j = NNarray[!is.na(NNarray)], 
+####                       x = GpGp::vecchia_Linv(c(1, 3, 1, 0), "matern_isotropic", locs_, NNarray)[!is.na(NNarray)], 
+####                       triangular = T
+####  ), 
+####  diag(1, nrow(locs_), 1000)
+####)
+####KL_basis = (PP_basis %*% KL_decomposition$v[,seq(20)] %*% diag(1/KL_decomposition$d[seq(20)]))[,seq(20)]
+####colnames(KL_basis) = seq(20)
+####saveRDS(KL_basis, "Heavy_metals/KL_basis.RDS")
+####rm(PP_basis); rm(KL_decomposition); gc()
+KL_basis = readRDS("Heavy_metals/KL_basis.RDS")
 # normalizing
 X_mean = readRDS("Heavy_metals/processed_data.RDS")$X_locs_mean
 X_sd = readRDS("Heavy_metals/processed_data.RDS")$X_locs_sd
@@ -79,41 +85,29 @@ for(i in seq(ncol(X_pred)))
 apply(X_pred, 2, mean)
 apply(X_pred, 2, sd)
 
-#NNarray = GpGp::find_ordered_nn(predicted_coords, 5)
-#estimates_nsr = readRDS("Heavy_metals/estimates_nsr.RDS")
-#t1 = Sys.time()
-#test = cbind(1, X_pred) %*% estimates_nsr$range_beta[1,,]
-#test = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_isotropic", range_beta = estimates_nsr$range_beta[1,,], NNarray = NNarray, locs = predicted_coords, range_X = cbind(1, X_pred), compute_derivative = F)
-#Sys.time()-t1
 
-## predicting nonstat model
-run = readRDS("Heavy_metals/run_nsr_basis")
+run = readRDS("Heavy_metals/run_nsr_basis_only")
+X_pred_basis = cbind(X_pred, KL_basis[-seq(run$vecchia_approx$n_locs),])
+basis = KL_basis[-seq(run$vecchia_approx$n_locs),]
 
-par(mfrow = c(2, 1))
-Bidart::plot_pointillist_painting(run$data$locs, run$data$covariates$range_X$X_locs[,13])
-Bidart::plot_pointillist_painting(locs_, KL_basis[,1])
-Bidart::plot_pointillist_painting(run$data$locs, run$data$covariates$range_X$X_locs[,14])
-Bidart::plot_pointillist_painting(locs_, KL_basis[,2])
+#### predicting and estimating nonstat model
+##run = readRDS("Heavy_metals/run_nsr_basis")
+#prediction = Bidart::predict_latent_field(mcmc_nngp_list = run, predicted_locs = predicted_coords, X_range_pred = basis, X_scale_pred = basis, n_cores = 3)
+#saveRDS(prediction, "Heavy_metals/prediction_field_nsr_basis.RDS")
+#estimates = Bidart::estimate_parameters(run)
+#saveRDS(estimates, "Heavy_metals/estimates_nsr_basis.RDS")
+#rm(prediction) ; gc()
 
-
-
-prediction = Bidart::predict_latent_field(mcmc_nngp_list = run, predicted_locs = predicted_coords, X_range_pred = X_pred, X_scale_pred = X_pred, n_cores = 3)
-saveRDS(prediction, "Heavy_metals/prediction_field_nsr_basis.RDS")
-estimates = estimate_parameters(run)
-saveRDS(estimates, "Heavy_metals/estimates_nsr_basis.RDS")
-rm(prediction) ; gc()
-
-## predicting stat model
-run = readRDS("Heavy_metals/run_stat")
-prediction = predict_latent_field(mcmc_nngp_list = run, predicted_locs = predicted_coords, X_range_pred = NULL, X_scale_pred = NULL, n_cores = 3)
-saveRDS(prediction, "Heavy_metals/prediction_field_stat.RDS")
+### predicting stat model
+#run = readRDS("Heavy_metals/run_stat")
+#prediction = Bidart::predict_latent_field(mcmc_nngp_list = run, predicted_locs = predicted_coords, X_range_pred = NULL, X_scale_pred = NULL, n_cores = 3)
+#saveRDS(prediction, "Heavy_metals/prediction_field_stat.RDS")
 
 # loading predictions
 prediction_stat = readRDS("Heavy_metals/prediction_field_stat.RDS")
-prediction_nsr = readRDS("Heavy_metals/prediction_field_nsr.RDS")
+prediction_nsr = readRDS("Heavy_metals/prediction_field_nsr_basis.RDS")
 prediction_nsr$predicted_samples = NULL
-prediction_nsr$predicted_samples = NULL
-estimates_nsr = readRDS("Heavy_metals/estimates_nsr.RDS")
+estimates_nsr = readRDS("Heavy_metals/estimates_nsr_basis.RDS")
 gc()
 
 # adding stat estimates
@@ -132,17 +126,21 @@ for(name in names(prediction_nsr$summaries))
 }
 gridmaps[[paste("field_nsr_sd")]] = NA
 gridmaps[[paste("field_nsr_sd")]][non_na_indices] = prediction_nsr$summaries[["field"]][5,,]
-for(name in colnames(X_pred))
+for(i in seq(ncol(X_pred_basis)))
 {
-  name_ = paste("range", name, sep = "_")
-  gridmaps[[name_]] = NA
-  gridmaps[[name_]][non_na_indices] = X_pred[,name] * estimates_nsr$range_beta[1,name,]
-  name_ = paste("scale", name, sep = "_")
-  gridmaps[[name_]] = NA
-  gridmaps[[name_]][non_na_indices] = X_pred[,name] * estimates_nsr$scale_beta[1,name,]
   name_ = paste("noise", name, sep = "_")
   gridmaps[[name_]] = NA
-  gridmaps[[name_]][non_na_indices] = X_pred[,name] * estimates_nsr$noise_beta[1,name,]
+  gridmaps[[name_]][non_na_indices] = X_pred_basis[,i] * estimates_nsr$noise_beta[1,i,]
+}
+for(i in seq(ncol(basis)))
+{
+  name = colnames(X_pred_basis)[i]
+  name_ = paste("range", name, sep = "_")
+  gridmaps[[name_]] = NA
+  gridmaps[[name_]][non_na_indices] = X_pred_basis[,i] * estimates_nsr$range_beta[1,i,]
+  name_ = paste("scale", name, sep = "_")
+  gridmaps[[name_]] = NA
+  gridmaps[[name_]][non_na_indices] = X_pred_basis[,i] * estimates_nsr$scale_beta[1,i,]
 }
 
 
@@ -185,120 +183,142 @@ sp::plot(gridmaps["field_stat_sd"], what = "scale", zlim = zlim )
 dev.off()
 
 
-# PCA of parameters
-covparms_beta = 
-  cbind(
-    estimates_nsr$range_beta[1, -1,],
-    estimates_nsr$scale_beta[1, -1,],
-    estimates_nsr$noise_beta[1, -1,]
-  )
-colnames(covparms_beta) = c("range", "scale", "noise")
-row.names(covparms_beta) = c(
-  "air_pollution_dens", 
-  "mining_dens", 
-  "earthquake_dens", 
-  "toxic_release_dens", 
-  "green_biomass", 
-  "elevation", 
-  "night_lights_dens", 
-  "roads_density", 
-  "wetness", 
-  "visible_sky", 
-  "wind_effect" 
-)
-ACP = FactoMineR::PCA(covparms_beta)
-pdf("Heavy_metals/pca_variables.pdf")
-FactoMineR::plot.PCA(ACP, choix = "var")
-dev.off()
-pdf("Heavy_metals/pca_individuals.pdf", width = 5, height = 5)
-FactoMineR::plot.PCA(ACP, choix = "ind")
-dev.off()
-
-
-
-xtable::xtable(digits = 3,
-  cbind(
-    t(estimates_nsr$range_beta[c(1, 2, 4), ,]),
-    t(estimates_nsr$scale_beta[c(1, 2, 4), ,]),
-    t(estimates_nsr$noise_beta[c(1, 2, 4), ,])
-  ) 
-)
-
-
-# plotting PCA first component
-gridmaps[["field_incoherence"]] = NA
-gridmaps[["field_incoherence"]][non_na_indices] = c(X_pred%*%ACP$ind$coord[,1])
-pdf("Heavy_metals/PC1.pdf", height = 5, width = 10)
-sp::plot(gridmaps["field_incoherence"][,], main = "", )
-sp::plot(usa_aea, add = T)
-dev.off()
-
-
-
-# plotting PCA second component
-gridmaps[["range_noise"]] = NA
-gridmaps[["range_noise"]][non_na_indices] = c(X_pred%*%ACP$ind$coord[,2])
-pdf("Heavy_metals/PC2.pdf", height = 5, width = 10)
-sp::plot(gridmaps["range_noise"], main = "")
-sp::plot(usa_aea, add = T)
-dev.off()
-
-
-
-
-
-
 # range
 gridmaps[["range"]] = NA
-gridmaps[["range"]][non_na_indices] = cbind(1, X_pred) %*% estimates_nsr$range_beta[1,,]
+#gridmaps[["range"]][non_na_indices] = cbind(1, X_pred_basis) %*% estimates_nsr$range_beta[1,,]
+gridmaps[["range"]][non_na_indices] = cbind(1, basis) %*% estimates_nsr$range_beta[1,,]
 pdf("Heavy_metals/range.pdf", height = 5, width = 10)
 sp::plot(gridmaps["range"], main = "")
 sp::plot(usa_aea, add = T)
 dev.off()
+
+##gridmaps[["range_covariates"]] = NA
+##gridmaps[["range_covariates"]][non_na_indices] = X_pred %*% estimates_nsr$range_beta[1,seq(2, 12),]
+##pdf("Heavy_metals/range_covariates", height = 5, width = 10)
+##sp::plot(gridmaps["range_covariates"], main = "")
+##sp::plot(usa_aea, add = T)
+##dev.off()
+##
+##gridmaps[["range_basis"]] = NA
+##gridmaps[["range_basis"]][non_na_indices] = cbind(1, X_pred_basis[,-seq(11)]) %*% estimates_nsr$range_beta[1,-seq(2, 12),]
+##pdf("Heavy_metals/range_basis", height = 5, width = 10)
+##sp::plot(gridmaps["range_basis"], main = "")
+##sp::plot(usa_aea, add = T)
+##dev.off()
+##
+##
+##pdf("Heavy_metals/range_all.pdf", height = 4, width = 16)
+##layout(matrix(1:4, 1, 4), widths = c(5,5,5,1))
+##zlim = c(
+##  min(c(gridmaps$range, gridmaps$range_covariates, gridmaps$range_basis), na.rm = T), 
+##  max(c(gridmaps$range, gridmaps$range_covariates, gridmaps$range_basis), na.rm = T)
+##)
+##sp::plot(gridmaps["range"],  zlim = zlim, what = "image", main = "Total mean log range")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["range_covariates"], zlim = zlim, what = "image", main = "Mean log range explained by the environmental covariates")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["range_basis"], zlim = zlim, what = "image", main = "Mean log range explained by the spatial basis and the intercept")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["range_basis"], what = "scale", zlim = zlim )
+##dev.off()
+
+
+
 # scale
 gridmaps[["scale"]] = NA
-gridmaps[["scale"]][non_na_indices] = cbind(1, X_pred) %*% estimates_nsr$scale_beta[1,,]
+#gridmaps[["scale"]][non_na_indices] = cbind(1, X_pred_basis) %*% estimates_nsr$scale_beta[1,,]
+gridmaps[["scale"]][non_na_indices] = cbind(1, basis) %*% estimates_nsr$scale_beta[1,,]
 pdf("Heavy_metals/scale.pdf", height = 5, width = 10)
 sp::plot(gridmaps["scale"], main = "")
 sp::plot(usa_aea, add = T)
 dev.off()
-# noise
+
+##gridmaps[["scale_covariates"]] = NA
+##gridmaps[["scale_covariates"]][non_na_indices] = X_pred %*% estimates_nsr$scale_beta[1,seq(2, 12),]
+##pdf("Heavy_metals/scale_covariates", height = 5, width = 10)
+##sp::plot(gridmaps["scale_covariates"], main = "")
+##sp::plot(usa_aea, add = T)
+##dev.off()
+##
+##gridmaps[["scale_basis"]] = NA
+##gridmaps[["scale_basis"]][non_na_indices] = cbind(1, X_pred_basis[,-seq(11)]) %*% estimates_nsr$scale_beta[1,-seq(2, 12),]
+##pdf("Heavy_metals/scale_basis", height = 5, width = 10)
+##sp::plot(gridmaps["scale_basis"], main = "")
+##sp::plot(usa_aea, add = T)
+##dev.off()
+##
+##
+##pdf("Heavy_metals/scale_all.pdf", height = 4, width = 16)
+##layout(matrix(1:4, 1, 4), widths = c(5,5,5,1))
+##zlim = c(
+##  min(c(gridmaps$scale, gridmaps$scale_covariates, gridmaps$scale_basis), na.rm = T), 
+##  max(c(gridmaps$scale, gridmaps$scale_covariates, gridmaps$scale_basis), na.rm = T)
+##)
+##sp::plot(gridmaps["scale"],  zlim = zlim, what = "image", main = "Total mean log scale")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["scale_covariates"], zlim = zlim, what = "image", main = "Mean log scale explained by the environmental covariates")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["scale_basis"], zlim = zlim, what = "image", main = "Mean log scale explained by the spatial basis and the intercept")
+##sp::plot(usa_aea, add = T)
+##sp::plot(gridmaps["scale_basis"], what = "scale", zlim = zlim )
+##dev.off()
+
+# noise 
+
 gridmaps[["noise"]] = NA
-gridmaps[["noise"]][non_na_indices] = cbind(1, X_pred) %*% estimates_nsr$noise_beta[1,,]
+gridmaps[["noise"]][non_na_indices] = cbind(1, X_pred_basis) %*% estimates_nsr$noise_beta[1,,]
 pdf("Heavy_metals/noise.pdf", height = 5, width = 10)
 sp::plot(gridmaps["noise"], main = "")
 sp::plot(usa_aea, add = T)
 dev.off()
 
-
-
-
-sp::plot(gridmaps["log_range"], main = "", )
-sp::plot(gridmaps["log_scale"], main = "", )
-sp::plot(gridmaps["field"], main = "", )
-sp::plot(gridmaps["field"], main = "", )
-
-
-
-sp::plot(gridmaps["range_twi"], main = "", )
-sp::plot(gridmaps["range_globedem"], main = "", )
-sp::plot(gridmaps["range_gcarb"], main = "", )
-sp::plot(gridmaps["range_nlights03"], main = "", )
-sp::plot(gridmaps["range_sdroads"], main = "", )
-sp::plot(gridmaps["range_dairp"], main = "", )
-sp::plot(gridmaps["range_dmino"], main = "", )
+gridmaps[["noise_covariates"]] = NA
+gridmaps[["noise_covariates"]][non_na_indices] = X_pred %*% estimates_nsr$noise_beta[1,seq(2, 12),]
+pdf("Heavy_metals/noise_covariates", height = 5, width = 10)
+sp::plot(gridmaps["noise_covariates"], main = "")
 sp::plot(usa_aea, add = T)
-sp::plot(gridmaps["noise_sdroads"], main = "", )
+dev.off()
+
+gridmaps[["noise_basis"]] = NA
+gridmaps[["noise_basis"]][non_na_indices] = cbind(1, X_pred_basis[,-seq(11)]) %*% estimates_nsr$noise_beta[1,-seq(2, 12),]
+pdf("Heavy_metals/noise_basis", height = 5, width = 10)
+sp::plot(gridmaps["noise_basis"], main = "")
 sp::plot(usa_aea, add = T)
+dev.off()
 
 
-sp::plot(gridmaps["field"], main = "", )
+pdf("Heavy_metals/noise_all.pdf", height = 4, width = 16)
+layout(matrix(1:4, 1, 4), widths = c(5,5,5,1))
+zlim = c(
+  min(c(gridmaps$noise, gridmaps$noise_covariates, gridmaps$noise_basis), na.rm = T), 
+  max(c(gridmaps$noise, gridmaps$noise_covariates, gridmaps$noise_basis), na.rm = T)
+)
+sp::plot(gridmaps["noise"],  zlim = zlim, what = "image", main = "Total mean log noise")
 sp::plot(usa_aea, add = T)
-sp::plot(gridmaps["log_range"], main = "", )
+sp::plot(gridmaps["noise_covariates"], zlim = zlim, what = "image", main = "Mean log noise explained by the environmental covariates")
 sp::plot(usa_aea, add = T)
+sp::plot(gridmaps["noise_basis"], zlim = zlim, what = "image", main = "Mean log noise explained by the spatial basis and the intercept")
+sp::plot(usa_aea, add = T)
+sp::plot(gridmaps["noise_basis"], what = "scale", zlim = zlim )
+dev.off()
 
 
-run = readRDS("Heavy_metals/run_nsr")
+
+#sp::plot(gridmaps["range_twi"], main = "", )
+#sp::plot(gridmaps["range_globedem"], main = "", )
+#sp::plot(gridmaps["range_gcarb"], main = "", )
+#sp::plot(gridmaps["range_nlights03"], main = "", )
+#sp::plot(gridmaps["range_sdroads"], main = "", )
+#sp::plot(gridmaps["range_dairp"], main = "", )
+#sp::plot(gridmaps["range_dmino"], main = "", )
+#sp::plot(usa_aea, add = T)
+#sp::plot(gridmaps["noise_sdroads"], main = "", )
+#sp::plot(usa_aea, add = T)
+
+
+
+#run = readRDS("Heavy_metals/run_nsr_basis")
+run = readRDS("Heavy_metals/run_nsr_basis_only")
 
 samples = do.call(rbind, 
   lapply(
@@ -307,38 +327,24 @@ samples = do.call(rbind,
     {
       res = do.call(abind::abind, lapply(run$records, function(x)x[[name]][,,-seq(100)]))
       row.names(res) = paste(name, 
-                             c(
-                               "(Intercept)",
-                               "air_pollution_dens", 
-                               "mining_dens", 
-                               "earthquake_dens", 
-                               "toxic_release_dens", 
-                               "green_biomass", 
-                               "elevation", 
-                               "night_lights_dens", 
-                               "roads_density", 
-                               "wetness", 
-                               "visible_sky", 
-                               "wind_effect" 
-                             )
+                             row.names(run$states$chain_1$params[[name]])
                              , sep = "_")
       res
     }
   ))
 colnames(samples) = NULL
 
-pdf("Heavy_metals/corrplot.pdf", width = 10, height = 10)
+png("Heavy_metals/corrplot.png", width = 1500, height = 1500)
 corrplot::corrplot(cor(as.data.frame(t(samples))))
 dev.off()
 behp = mnt::test.BHEP(t(samples), MC.rep = 500)
-ACP = FactoMineR::PCA(t(samples), ncp = 11)
-qqnorm(ACP$ind$coord[,11])
+ACP = FactoMineR::PCA(t(samples), ncp = 86, graph = F)
+
+par(mfrow = c(3, 3))
+for(i in seq(86))
+{
+  qqnorm(ACP$ind$coord[,i])
+}
+
 dev.off()
 
-
-
-gridmaps[["field_diff_stat_nonstat"]] =NA 
-gridmaps[["field_diff_stat_nonstat"]] =gridmaps[["field_nsr"]] - gridmaps[["field_stat"]]
-
-sp::plot(gridmaps["field_diff_stat_nonstat"])
-sp::plot(usa_aea, add = T)
