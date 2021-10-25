@@ -163,22 +163,25 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                           }
                       )
   summaries = list()
+  predicted_samples_ = list()
   for(name in names(predicted_samples[[1]]))
   {
-    summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]])))
+    predicted_samples_[[name]] = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]]))
+    summaries[[name]] = get_array_summary(predicted_samples_[[name]])
   }
-  return(list("predicted_locs" = predicted_locs,"predicted_samples" = predicted_samples, "summaries" = summaries))
+  return(list("predicted_locs" = predicted_locs,"predicted_samples" = predicted_samples_, "summaries" = summaries))
 }
 
 
 
 
 #' @export
-predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
+predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
 {
-  if(ncol(X_pred)!=ncol(mcmc_nngp_list$data$covariates$X$arg))stop("The number of provided covariates does not match")
+  if(!is.null(X_pred)){if(ncol(X_pred)!=ncol(mcmc_nngp_list$data$covariates$X$arg))stop("The number of provided covariates does not match")}
   # adding intercept to prediction regressors
-  X_pred = cbind(rep(1, nrow(X_pred)), X_pred)
+  if(!is.null(X_pred))X_pred = cbind(rep(1, nrow(X_pred)), X_pred)
+  if(is.null(X_pred))X_pred = matrix(1, 1, 1)
   colnames(X_pred)[1] = "(Intercept)"
   # which individual fixed effects are kept
   removed_fixed_effects = setdiff(c(colnames(X_pred)), individual_fixed_effects)
@@ -218,11 +221,13 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred, burn_in = .5, n_cores =
                                             return(res)
                                           })
   summaries = list()
+  predicted_samples_ = list()
   for(name in names(predicted_samples[[1]]))
   {
-    summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]])))
+    predicted_samples_[[name]] = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]]))
+    summaries[[name]] = get_array_summary(predicted_samples_[[name]])
   }
-  return(list("predicted_samples" = predicted_samples, "summaries" = summaries))
+  return(list("predicted_samples" = predicted_samples_, "summaries" = summaries))
 }
 #' @export
 predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
@@ -234,7 +239,7 @@ predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_co
   # adding intercept to prediction regressors
   if(!is.null(X_noise_pred))X_noise_pred = cbind(rep(1, nrow(X_noise_pred)), X_noise_pred)
   if(is.null(X_noise_pred))X_noise_pred = matrix(1, 1, 1)
-  colnames(X_noise_pred)[1] = "(Intercept)"
+  colnames(X_noise_pred) = colnames(mcmc_nngp_list$data$covariates$noise_X$X)
   # which individual fixed effects are kept
   removed_fixed_effects = setdiff(colnames(X_noise_pred), individual_fixed_effects)
   if(!is.null(individual_fixed_effects))if(individual_fixed_effects == "all_fixed_effects")removed_fixed_effects= NULL
@@ -273,23 +278,70 @@ predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_co
                                             return(res)
                                           })
   summaries = list()
+  predicted_samples_ = list()
   for(name in names(predicted_samples[[1]]))
   {
-    summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]])))
+    predicted_samples_[[name]] = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]]))
+    summaries[[name]] = get_array_summary(predicted_samples_[[name]])
   }
-  return(list("predicted_samples" = predicted_samples, "summaries" = summaries))
+  return(list("predicted_samples" = predicted_samples_, "summaries" = summaries))
 }
 
 #' @export
-estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1)
+#estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1)
+#{
+#  # burn in
+#  kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
+#  i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
+#  summaries = list()
+#  for(name in names(mcmc_nngp_list$records[[1]]))
+#  {
+#    if(length(grep("beta", name))==0)summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))))
+#    # de-centering estimates of beta
+#    if(name == "beta")
+#    {
+#      M = diag(1, ncol(mcmc_nngp_list$data$covariates$X$X), ncol(mcmc_nngp_list$data$covariates$X$X))
+#      M[1, -1] = -mcmc_nngp_list$data$covariates$X$X_mean[-1]
+#      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+#      
+#    }
+#    if(name == "range_beta")
+#    {
+#      M = diag(1, ncol(mcmc_nngp_list$data$covariates$range_X$X_locs), ncol(mcmc_nngp_list$data$covariates$range_X$X_locs))
+#      M[1, -1] = -mcmc_nngp_list$data$covariates$range_X$X_mean[-1]
+#      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+#    }
+#    if(name == "scale_beta")
+#    {
+#      M = diag(1, ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs), ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs))
+#      M[1, -1] = -mcmc_nngp_list$data$covariates$scale_X$X_mean[-1]
+#      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+#    }
+#    if(name == "noise_beta")
+#    {
+#      M = diag(1, ncol(mcmc_nngp_list$data$covariates$noise_X$X), ncol(mcmc_nngp_list$data$covariates$noise_X$X))
+#      M[1, -1] = -mcmc_nngp_list$data$covariates$noise_X$X_mean[-1]
+#      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+#    }
+#    dimnames(summaries[[name]])[[2]] = dimnames(mcmc_nngp_list$states$chain_1$params[[name]])[[1]]
+#  }
+#  summaries
+#}
+estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1, get_samples = F)
 {
   # burn in
   kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
   i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
   summaries = list()
+  samples = list()
   for(name in names(mcmc_nngp_list$records[[1]]))
   {
-    if(length(grep("beta", name))==0)summaries[[name]] = get_array_summary(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))))
+    if(length(grep("beta", name))==0)
+    {
+      x = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations)))))
+      if(get_samples)samples[[name]] = x
+      summaries[[name]] = get_array_summary(x)
+    }
     # de-centering estimates of beta
     if(name == "beta")
     {
@@ -302,23 +354,30 @@ estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1)
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$range_X$X_locs), ncol(mcmc_nngp_list$data$covariates$range_X$X_locs))
       M[1, -1] = -mcmc_nngp_list$data$covariates$range_X$X_mean[-1]
-      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      if(get_samples)samples[[name]] = x
+      summaries[[name]] = get_array_summary(x)
     }
     if(name == "scale_beta")
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs), ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs))
       M[1, -1] = -mcmc_nngp_list$data$covariates$scale_X$X_mean[-1]
-      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      if(get_samples)samples[[name]] = x
+      summaries[[name]] = get_array_summary(x)
     }
     if(name == "noise_beta")
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$noise_X$X), ncol(mcmc_nngp_list$data$covariates$noise_X$X))
       M[1, -1] = -mcmc_nngp_list$data$covariates$noise_X$X_mean[-1]
-      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
+      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      if(get_samples)samples[[name]] = x
+      summaries[[name]] = get_array_summary(x)
     }
     dimnames(summaries[[name]])[[2]] = dimnames(mcmc_nngp_list$states$chain_1$params[[name]])[[1]]
   }
-  summaries
+  if(get_samples)samples$field_at_observed_locations = samples$field[mcmc_nngp_list$vecchia_approx$locs_match]
+  list("summaries" = summaries, "samples" = samples)
 }
 
 #test = estimate_parameters(mcmc_nngp_list)
@@ -357,20 +416,20 @@ log_score_Gaussian = function(observed_field, latent_field_samples, log_noise_sa
 {
   if(length(dim(latent_field_samples))==2)nsamples =  ncol(latent_field_samples)
   if(length(dim(latent_field_samples))==0)nsamples = 1
-    dnorm(
-      observed_field, 
-      latent_field_samples + fixed_effects_samples, 
-      exp(.5 * log_noise_samples), 
-      log = T
-    )
-  sum(
-    dnorm(
-      observed_field, 
-      latent_field_samples + fixed_effects_samples, 
-      exp(.5 * log_noise_samples), 
-      log = T
-    )
-  )/nsamples
+  samples = dnorm(
+    observed_field, 
+    latent_field_samples + fixed_effects_samples, 
+    exp(.5 * log_noise_samples), 
+    log = T
+  )
+  list(
+  "samples" =   samples, 
+  "per_obs" =   apply(samples, 1, mean), 
+  "total" = 
+    sum(
+      samples
+    )/nsamples
+  )
   
 }
 

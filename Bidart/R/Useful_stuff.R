@@ -157,3 +157,47 @@ derivative_field_wrt_scale = function(field, coords)
   }
   res
 }
+
+#' @export
+get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, seed = 1, m = 5)
+{
+  set.seed(seed)
+  locs_ = locs[!duplicated(locs),]
+  reordering = GpGp::order_maxmin(locs_, lonlat = lonlat)
+  locs_ = locs_[reordering,]
+  NNarray = GpGp::find_ordered_nn(locs_, m, lonlat = lonlat)
+  sparse_chol = Matrix::sparseMatrix(
+    i = row(NNarray)[!is.na(NNarray)], 
+    j = NNarray[!is.na(NNarray)], 
+    x = GpGp::vecchia_Linv(covparms = covparms, covfun_name = covfun_name, locs = locs_, NNarray = NNarray)[!is.na(NNarray)], 
+    triangular = T
+  )
+  PP_basis = Matrix::solve(sparse_chol, Matrix::sparseMatrix(x = 1, i = seq(n_PP), j = seq(n_PP), dims = c(nrow(locs_), n_PP)))
+  KL_decomposition = irlba::irlba(PP_basis, nu = n_KL, nv = n_KL)
+  basis = KL_decomposition$u[match(split(locs, row(locs)), split(locs_, row(locs_))),]
+  return(list("basis" = basis, "unique_reordered_locs" = locs_, "KL_decomposition" = KL_decomposition, "lonlat" = lonlat, "n_PP" = n_PP, "m" = m, "covparms" = covparms, "covfun_name" = covfun_name, "n_KL" = n_KL))
+}
+
+#' @export
+predict_KL_basis = function(predicted_locs, KL_basis, seed = 1)
+{
+  set.seed(seed)
+  locs_ = predicted_locs[!duplicated(predicted_locs),]
+  reordering = GpGp::order_maxmin(locs_, lonlat = KL_basis$lonlat)
+  locs_ = locs_[reordering,]
+  
+  locs_ = rbind(KL_basis$unique_reordered_locs, locs_)
+  NNarray = GpGp::find_ordered_nn(locs_, KL_basis$m, lonlat = KL_basis$lonlat)
+  
+  
+  sparse_chol = Matrix::sparseMatrix(
+    i = row(NNarray)[!is.na(NNarray)], 
+    j = NNarray[!is.na(NNarray)], 
+    x = GpGp::vecchia_Linv(covparms = KL_basis$covparms, covfun_name = KL_basis$covfun_name, locs = locs_, NNarray = NNarray)[!is.na(NNarray)], 
+    triangular = T
+  )
+  PP_basis = Matrix::solve(sparse_chol, Matrix::sparseMatrix(x = 1, i = seq(KL_basis$n_PP), j = seq(KL_basis$n_PP), dims = c(nrow(locs_), KL_basis$n_PP)))
+  basis = PP_basis %*% KL_basis$KL_decomposition$v %*% Matrix::sparseMatrix(i = seq(KL_basis$n_KL), j = seq(KL_basis$n_KL), x = 1/KL_basis$KL_decomposition$d)
+  basis = basis[match(split(predicted_locs, row(predicted_locs)), split(locs_, row(locs_))),]
+  return(basis)
+}

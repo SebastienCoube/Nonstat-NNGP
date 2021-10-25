@@ -105,7 +105,7 @@ mcmc_nngp_update_Gaussian = function(data,
     # Stationary range beta (ancillary) #
     #####################################
     # Metropolis step
-    if(is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior)&(ncol(data$covariates$range_X$X_locs)==1))
+    if(length(grep("nonstat", hierarchical_model$covfun))==0)
     {
       new_range_beta_0  = state$params$range_beta + exp(.5*state$transition_kernels$range_beta_ancillary) * rnorm(length(state$params$range_beta))
       new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
@@ -154,7 +154,7 @@ mcmc_nngp_update_Gaussian = function(data,
     # Stationary range beta (sufficient) #
     ######################################
     # Metropolis step
-    if(is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior)&(ncol(data$covariates$range_X$X_locs)==1))
+    if(length(grep("nonstat", hierarchical_model$covfun))==0)
     {
       new_range_beta_0  = state$params$range_beta + exp(.5*state$transition_kernels$range_beta_sufficient) * rnorm(length(state$params$range_beta))
       new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
@@ -201,7 +201,7 @@ mcmc_nngp_update_Gaussian = function(data,
     ########################################
     # Nonstationary range beta (ancillary) #
     ########################################
-    if((!is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior)|(ncol(data$covariates$range_X$X_locs)>1)))
+    if(length(grep("nonstat", hierarchical_model$covfun))==1)
     {
       q = t(solve(data$covariates$range_X$chol_solve_crossprod_X_locs)) %*% state$params$range_beta # whitening wrt covariates of the range
       current_U =
@@ -330,7 +330,7 @@ mcmc_nngp_update_Gaussian = function(data,
     #########################################
     # Nonstationary range beta (sufficient) #
     #########################################
-    if((!is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior)|(ncol(data$covariates$range_X$X_locs)>1)))
+    if(length(grep("nonstat", hierarchical_model$covfun))==1)
     {
       q = t(solve(data$covariates$range_X$chol_solve_crossprod_X_locs)) %*% state$params$range_beta # whitening wrt covariates of the range
       current_U =
