@@ -77,7 +77,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.48375964164734 s elapsed
+    ## Setup done, 1.23707604408264 s elapsed
 
 Run
 
@@ -108,7 +108,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.662520170211792 s elapsed
+    ## Setup done, 0.587935209274292 s elapsed
 
 Run
 
@@ -132,7 +132,7 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_nonstat))
 
-    ## [1] 19765.62
+    ## [1] 19769.07
 
     print("DIC stat")
 
@@ -140,7 +140,7 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 21707.87
+    ## [1] 21710.68
 
 Prediction
 ----------
@@ -149,14 +149,14 @@ Prediction
     pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_nonstat, predicted_locs = predicted_locs)
 
     par(mfrow = c(1, 1))
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,], cex = 1.8, main = "predicted mean")
 
 ![](Vignette_heteroscedasticity_files/figure-markdown_strict/unnamed-chunk-13-1.png)
 
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,], cex = 1.8, main = "standard deviation of the prediction")
 
 ![](Vignette_heteroscedasticity_files/figure-markdown_strict/unnamed-chunk-13-2.png)
 
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$scale_field[1,,], cex = 1.8, main = "latent scale field")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$scale_field[1,], cex = 1.8, main = "latent scale field")
 
 ![](Vignette_heteroscedasticity_files/figure-markdown_strict/unnamed-chunk-13-3.png)
