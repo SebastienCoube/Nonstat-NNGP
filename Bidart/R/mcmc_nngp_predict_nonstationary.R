@@ -7,18 +7,23 @@ get_array_summary = function(samples)
   out
 }
 
-# Actually predicts more than the latent field
-  # 1) the fixed effects and the latent fields (if specified in the model) for the range and the scale
-  # 2) the latent field for the response variable
+#' # Actually predicts more than the latent field
+# 1) the fixed effects and the latent fields (if specified in the model) for the range and the scale
+# 2) the latent field for the response variable
 #' @export
 predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = NULL, X_scale_pred = NULL, burn_in = .5, n_cores = 1, 
                                 predict_range = F, predict_scale = F)
 {
   # Sanity checks
-  if(length(intersect(split(predicted_locs, row(predicted_locs)), split(mcmc_nngp_list$data$locs, row(mcmc_nngp_list$data$locs)) )) > 0) stop("the predicted locations must contain none of the original observed locations")
+  if(length(intersect(split(predicted_locs, row(predicted_locs)), split(mcmc_nngp_list$data$locs, row(mcmc_nngp_list$data$locs)) )) > 0) stop("the predicted locations must contain none of the original observed locations, use estimate instead")
   if(!is.null(X_range_pred))if(nrow(X_range_pred)!=nrow(predicted_locs))stop("X_range_pred must have the same number of rows as predicted_locs")
   if(!is.null(X_scale_pred))if(nrow(X_scale_pred)!=nrow(predicted_locs))stop("X_scale_pred must have the same number of rows as predicted_locs")
-  if(any(duplicated(predicted_locs)))stop("there should not be duplicated locations")
+  # Dealing with duplicated data
+  #if(any(duplicated(predicted_locs)))stop("there should not be duplicated locations")
+  idx = match(split(predicted_locs, row(predicted_locs)), split(predicted_locs[!duplicated(predicted_locs),], row(predicted_locs[!duplicated(predicted_locs),])))
+  X_range_pred     = X_range_pred[!duplicated(predicted_locs),]
+  X_scale_pred     = X_scale_pred[!duplicated(predicted_locs),]
+  predicted_locs = predicted_locs[!duplicated(predicted_locs),]
   # adding intercept to prediction regressors
   X_range_pred = cbind(rep(1, nrow(predicted_locs)), X_range_pred)
   X_scale_pred = cbind(rep(1, nrow(predicted_locs)), X_scale_pred)
@@ -86,7 +91,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                             for(i_predict in seq(n_samples))
                                             {
                                               gc()
-                                              #  predicting scale latent field using log NNGP prior
+                                              #  predicting scale latent field using log NNGP prior #######
                                               if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
                                               {
                                                  res$scale_field[,,i_predict] = 
@@ -102,7 +107,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                               }
                                               if(is.null(res$scale_field) & predict_scale)res$log_scale[,,i_predict] = matrix(X_scale[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_scale)) %*% chain$scale_beta[,,i_start + i_predict]
                                               if(predict_scale)res$log_scale_linear[,,i_predict] = matrix(X_scale[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_scale)) %*% chain$scale_beta[,,i_start + i_predict]
-                                              #  predicting range latent field using log NNGP prior
+                                              #  predicting range latent field using log NNGP prior #######
                                               range_field_complete = NULL
                                               if(!is.null(mcmc_nngp_list$hierarchical_model$hyperprior_covariance$range_NNGP_prior))
                                               {
@@ -123,7 +128,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                               }
                                               if(is.null(res$range_field)& predict_range)res$log_range[,,i_predict] = matrix(X_range[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_range)) %*% chain$range_beta[,,i_start + i_predict]
                                               if(predict_range) res$log_range_linear[,,i_predict] = matrix(X_range[-seq(mcmc_nngp_list$vecchia_approx$n_locs),], ncol = ncol(X_range)) %*% chain$range_beta[,,i_start + i_predict]
-                                              # computing scale of the observations
+                                              # computing scale of the observations  ##########
                                               # computing NNGP factor
                                               sparse_chol = 
                                                 Matrix::sparseMatrix(
@@ -140,13 +145,13 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                                     )[[1]][NNarray_non_NA], 
                                                   triangular = T
                                                 )
-                                              scale_field = Bidart::variance_field(
-                                                beta = chain$scale_beta[,,i_start + i_predict], 
-                                                field = c(chain$scale_field[,,i_start + i_predict], res$scale_field[,,i_predict]), 
-                                                X = X_scale
-                                                )
-                                              
-                                              # predicting latent field
+                                             scale_field = Bidart::variance_field(
+                                               beta = chain$scale_beta[,,i_start + i_predict], 
+                                               field = c(chain$scale_field[,,i_start + i_predict], res$scale_field[,,i_predict]), 
+                                               X = X_scale
+                                               )
+                                             
+                                              # predicting latent field #######
                                               res$field[,,i_predict] = 
                                                 (
                                                  sqrt(scale_field) * 
@@ -167,7 +172,12 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
   for(name in names(predicted_samples[[1]]))
   {
     predicted_samples_[[name]] = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]]))
-    summaries[[name]] = get_array_summary(predicted_samples_[[name]])
+  }
+  summaries = parallel::parLapply(cl = cl, X = predicted_samples_, fun = Bidart::get_array_summary)
+  for(name in names(predicted_samples[[1]]))
+  {
+    predicted_samples_[[name]] = predicted_samples_[[name]][idx,,]
+    summaries[[name]] = summaries[[name]][,idx,]
   }
   return(list("predicted_locs" = predicted_locs,"predicted_samples" = predicted_samples_, "summaries" = summaries))
 }
@@ -336,6 +346,12 @@ estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1, get_sa
   samples = list()
   for(name in names(mcmc_nngp_list$records[[1]]))
   {
+    # matched latent field 
+    x = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y$field[mcmc_nngp_list$vecchia_approx$locs_match,,kept_iterations], dim = c(mcmc_nngp_list$vecchia_approx$n_obs, 1 , length(kept_iterations)))))
+    if(get_samples)samples$field_at_observed_locs = x
+    summaries$field_at_observed_locs = get_array_summary(x)
+    
+    # general parameters minus beta
     if(length(grep("beta", name))==0)
     {
       x = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations)))))
@@ -347,14 +363,15 @@ estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1, get_sa
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$X$X), ncol(mcmc_nngp_list$data$covariates$X$X))
       M[1, -1] = -mcmc_nngp_list$data$covariates$X$X_mean[-1]
-      summaries[[name]] = get_array_summary(array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M))
-      
+      x = Bidart::array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      if(get_samples)samples[[name]] = x
+      summaries[[name]] = get_array_summary(x)
     }
     if(name == "range_beta")
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$range_X$X_locs), ncol(mcmc_nngp_list$data$covariates$range_X$X_locs))
       M[1, -1] = -mcmc_nngp_list$data$covariates$range_X$X_mean[-1]
-      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      x = Bidart::array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
       if(get_samples)samples[[name]] = x
       summaries[[name]] = get_array_summary(x)
     }
@@ -362,7 +379,7 @@ estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1, get_sa
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs), ncol(mcmc_nngp_list$data$covariates$scale_X$X_locs))
       M[1, -1] = -mcmc_nngp_list$data$covariates$scale_X$X_mean[-1]
-      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      x = Bidart::array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
       if(get_samples)samples[[name]] = x
       summaries[[name]] = get_array_summary(x)
     }
@@ -370,13 +387,12 @@ estimate_parameters = function(mcmc_nngp_list, burn_in = .5, n_cores = 1, get_sa
     {
       M = diag(1, ncol(mcmc_nngp_list$data$covariates$noise_X$X), ncol(mcmc_nngp_list$data$covariates$noise_X$X))
       M[1, -1] = -mcmc_nngp_list$data$covariates$noise_X$X_mean[-1]
-      x = array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
+      x = Bidart::array_multiply_1(Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(mcmc_nngp_list$records, function(y)array(y[[name]][,,kept_iterations], dim = c(dim(y[[name]])[c(1, 2)], length(kept_iterations))))), M)
       if(get_samples)samples[[name]] = x
       summaries[[name]] = get_array_summary(x)
     }
     dimnames(summaries[[name]])[[2]] = dimnames(mcmc_nngp_list$states$chain_1$params[[name]])[[1]]
   }
-  if(get_samples)samples$field_at_observed_locations = samples$field[mcmc_nngp_list$vecchia_approx$locs_match]
   list("summaries" = summaries, "samples" = samples)
 }
 
