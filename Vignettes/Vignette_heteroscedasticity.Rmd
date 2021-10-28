@@ -125,7 +125,7 @@ for(i in seq(40))
 
 Check convergence
 ```{r}
-Bidart::diagnostic_plots(mcmc_nngp_list_nonstat)
+Bidart::diagnostic_plots(mcmc_nngp_list_stat)
 ```
 
 

@@ -65,7 +65,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 2.95530295372009 s elapsed
+    ## Setup done, 1.33916711807251 s elapsed
 
 Run
 
@@ -96,7 +96,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.414673805236816 s elapsed
+    ## Setup done, 0.610378742218018 s elapsed
 
 Run
 
@@ -126,7 +126,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.917211532592773 s elapsed
+    ## Setup done, 1.12564754486084 s elapsed
 
 Run
 
@@ -171,7 +171,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.632514953613281 s elapsed
+    ## Setup done, 0.668893337249756 s elapsed
 
 Run
 
@@ -201,11 +201,11 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 18529.15
+    ## [1] 18529.64
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 18622.48
+    ## [1] 18621.97
 
 Prediction
 ----------
@@ -214,14 +214,14 @@ Prediction
     pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)
 
     par(mfrow = c(1, 1))
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,], cex = 1.8, main = "predicted mean")
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-17-1.png)
 
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,], cex = 1.8, main = "standard deviation of the prediction")
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-17-2.png)
 
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$range_field[1,,], cex = 1.8, main = "latent range field")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$range_field[1,], cex = 1.8, main = "latent range field")
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-17-3.png)
