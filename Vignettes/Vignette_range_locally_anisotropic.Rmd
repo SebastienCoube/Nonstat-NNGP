@@ -153,7 +153,7 @@ pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predi
 ```
 ```{r}
 par(mfrow = c(1, 1))
-Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
-Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
-Bidart::plot_ellipses(pred$predicted_locs, log_range = pred$summaries$range_field[1,,], shrink = .01, main = "range ellipses (a posteriori mean of log-range parameters)")
+Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,], cex = 1.8, main = "predicted mean")
+Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,], cex = 1.8, main = "standard deviation of the prediction")
+Bidart::plot_ellipses(pred$predicted_locs, log_range = pred$summaries$range_field[1,], shrink = .01, main = "range ellipses (a posteriori mean of log-range parameters)")
 ```
