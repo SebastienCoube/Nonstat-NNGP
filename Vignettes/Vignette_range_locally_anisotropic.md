@@ -65,7 +65,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 2.80205702781677 s elapsed
+    ## Setup done, 3.68718981742859 s elapsed
 
 Run
 
@@ -123,7 +123,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.0403151512146 s elapsed
+    ## Setup done, 1.01590991020203 s elapsed
 
 Run
 
@@ -139,11 +139,11 @@ Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 47429.95
+    ## [1] 47429.92
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 47595.51
+    ## [1] 47598.2
 
 Prediction
 ----------
@@ -152,11 +152,11 @@ Prediction
     pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)
 
     par(mfrow = c(1, 1))
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,,], cex = 1.8, main = "predicted mean")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[1,], cex = 1.8, main = "predicted mean")
 
 ![](Vignette_range_locally_anisotropic_files/figure-markdown_strict/unnamed-chunk-15-1.png)
 
-    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,,], cex = 1.8, main = "standard deviation of the prediction")
+    Bidart::plot_pointillist_painting(pred$predicted_locs, pred$summaries$field[5,], cex = 1.8, main = "standard deviation of the prediction")
 
 ![](Vignette_range_locally_anisotropic_files/figure-markdown_strict/unnamed-chunk-15-2.png)
 
