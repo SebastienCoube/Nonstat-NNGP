@@ -38,7 +38,7 @@ mcmc_nngp_update_Gaussian = function(data,
   for(iter in seq(1, n_iterations_update))
   {
     gc()
-    
+    cat(paste(iter, " "))
     
     #########################################################
     # swapping range and scale for small geographical areas #
@@ -57,7 +57,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = state$params$range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs)
+                                                                        range_X = data$covariates$range_X$X_locs, 
+                                                                        nu = hierarchical_model$nu)
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       if(log(runif(1))< 
          sum(log(new_compressed_sparse_chol_and_grad[[1]][,1])) - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
@@ -113,7 +114,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         locs = data$locs, 
                                                                         range_field = NULL, 
                                                                         range_X = NULL, 
-                                                                        compute_derivative = F
+                                                                        compute_derivative = F, 
+                                                                        nu = hierarchical_model$nu
       )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
@@ -162,7 +164,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         locs = data$locs, 
                                                                         range_field = NULL, 
                                                                         range_X = NULL, 
-                                                                        compute_derivative = F
+                                                                        compute_derivative = F, 
+                                                                        nu = hierarchical_model$nu
       )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       
@@ -210,7 +213,7 @@ mcmc_nngp_update_Gaussian = function(data,
           + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
         )
       # MALA whitened
-      state$momenta$range_beta_ancillary = sqrt(.95) * state$momenta$range_beta_ancillary + sqrt(.05)*matrix(rnorm(length(q)), nrow = nrow(q))
+      state$momenta$range_beta_ancillary = sqrt(.9) * state$momenta$range_beta_ancillary + sqrt(.1)*matrix(rnorm(length(q)), nrow = nrow(q))
       p = state$momenta$range_beta_ancillary
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_ancillary) *
@@ -239,7 +242,9 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = state$params$range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs)
+                                                                        range_X = data$covariates$range_X$X_locs, 
+                                                                        nu = hierarchical_model$nu
+                                                                        )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
       # Make a half step for momentum at the end.
@@ -340,7 +345,7 @@ mcmc_nngp_update_Gaussian = function(data,
           - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
         )
       # MALA whitened
-      state$momenta$range_beta_sufficient = sqrt(.95) * state$momenta$range_beta_sufficient + sqrt(.05)*matrix(rnorm(length(q)), nrow = nrow(q))
+      state$momenta$range_beta_sufficient = sqrt(.9) * state$momenta$range_beta_sufficient + sqrt(.1)*matrix(rnorm(length(q)), nrow = nrow(q))
       p = state$momenta$range_beta_sufficient
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
@@ -364,7 +369,9 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = state$params$range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs)
+                                                                        range_X = data$covariates$range_X$X_locs, 
+                                                                        nu = hierarchical_model$nu
+                                                                        )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       # Make a half step for momentum at the end.
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
@@ -489,7 +496,9 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = new_range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs)
+                                                                        range_X = data$covariates$range_X$X_locs, 
+                                                                        nu = hierarchical_model$nu
+                                                                        )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
       # Make a half step for momentum at the end.
@@ -591,7 +600,9 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                         range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
                                                                         locs = data$locs, 
                                                                         range_field = new_range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs)
+                                                                        range_X = data$covariates$range_X$X_locs, 
+                                                                        nu = hierarchical_model$nu
+                                                                        )
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       # Make a half step for momentum at the end.
       p = p - exp(state$transition_kernels$range_field_sufficient_mala) *
@@ -660,7 +671,7 @@ mcmc_nngp_update_Gaussian = function(data,
       ###                                                                range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
       ###                                                                locs = data$locs, 
       ###                                                                range_field = new_range_field, 
-      ###                                                                range_X = data$covariates$range_X$X_locs)
+      ###                                                                range_X = data$covariates$range_X$X_locs, nu = hierarchical_model$nu)
       ###      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       ###      if(
       ###        + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
@@ -697,7 +708,7 @@ mcmc_nngp_update_Gaussian = function(data,
           - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
         )
       # HMC
-      state$momenta$range_log_scale_sufficient = sqrt(.6) * state$momenta$range_log_scale_sufficient + sqrt(.4)*rnorm(length(new_range_log_scale))
+      state$momenta$range_log_scale_sufficient = sqrt(.9) * state$momenta$range_log_scale_sufficient + sqrt(.1)*rnorm(length(new_range_log_scale))
       p = state$momenta$range_log_scale_sufficient
       # Make a half step for momentum at the beginning
       # derivative of range field wrt log scale
@@ -730,7 +741,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                           range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
                                                                           locs = data$locs, 
                                                                           range_field = new_range_field, 
-                                                                          range_X = data$covariates$range_X$X_locs)
+                                                                          range_X = data$covariates$range_X$X_locs, 
+                                                                          nu = hierarchical_model$nu)
         new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
         # Make a half step for momentum at the end
         # derivative of range field wrt log scale
@@ -826,7 +838,7 @@ mcmc_nngp_update_Gaussian = function(data,
       #                                                                        range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
       #                                                                        locs = data$locs, 
       #                                                                        range_field = new_range_field, 
-      #                                                                        range_X = data$covariates$range_X$X_locs)
+      #                                                                        range_X = data$covariates$range_X$X_locs, nu = hierarchical_model$nu)
       #      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       #      new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
       #      if(
@@ -900,7 +912,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                                                           range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
                                                                           locs = data$locs, 
                                                                           range_field = new_range_field, 
-                                                                          range_X = data$covariates$range_X$X_locs)
+                                                                          range_X = data$covariates$range_X$X_locs, 
+                                                                          nu = hierarchical_model$nu)
         new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
         new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
         # Make a half step for momentum at the end
@@ -1107,9 +1120,6 @@ mcmc_nngp_update_Gaussian = function(data,
         +.5*sum(squared_residuals/new_noise) # observations
       )
     proposed_K = sum(p^2) / 2
-    print(iter)
-    print(current_U-proposed_U)
-    print(current_U-proposed_U)
     if(!is.nan(current_U-proposed_U+current_K- proposed_K))
     {
       if (log(runif(1)) < current_U-proposed_U+current_K- proposed_K)
@@ -1426,7 +1436,7 @@ mcmc_nngp_update_Gaussian = function(data,
         +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
       )
     # HMC whitened
-    state$momenta$scale_beta_sufficient = sqrt(.95) * state$momenta$scale_beta_sufficient + sqrt(.05)*rnorm(ncol(data$covariates$scale_X$X_locs))
+    state$momenta$scale_beta_sufficient = sqrt(.9) * state$momenta$scale_beta_sufficient + sqrt(.1)*rnorm(ncol(data$covariates$scale_X$X_locs))
     p = state$momenta$scale_beta_sufficient
     # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
@@ -1456,13 +1466,14 @@ mcmc_nngp_update_Gaussian = function(data,
     ###      -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
     ###      ))[1]
     ###  )
-    for(i in seq(5))
+    n_hmc_steps = 4 + rbinom(1, 1, .5)
+    for(i in seq(n_hmc_steps))
     {
       # Make a full step for the position
       q = q + exp(state$transition_kernels$scale_beta_sufficient_mala) * p
       new_scale_beta = t(data$covariates$scale_X$chol_solve_crossprod_X_locs) %*% q
       new_scale = Bidart::variance_field(beta = new_scale_beta, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
-      if(i != 5)
+      if(i != n_hmc_steps)
       {
         p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
           solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
@@ -1551,7 +1562,8 @@ mcmc_nngp_update_Gaussian = function(data,
                              ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
                                 state$sparse_chol_and_stuff$noise)
                  )))/ 2
-    for(i in seq(5))
+    n_hmc_steps = 4 + rbinom(1, 1, .5)
+    for(i in seq(n_hmc_steps))
     {
       # Make a full step for the position
       q = q + exp(state$transition_kernels$scale_beta_ancillary_mala) * p
@@ -1559,7 +1571,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_scale = Bidart::variance_field(beta = new_scale_beta, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
       new_field  = state$params$field*sqrt(new_scale)/sqrt(state$sparse_chol_and_stuff$scale)
       # Make a full step for momentum.
-      if(i !=5)
+      if(i != n_hmc_steps)
       {
         p = p - exp(state$transition_kernels$scale_beta_ancillary_mala) *
           solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
@@ -1587,7 +1599,6 @@ mcmc_nngp_update_Gaussian = function(data,
         +.5 * sum((data$observed_field - state$sparse_chol_and_stuff$lm_fit - new_field[vecchia_approx$locs_match] )^2/state$sparse_chol_and_stuff$noise)
       )
     proposed_K = sum(p^2) / 2
-    
     if(!is.nan(current_U-proposed_U+current_K- proposed_K))
     {
       if (log(runif(1)) < current_U-proposed_U+current_K- proposed_K)
@@ -1661,7 +1672,7 @@ mcmc_nngp_update_Gaussian = function(data,
             +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
           )
         # MALA whitened
-        state$momenta$scale_field_sufficient = sqrt(.95) * state$momenta$scale_field_sufficient + sqrt(.05)*rnorm(vecchia_approx$n_locs)
+        state$momenta$scale_field_sufficient = sqrt(.9) * state$momenta$scale_field_sufficient + sqrt(.1)*rnorm(vecchia_approx$n_locs)
         p = state$momenta$scale_field_sufficient
         # Make a. half step for momentum at the beginning
         p = p - exp(state$transition_kernels$scale_field_sufficient_mala) *
@@ -1744,7 +1755,7 @@ mcmc_nngp_update_Gaussian = function(data,
             +.5 * sum((data$observed_field - state$sparse_chol_and_stuff$lm_fit - state$params$field[vecchia_approx$locs_match] )^2/state$sparse_chol_and_stuff$noise)
           )
         # MALA whitened
-        state$momenta$scale_field_ancillary = sqrt(.95) * state$momenta$scale_field_ancillary + sqrt(.05)*rnorm(vecchia_approx$n_locs)
+        state$momenta$scale_field_ancillary = sqrt(.9) * state$momenta$scale_field_ancillary + sqrt(.1)*rnorm(vecchia_approx$n_locs)
         p = state$momenta$scale_field_ancillary
         # Make a. half step for momentum at the beginning
         p = p - exp(state$transition_kernels$scale_field_ancillary_mala) *
@@ -1949,38 +1960,51 @@ mcmc_nngp_update_Gaussian = function(data,
     ###########################
     # Regression coefficients #
     ###########################
+    t1 = Sys.time()
     # sufficient parametrization of latent field
     beta_covmat = solve(as.matrix(t(data$covariates$X$X) %*% Matrix::Diagonal(x = 1/state$sparse_chol_and_stuff$noise) %*% data$covariates$X$X))
-    beta_mean = c((((data$observed_field-state$params$field[vecchia_approx$locs_match]) / state$sparse_chol_and_stuff$noise) %*% data$covariates$X$X) %*% beta_covmat)
-    state$params$beta[]   = c(beta_mean + t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
+    if(all(!is.infinite(beta_covmat) & !is.nan(beta_covmat)))
+    {
+      if(all(eigen(beta_covmat)$d >0))
+        {
+          beta_mean = c((((data$observed_field-state$params$field[vecchia_approx$locs_match]) / state$sparse_chol_and_stuff$noise) %*% data$covariates$X$X) %*% beta_covmat)
+         state$params$beta[]   = c(beta_mean + t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
+    }}
     # interweaving centered sampling in case of location-wise data to improve beta sampling
     centered_field = as.vector(state$params$field + data$covariates$X$X_locs%*%matrix(state$params$beta[data$covariates$X$which_locs], ncol = 1))
     sparse_chol_X = as.matrix(state$sparse_chol_and_stuff$sparse_chol %*% Matrix::Diagonal(x = 1/sqrt(state$sparse_chol_and_stuff$scale)) %*% data$covariates$X$X_locs)
     beta_precision = crossprod(sparse_chol_X)
     beta_covmat = solve(beta_precision, tol = min(rcond(beta_precision),.Machine$double.eps))
-    beta_mean =  c(as.vector(state$sparse_chol_and_stuff$sparse_chol %*% (centered_field/sqrt(state$sparse_chol_and_stuff$scale)))  %*% sparse_chol_X %*% beta_covmat)
-    state$params$beta[data$covariates$X$which_locs]   = as.vector(beta_mean + t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-    state$params$field = centered_field - as.vector(data$covariates$X$X_locs %*% matrix(state$params$beta[data$covariates$X$which_locs], ncol = 1))
+    if(all(!is.infinite(beta_covmat) & !is.nan(beta_covmat)))
+    {
+    if(all(eigen(beta_covmat)$d >0))
+    {
+      beta_mean =  c(as.vector(state$sparse_chol_and_stuff$sparse_chol %*% (centered_field/sqrt(state$sparse_chol_and_stuff$scale)))  %*% sparse_chol_X %*% beta_covmat)
+      state$params$beta[data$covariates$X$which_locs]   = as.vector(beta_mean + t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
+      state$params$field = centered_field - as.vector(data$covariates$X$X_locs %*% matrix(state$params$beta[data$covariates$X$which_locs], ncol = 1))
+    }}
     # updating stuff 
     state$sparse_chol_and_stuff$lm_fit       = as.vector(data$covariates$X$X%*%     matrix(state$params$beta, ncol = 1))
     state$sparse_chol_and_stuff$lm_fit_locs  = as.vector(data$covariates$X$X_locs%*%matrix(state$params$beta[data$covariates$X$which_locs], ncol = 1))
     state$sparse_chol_and_stuff$lm_residuals = as.vector(data$observed_field-              state$sparse_chol_and_stuff$lm_fit)
+    #print(Sys.time()-t1)
     ################
     # Latent field #
     ################
     #####################
     # Chromatic sampler #
     #####################
-    # spatial-location-wise sum of Linear regression residuals, weighted by noise precision
-    weighted_residuals_sum = as.vector(vecchia_approx$locs_match_matrix%*%(as.vector(data$observed_field-  data$covariates$X$X%*%matrix(state$params$beta, ncol = 1))/state$sparse_chol_and_stuff$noise)) 
-    # Diagonal of posterior precision, obtained by summing the diagonal of the prior and some extra precision brought by Gaussian observations
-    posterior_precision_diag = as.vector(
-      state$sparse_chol_and_stuff$precision_diag/state$sparse_chol_and_stuff$scale # diag from prior precision
-      + vecchia_approx$locs_match_matrix %*%(1/state$sparse_chol_and_stuff$noise) # diag from observations precision
-    )
-    
+    t1 = Sys.time()
     if(field_n_chromatic!=0)
     {
+      # spatial-location-wise sum of Linear regression residuals, weighted by noise precision
+      weighted_residuals_sum = as.vector(vecchia_approx$locs_match_matrix%*%(as.vector(data$observed_field-  data$covariates$X$X%*%matrix(state$params$beta, ncol = 1))/state$sparse_chol_and_stuff$noise)) 
+      # Diagonal of posterior precision, obtained by summing the diagonal of the prior and some extra precision brought by Gaussian observations
+      posterior_precision_diag = as.vector(
+        state$sparse_chol_and_stuff$precision_diag/state$sparse_chol_and_stuff$scale # diag from prior precision
+        + vecchia_approx$locs_match_matrix %*%(1/state$sparse_chol_and_stuff$noise) # diag from observations precision
+      )
+        
       for(i in seq(field_n_chromatic)){
         for(color_idx in unique(vecchia_approx$coloring))
         {
@@ -1999,9 +2023,11 @@ mcmc_nngp_update_Gaussian = function(data,
         }
       }
     }
+    #print(Sys.time()-t1)
     ########
     # MALA #
     ########
+    t1 = Sys.time()
     if(field_n_mala!=0)
     {
       for(i in seq(field_n_mala)){
@@ -2026,9 +2052,31 @@ mcmc_nngp_update_Gaussian = function(data,
            )
            )
           )/2
-        # Make a full step for the position
-        q = q + exp(state$transition_kernels$latent_field_mala) * p
-        new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(state$sparse_chol_and_stuff$sparse_chol, q)) 
+        #n_hmc_steps = 15 + rbinom(1, 1, .5)
+        n_hmc_steps = 25 + rpois(1, 10)
+        for(hmc_idx in seq(n_hmc_steps))
+        {
+          # Make a full step for the position
+          q = q + exp(state$transition_kernels$latent_field_mala) * p
+          new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(state$sparse_chol_and_stuff$sparse_chol, q)) 
+          if(hmc_idx != n_hmc_steps)
+          {
+            # Make a half step for momentum at the end.
+            p = p - exp(state$transition_kernels$latent_field_mala) *
+              (q  # white noise prior derivative
+               + as.vector( Matrix::solve(Matrix::t(state$sparse_chol_and_stuff$sparse_chol), # solving prior for whitening
+                                          Matrix::Diagonal(x = sqrt(state$sparse_chol_and_stuff$scale)) %*%
+                                            (
+                                              as.vector(vecchia_approx$locs_match_matrix %*% 
+                                                          ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
+                                                             state$sparse_chol_and_stuff$noise)
+                                              )
+                                            )
+               )
+               )
+              )
+          }
+        }
         # Make a half step for momentum at the end.
         p = p - exp(state$transition_kernels$latent_field_mala) *
           (q  # white noise prior derivative
@@ -2066,8 +2114,8 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$latent_field_mala)>.81)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala + rnorm(1, .4, .05)
-          if(mean(acceptance_records$latent_field_mala)<.51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .4, .05)
+          if(mean(acceptance_records$latent_field_mala)>field_n_mala * .91)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala + rnorm(1, .4, .05)
+          if(mean(acceptance_records$latent_field_mala)<field_n_mala * .51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .4, .05)
           acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
         }
       }
@@ -2075,12 +2123,12 @@ mcmc_nngp_update_Gaussian = function(data,
       {
         if(iter %/% 50 ==iter / 50)
         {
-          if(mean(acceptance_records$latent_field_mala)<.51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .2, .05)
+          if(mean(acceptance_records$latent_field_mala)<field_n_mala * .51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .2, .05)
           acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
         }
       }
     }
-    
+    #print(Sys.time()-t1)
     #######################
     # Storing the samples #
     #######################

@@ -1,15 +1,30 @@
 #include <RcppArmadillo.h>
+#include <R.h>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <omp.h>
+#include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/gamma.hpp>
+
+//[[Rcpp::plugins(openmp)]]
+//[[Rcpp::depends(BH)]]
 //[[Rcpp::depends(RcppArmadillo)]]
+
+
+using namespace Rcpp;
+using namespace arma;
+
+
 //[[Rcpp::export]]
-
-
 Rcpp::List nonstat_vecchia_Linv(
     arma::mat log_range,
     std::string covfun_name,
     bool sphere,
     arma::mat locs,
     arma::mat NNarray, 
-    bool compute_derivative){
+    bool compute_derivative, 
+    double nu){
   
   // data dimensions
   int n = locs.n_rows;
@@ -30,16 +45,16 @@ Rcpp::List nonstat_vecchia_Linv(
     }
   }
   
-  
+  int nThreads = 12;
   //case of isotropic range parameters
   if(covfun_name == "nonstationary_exponential_isotropic")
   {
     arma::vec range = exp(log_range) ; 
     arma::cube grad1(n,m, m);
     grad1.fill(0);
-    // loop over every observation    
+    // loop over every observation   
+    # pragma omp parallel for
     for(int i=1; i<n; i++){
-      Rcpp::checkUserInterrupt();
       int bsize = std::min(i+1,m);
       // first, fill in ysub, locsub, and X0 NOT in reverse order
       arma::mat locsub(bsize, dim);
@@ -120,31 +135,205 @@ Rcpp::List nonstat_vecchia_Linv(
           for(int j2=1; j2<bsize; j2++){
             //the derivative of sigma11 is a symmetric cross matrix with non-null coefficients only on one row and column. Instead of computing the cross matrix, just one row is computed. The rows are stacked in a matrix. 
             dsigma11 (j1-1, j2-1) = (
-              pow(1.0000001 * range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
-                pow(1.0000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
-                exp(- pow(sqeucdist(j1, j2)/ (1.0000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5))
-            - sigma11 (j1-1, j2-1)) * 10000000 
+              pow(1.000001 * range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+                pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+                exp(- pow(sqeucdist(j1, j2)/ (1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5))
+            - sigma11 (j1-1, j2-1)) * 1000000 
             ;
           }
           dsigma11(j1-1, j1-1)=0;
           //The derivative  of sigma 12 wrt to one parent range has only one non null coefficient. They are stacked in a vector. 
           dsigma12_parents (j1-1) = (
-            pow(1.0000001 * range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
-              pow(1.0000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
-              exp(-pow(sqeucdist(j1, 0)/ (1.0000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5)) 
-            - sigma12(j1-1))  * 10000000 ;
+            pow(1.000001 * range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+              pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+              exp(-pow(sqeucdist(j1, 0)/ (1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5)) 
+            - sigma12(j1-1))  * 1000000 ;
           //The derivative  of sigma 12 wrt to child range is a dense vector 
           dsigma12_child (j1-1) = (
-            pow(range(NNarray(i,j1) - 1)    * 1.0000001 * range(NNarray(i,0) - 1)    , dim*  .25) * 
-              pow(range(NNarray(i,j1) - 1)*.5 + 1.0000001 * range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
-              exp(-pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + 1.0000001 * range(NNarray(i,0) - 1)*.5), .5)) 
-            - sigma12(j1-1))  * 10000000 ;
+            pow(range(NNarray(i,j1) - 1)    * 1.000001 * range(NNarray(i,0) - 1)    , dim*  .25) * 
+              pow(range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+              exp(-pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5), .5)) 
+            - sigma12(j1-1))  * 1000000 ;
         }
         // computing gradient of Vecchia approx 
         
         // case child range is differentiated 
         //diagonal coefficient
+        grad1(i, 0, 0) = 
+          //. a = 0, see article's annex
+          arma::sum(salt % dsigma12_child) * pow(inverse_cond_sd, 3); // b
+        //c = 0
+        //rest of the coefficients
+        arma::vec the_rest = 
+          - agmis11 *  dsigma12_child * Linv(i, 0) // d
+          //e = 0
+          - salt * grad1(i, 0, 0); //f
+          for(int j2 = 1; j2<bsize; j2++)
+          {
+            grad1(i, 0, j2) = the_rest(j2-1);
+          }
+          
+          // case parents' ranges are differentiated 
+          for(int j1 = 1; j1<bsize;  j1++)
+          {
+            arma::vec salt_dsigma11(bsize-1);
+            salt_dsigma11.fill(0);
+            // computing stuff         
+            //                     |     .    | 
+            //                     |     .    | 
+            //                     | .........|     
+            //        (---------)  |     .    |
+            
+            for(int j2 = 0; j2<bsize-1; j2++)
+            {
+              salt_dsigma11(j2)  += salt(j1-1)*dsigma11(j1-1, j2); //  horizontal bar of the cross
+              salt_dsigma11(j1-1)+= salt(j2  )*dsigma11(j1-1, j2); //  vertical bar of the cross
+            }
+            arma::vec salt_dsigma11_agmis11 = agmis11 * salt_dsigma11 ; 
+            //diagonal coefficient
+            grad1(i, j1, 0) = 
+              // a = 0
+              dsigma12_parents(j1-1) * salt(j1-1)  * pow(inverse_cond_sd, 3) // b 
+              -arma::sum(salt_dsigma11 % salt)     * pow(inverse_cond_sd, 3)/2 ; // c
+            
+            //rest of the coefficients
+            for(int j2 = 1; j2<bsize; j2++)
+            {
+              grad1(i, j1, j2) = - agmis11(j2-1, j1-1) *  dsigma12_parents(j1-1) * Linv(i, 0) // d
+              + salt_dsigma11_agmis11(j2-1)                   * Linv(i, 0) // e
+              - salt(j2-1)                                    * grad1(i, j1, 0) ; //f
+            }
+          }
+      }
+    }
+    grad(0) = grad1 ;
+  }
+  //case of isotropic range parameters
+  if((covfun_name == "nonstationary_matern_isotropic")&(nu == 1.5))
+  {
+    arma::vec range = exp(log_range) ; 
+    arma::cube grad1(n,m, m);
+    grad1.fill(0);
+    // loop over every observation   
+    # pragma omp parallel for
+    for(int i=1; i<n; i++){
+      int bsize = std::min(i+1,m);
+      // first, fill in ysub, locsub, and X0 NOT in reverse order
+      arma::mat locsub(bsize, dim);
+      if(!sphere)
+      {
+        for(int j=0; j<bsize; j++){
+          for(int k=0;k<dim;k++){ locsub(j,k) = locs( NNarray(i,j) - 1, k); }
+        }
+      }
+      if(sphere)
+      {
+        // getting basis of tangent plane
+        arma::mat tangent_plane_basis (3, 2);
+        // parallel
+        tangent_plane_basis (0, 0) =  sin(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (1, 0) = -cos(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (2, 0) = 0;
+        // meridian
+        tangent_plane_basis (0, 1) =  - sin(M_PI /180 *locs(i, 1)) * cos(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (1, 1) =  - sin(M_PI /180 *locs(i, 1)) * sin(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (2, 1) =    cos(M_PI /180 *locs(i, 1)) ;
         
+        arma::mat locsub_3D (bsize, 3);
+        for(int j=0; j<bsize; j++){
+          for(int k=0;k<3;k++){ locsub_3D(j,k) = locs_3D( NNarray(i,j) - 1, k); }
+        }
+        locsub = locsub_3D * tangent_plane_basis ; 
+        
+      }
+      // compute euclidean distance
+      arma::mat sqeucdist(bsize, bsize);
+      for(int j1=0; j1<bsize; j1++){
+        for(int j2=0; j2<=j1; j2++){
+          sqeucdist(j1, j2) = 0  ; 
+          for(int k=0;k<dim;k++){ 
+            sqeucdist(j1, j2) +=  pow((locsub(j1, k)-locsub(j2, k)), 2) ; 
+          }
+          sqeucdist(j2, j1) = sqeucdist(j1, j2) ; 
+        }
+        sqeucdist(j1, j1) = 0  ; 
+      }
+      
+      // compute squexp covariance 
+      arma::mat  sigma11(bsize-1, bsize-1);
+      arma::vec  sigma12(bsize-1);
+      for(int j1=1; j1<bsize; j1++){
+        for(int j2=1; j2<=j1; j2++){
+          double paciorek_dist = pow(sqeucdist(j1, j2)/(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5) , .5);
+          sigma11 (j1-1, j2-1) = 
+            pow(range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+            pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+            exp(- paciorek_dist) * (paciorek_dist + 1.0);
+          sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
+          if(j1 == j2){sigma11 (j1-1, j2-1) = 1.0005;}
+        }
+        double paciorek_dist = pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5);
+        sigma12 (j1-1) =                         
+          pow(range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+          pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+          exp(- paciorek_dist) * (paciorek_dist + 1.0);
+      }
+      // solving sigma11
+      arma::mat agmis11  = arma::inv(sigma11) ;
+      // computing a vector used everyvhere
+      arma::mat salt  = agmis11 * sigma12 ;
+      
+      // computing Vecchia approx itself
+      double inverse_cond_sd = pow(1- sum(salt % sigma12), -.5);
+      Linv(i, 0) = inverse_cond_sd ;
+      for(int j=1; j<bsize; j++){
+        Linv(i, j) = - salt(j-1) * inverse_cond_sd;
+      }
+      
+      if(compute_derivative)
+      {
+        // compute squexp covariance derivatives using finite differences
+        arma::mat dsigma11(bsize-1, bsize-1);
+        arma::vec dsigma12_parents(bsize-1);
+        arma::vec dsigma12_child(bsize-1);
+        for(int j1=1; j1<bsize; j1++){
+          for(int j2=1; j2<bsize; j2++){
+            //the derivative of sigma11 is a symmetric cross matrix with non-null coefficients only on one row and column. Instead of computing the cross matrix, just one row is computed. The rows are stacked in a matrix. 
+            if(j1 == j2)
+            {
+              dsigma11 (j1-1, j2-1) = 0;
+            }
+            if(j1 != j2)
+            {
+              double paciorek_dist = pow(sqeucdist(j1, j2)/ (1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5);
+              dsigma11 (j1-1, j2-1) = (
+                pow(1.000001 * range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+                  pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+                  exp(- paciorek_dist) * (paciorek_dist + 1.0)
+              - sigma11 (j1-1, j2-1)) * 1000000 
+              ;
+            }
+          }
+          dsigma11(j1-1, j1-1)=0;
+          //The derivative  of sigma 12 wrt to one parent range has only one non null coefficient. They are stacked in a vector. 
+          double paciorek_dist = pow(sqeucdist(j1, 0)/ (1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5); 
+          dsigma12_parents (j1-1) = (
+            pow(1.000001 * range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+              pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+              exp(- paciorek_dist) * (paciorek_dist + 1.0) 
+            - sigma12(j1-1))  * 1000000 ;
+          //The derivative  of sigma 12 wrt to child range is a dense vector 
+          paciorek_dist = pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5), .5);
+          dsigma12_child (j1-1) = (
+            pow(range(NNarray(i,j1) - 1)    * 1.000001 * range(NNarray(i,0) - 1)    , dim*  .25) * 
+              pow(range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+              exp(- paciorek_dist) * (paciorek_dist + 1.0) 
+            - sigma12(j1-1))  * 1000000 ;
+        }
+        // computing gradient of Vecchia approx 
+        
+        // case child range is differentiated 
+        //diagonal coefficient
         grad1(i, 0, 0) = 
           //. a = 0, see article's annex
           arma::sum(salt % dsigma12_child) * pow(inverse_cond_sd, 3); // b
@@ -196,6 +385,245 @@ Rcpp::List nonstat_vecchia_Linv(
   }
   
   
+  //case of isotropic range parameters
+  if((covfun_name == "nonstationary_matern_isotropic")&((nu == 1)|(nu == 2)))
+  {
+    
+    double *bk = (double *) R_alloc(nThreads*(1.0+static_cast<int>(floor(nu))), sizeof(double));
+    int nb = 1+static_cast<int>(floor(nu));
+    
+    arma::vec range = exp(log_range); 
+    arma::cube grad1(n,m, m);
+    grad1.fill(0);
+    double sqrt_2_nu = pow(2 * nu, 1/2);
+    double smoothness_stuff = boost::math::tgamma(nu)/pow(2.0,nu-1.0);
+    double paciorek_dist;
+    
+    int threadID = 0;
+    #pragma omp parallel for num_threads(nThreads) private(threadID)
+    // loop over every observation    
+    for(int i=1; i<n; i++){
+      threadID = omp_get_thread_num();
+      
+      int bsize = std::min(i+1,m);
+      // first, fill in ysub, locsub, and X0 NOT in reverse order
+      arma::mat locsub(bsize, dim);
+      if(!sphere)
+      {
+        for(int j=0; j<bsize; j++){
+          for(int k=0;k<dim;k++){ locsub(j,k) = locs( NNarray(i,j) - 1, k); }
+        }
+      }
+      if(sphere)
+      {
+        // getting basis of tangent plane
+        arma::mat tangent_plane_basis (3, 2);
+        // parallel
+        tangent_plane_basis (0, 0) =  sin(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (1, 0) = -cos(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (2, 0) = 0;
+        // meridian
+        tangent_plane_basis (0, 1) =  - sin(M_PI /180 *locs(i, 1)) * cos(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (1, 1) =  - sin(M_PI /180 *locs(i, 1)) * sin(M_PI /180 *locs(i, 0));
+        tangent_plane_basis (2, 1) =    cos(M_PI /180 *locs(i, 1)) ;
+        
+        arma::mat locsub_3D (bsize, 3);
+        for(int j=0; j<bsize; j++){
+          for(int k=0;k<3;k++){ locsub_3D(j,k) = locs_3D( NNarray(i,j) - 1, k); }
+        }
+        locsub = locsub_3D * tangent_plane_basis ; 
+      }
+      // compute euclidean distance
+      arma::mat sqeucdist(bsize, bsize);
+      for(int j1=0; j1<bsize; j1++){
+        for(int j2=0; j2<=j1; j2++){
+          sqeucdist(j1, j2) = 0  ; 
+          for(int k=0;k<dim;k++){ 
+            sqeucdist(j1, j2) +=  pow((locsub(j1, k)-locsub(j2, k)), 2) ; 
+          }
+          sqeucdist(j2, j1) = sqeucdist(j1, j2) ; 
+        }
+        sqeucdist(j1, j1) = 0  ; 
+      }
+      
+      if(!compute_derivative)
+      {
+        // compute matern covariance 
+        arma::mat  sigma11(bsize-1, bsize-1);
+        arma::vec  sigma12(bsize-1);
+        for(int j1=1; j1<bsize; j1++){
+          for(int j2=1; j2<=j1; j2++){
+            if(j1 == j2)
+            {
+              sigma11 (j1-1, j2-1)=1.0005;
+            }
+            if(j1 > j2)
+            {
+              paciorek_dist = pow(sqeucdist(j1, j2)/(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5);
+              sigma11 (j1-1, j2-1) = 
+                pow(range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+                pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+                smoothness_stuff * 
+                //pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist);
+                pow(paciorek_dist, nu) * R::bessel_k_ex(paciorek_dist, nu, 1.0, &bk[threadID*nb]);
+              sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
+            }
+          }
+          paciorek_dist = pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5);
+          sigma12 (j1-1) =                         
+            pow(range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+            pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+            smoothness_stuff  * 
+            //pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist);
+            pow(paciorek_dist, nu) * R::bessel_k_ex(paciorek_dist, nu, 1.0, &bk[threadID*nb]);
+        }
+        // solving sigma11
+        arma::mat agmis11  = arma::inv(sigma11) ;
+        // computing a vector used everyvhere
+        arma::mat salt  = agmis11 * sigma12 ;
+        
+        // computing Vecchia approx itself
+        double inverse_cond_sd = pow(1- sum(salt % sigma12), -.5);
+        Linv(i, 0) = inverse_cond_sd ;
+        for(int j=1; j<bsize; j++){
+          Linv(i, j) = - salt(j-1) * inverse_cond_sd;
+        }
+      }
+      
+      if(compute_derivative)
+      {
+        // compute matern covariance 
+        arma::mat  sigma11(bsize-1, bsize-1);
+        arma::vec  sigma12(bsize-1);
+        arma::mat dsigma11(bsize-1, bsize-1);
+        arma::vec dsigma12_parents(bsize-1);
+        arma::vec dsigma12_child(bsize-1);
+        for(int j1=1; j1<bsize; j1++){
+          for(int j2=1; j2<=j1; j2++){
+            if(j1 == j2)
+            {
+              sigma11 (j1-1, j2-1)=1.0005;
+            }
+            if(j1 > j2)
+            {
+              paciorek_dist = pow(sqeucdist(j1, j2)/(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5);
+              sigma11 (j1-1, j2-1) = 
+                pow(range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+                pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+                smoothness_stuff * 
+                pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist);
+              sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
+            }
+          }
+          paciorek_dist = pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5);
+          sigma12 (j1-1) =                         
+            pow(range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+            pow(range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+            smoothness_stuff  * pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist);
+          // compute matern covariance derivatives using finite differences
+          for(int j1=1; j1<bsize; j1++){
+            for(int j2=1; j2<bsize; j2++){
+              if(j1 == j2)
+              {
+                dsigma11 (j1-1, j2-1) = 0;
+              }
+              if(j1 != j2)
+              {
+                //the derivative of sigma11 is a symmetric cross matrix with non-null coefficients only on one row and column. Instead of computing the cross matrix, just one row is computed. The rows are stacked in a matrix. 
+                paciorek_dist = pow(sqeucdist(j1, j2)/(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5), .5);
+                dsigma11 (j1-1, j2-1) = (
+                  pow(1.000001 * range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
+                    pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
+                    smoothness_stuff * pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist)
+                  - sigma11 (j1-1, j2-1)) * 1000000 
+                ;
+              }
+            }
+            dsigma11(j1-1, j1-1)=0;
+            //The derivative  of sigma 12 wrt to one parent range has only one non null coefficient. They are stacked in a vector. 
+            paciorek_dist = pow(sqeucdist(j1, 0)/ (1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5), .5);
+            dsigma12_parents (j1-1) = (
+              pow(1.000001 * range(NNarray(i,j1) - 1)    * range(NNarray(i,0) - 1)    , dim*  .25) * 
+                pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+                smoothness_stuff * pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist)
+              - sigma12(j1-1))  * 1000000 ;
+            //The derivative  of sigma 12 wrt to child range is a dense vector 
+            paciorek_dist = pow(sqeucdist(j1, 0)/ (range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5), .5);
+            dsigma12_child (j1-1) = (
+              pow(range(NNarray(i,j1) - 1)    * 1.000001 * range(NNarray(i,0) - 1)    , dim*  .25) * 
+                pow(range(NNarray(i,j1) - 1)*.5 + 1.000001 * range(NNarray(i,0) - 1)*.5 , dim*(-.5)) * 
+                smoothness_stuff * pow(paciorek_dist, nu) * boost::math::cyl_bessel_k(nu, paciorek_dist)
+              - sigma12(j1-1))  * 1000000 ;
+          }
+        }
+        // solving sigma11
+        arma::mat agmis11  = arma::inv(sigma11) ;
+        // computing a vector used everyvhere
+        arma::mat salt  = agmis11 * sigma12 ;
+        
+        // computing Vecchia approx itself
+        double inverse_cond_sd = pow(1- sum(salt % sigma12), -.5);
+        Linv(i, 0) = inverse_cond_sd ;
+        for(int j=1; j<bsize; j++){
+          Linv(i, j) = - salt(j-1) * inverse_cond_sd;
+        }
+
+        // computing gradient of Vecchia approx 
+        
+        // case child range is differentiated 
+        //diagonal coefficient
+        grad1(i, 0, 0) = 
+          //. a = 0, see article's annex
+          arma::sum(salt % dsigma12_child) * pow(inverse_cond_sd, 3); // b
+        //c = 0
+        //rest of the coefficients
+        arma::vec the_rest = 
+           - agmis11 *  dsigma12_child * Linv(i, 0) // d
+          //e = 0
+          - salt * grad1(i, 0, 0)
+          ; //f
+        for(int j2 = 1; j2<bsize; j2++)
+        {
+          grad1(i, 0, j2) = the_rest(j2-1);
+        }
+        
+        // case parents' ranges are differentiated 
+        for(int j1 = 1; j1<bsize;  j1++)
+        {
+          arma::vec salt_dsigma11(bsize-1);
+          salt_dsigma11.fill(0);
+          // computing stuff         
+          //                     |     .    | 
+          //                     |     .    | 
+          //                     | .........|     
+          //        (---------)  |     .    |
+          
+          for(int j2 = 0; j2<bsize-1; j2++)
+          {
+            salt_dsigma11(j2)  += salt(j1-1)*dsigma11(j1-1, j2); //  horizontal bar of the cross
+            salt_dsigma11(j1-1)+= salt(j2  )*dsigma11(j1-1, j2); //  vertical bar of the cross
+          }
+          arma::vec salt_dsigma11_agmis11 = agmis11 * salt_dsigma11 ; 
+          //diagonal coefficient
+          grad1(i, j1, 0) = 
+            // a = 0
+            dsigma12_parents(j1-1) * salt(j1-1)  * pow(inverse_cond_sd, 3) // b 
+            -arma::sum(salt_dsigma11 % salt)     * pow(inverse_cond_sd, 3)/2 ; // c
+          
+          //rest of the coefficients
+          for(int j2 = 1; j2<bsize; j2++)
+          {
+            grad1(i, j1, j2) = - agmis11(j2-1, j1-1) *  dsigma12_parents(j1-1) * Linv(i, 0) // d
+            + salt_dsigma11_agmis11(j2-1)                   * Linv(i, 0) // e
+            - salt(j2-1)                                    * grad1(i, j1, 0) ; //f
+          }
+        }
+      }
+    }
+    grad(0) = grad1 ;
+  }
+  
+  
   
   //case of isotropic range parameters
   if(covfun_name == "nonstationary_exponential_anisotropic")
@@ -223,15 +651,15 @@ Rcpp::List nonstat_vecchia_Linv(
           logmat(0, 1) = log_range(i, 2)/pow(2, .5);
           range_matrices.slice(i) = expmat_sym(logmat) ; 
           
-          logmat(0, 0) = logmat(0, 0) + 0.0000001 ; 
+          logmat(0, 0) = logmat(0, 0) + 0.000001 ; 
           d1range_matrices.slice(i) = expmat_sym(logmat) ; 
           
-          logmat(0, 0) = logmat(0, 0) - 0.0000001 ; 
-          logmat(1, 1) = logmat(1, 1) + 0.0000001 ; 
+          logmat(0, 0) = logmat(0, 0) - 0.000001 ; 
+          logmat(1, 1) = logmat(1, 1) + 0.000001 ; 
           d2range_matrices.slice(i) = expmat_sym(logmat) ; 
           
-          logmat(1, 1) = logmat(1, 1) - 0.0000001 ; 
-          logmat(0, 1) = logmat(0, 1) + 0.0000001 * pow(2, -.5) ; 
+          logmat(1, 1) = logmat(1, 1) - 0.000001 ; 
+          logmat(0, 1) = logmat(0, 1) + 0.000001 * pow(2, -.5) ; 
           logmat(1, 0) = logmat(0, 1); 
           d3range_matrices.slice(i) = expmat_sym(logmat) ; 
           
@@ -398,15 +826,15 @@ Rcpp::List nonstat_vecchia_Linv(
             
           }
           // removing initial state and dividing by finite difference step
-          d1sigma11 = (d1sigma11 - sigma11)/0.0000001;
-          d2sigma11 = (d2sigma11 - sigma11)/0.0000001;
-          d3sigma11 = (d3sigma11 - sigma11)/0.0000001;
-          d1sigma12_parents = (d1sigma12_parents - sigma12)/0.0000001;
-          d2sigma12_parents = (d2sigma12_parents - sigma12)/0.0000001;
-          d3sigma12_parents = (d3sigma12_parents - sigma12)/0.0000001;
-          d1sigma12_child   = (d1sigma12_child   - sigma12)/0.0000001;
-          d2sigma12_child   = (d2sigma12_child   - sigma12)/0.0000001;
-          d3sigma12_child   = (d3sigma12_child   - sigma12)/0.0000001;
+          d1sigma11 = (d1sigma11 - sigma11)/0.000001;
+          d2sigma11 = (d2sigma11 - sigma11)/0.000001;
+          d3sigma11 = (d3sigma11 - sigma11)/0.000001;
+          d1sigma12_parents = (d1sigma12_parents - sigma12)/0.000001;
+          d2sigma12_parents = (d2sigma12_parents - sigma12)/0.000001;
+          d3sigma12_parents = (d3sigma12_parents - sigma12)/0.000001;
+          d1sigma12_child   = (d1sigma12_child   - sigma12)/0.000001;
+          d2sigma12_child   = (d2sigma12_child   - sigma12)/0.000001;
+          d3sigma12_child   = (d3sigma12_child   - sigma12)/0.000001;
           
           // solving sigma11
           arma::mat agmis11  = arma::inv(sigma11) ;
@@ -539,7 +967,7 @@ Rcpp::List nonstat_vecchia_Linv(
           logmat(0, 1) = log_range(i, 2)/pow(2, .5);
           range_matrices.slice(i) = expmat_sym(logmat) ; 
         }
-
+        
         // loop over every observation    
         for(int i=1; i<n; i++){
           Rcpp::checkUserInterrupt();

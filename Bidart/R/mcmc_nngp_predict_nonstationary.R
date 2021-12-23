@@ -1,8 +1,9 @@
 #' @export
 get_array_summary = function(samples)
 {
+  if(any(is.na(samples)))message("there are NAs in the samples")
   if(is.null(samples))return(NULL)
-  out = apply(samples, c(1, 2), function(x)c(mean(x), quantile(x, c(0.025, 0.5, 0.975)), sd(x)))
+  out = apply(samples, c(1, 2), function(x)c(mean(x, na.rm = T), quantile(x, c(0.025, 0.5, 0.975), na.rm = T), sd(x, na.rm = T)))
   dimnames(out)[[1]] = c("mean", "q0.025", "median", "q0.975", "sd")
   out
 }
@@ -141,7 +142,8 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                                     NNarray = NNarray, locs = locs, 
                                                     range_field = range_field_complete, 
                                                     range_X = X_range, 
-                                                    compute_derivative = F
+                                                    compute_derivative = F, 
+                                                    nu = mcmc_nngp_list$hierarchical_model$nu
                                                     )[[1]][NNarray_non_NA], 
                                                   triangular = T
                                                 )
@@ -186,7 +188,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
 
 
 #' @export
-predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
+predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5, individual_fixed_effects = NULL)
 {
   if(!is.null(X_pred)){if(ncol(X_pred)!=ncol(mcmc_nngp_list$data$covariates$X$arg))stop("The number of provided covariates does not match")}
   # adding intercept to prediction regressors
@@ -201,17 +203,12 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5, n_
   # burn in
   kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
   i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
-  # parallelization
   n_samples = length(kept_iterations)
-  cl = parallel::makeCluster(n_cores)
-  predicted_samples = #parallel::parL
-  lapply(#cl = cl, 
+  predicted_samples = lapply(
                                           X = mcmc_nngp_list$records, 
-                                          #fun  
                                           FUN = function(chain)
                                           {
                                             res = list()
-                                            # creating arrays
                                             for(name in row.names(mcmc_nngp_list$states$chain_1$params$beta))
                                             {
                                               res[[name]] = array(0, dim = c(nrow(X_pred), 1, n_samples))
@@ -240,9 +237,10 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5, n_
   return(list("predicted_samples" = predicted_samples_, "summaries" = summaries))
 }
 #' @export
-predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_cores = 1, individual_fixed_effects = NULL)
+predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, individual_fixed_effects = NULL)
 {
   message("only fixed effects for now")
+  if(!is.null(X_noise_pred)){if(X_noise_pred =="No covariates were provided")X_noise_pred = NULL}
   if(is.null(X_noise_pred)&(mcmc_nngp_list$data$covariates$noise_X$arg!="No covariates were provided")) stop("No covariates were provided for prediction, while covariates were provided for fit")
   if(!is.null(X_noise_pred)&(mcmc_nngp_list$data$covariates$noise_X$arg=="No covariates were provided")) stop("Covariates were provided for prediction, while no covariates were provided for fit")
   if(!is.null(X_noise_pred)) if(ncol(X_noise_pred)!=ncol(mcmc_nngp_list$data$covariates$noise_X$arg))stop("The number of provided covariates does not match")
@@ -260,33 +258,30 @@ predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, n_co
   i_start = max(which(mcmc_nngp_list$iterations$thinning < mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in))
   # parallelization
   n_samples = length(kept_iterations)
-  cl = parallel::makeCluster(n_cores)
-  predicted_samples = #parallel::parL
-  lapply(#cl = cl, 
-                                          X = mcmc_nngp_list$records, 
-                                          #fun  
-                                          FUN = function(chain)
-                                          {
-                                            res = list()
-                                            # creating arrays
-                                            for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
-                                            {
-                                              res[[name]] = array(0, dim = c(nrow(X_noise_pred), 1, n_samples))
-                                            }
-                                            # looping over saved observations
-                                            for(i_predict in seq(n_samples))
-                                            {
-                                             # range
-                                              for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
-                                              {
-                                                idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
-                                                res[[name]][,,i_predict] = X_noise_pred[,idx] * chain$noise_beta[idx,,i_start + i_predict]
-                                              }
-                                            }
-                                            res$total_linear_effects = Reduce("+", res)
-                                            res[match(removed_fixed_effects, c(colnames(X_noise_pred)))]=NULL
-                                            return(res)
-                                          })
+  predicted_samples = lapply(X = mcmc_nngp_list$records, 
+                             FUN = 
+                             function(chain)
+                             {
+                               res = list()
+                               # creating arrays
+                               for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                               {
+                                 res[[name]] = array(0, dim = c(nrow(X_noise_pred), 1, n_samples))
+                               }
+                               # looping over saved observations
+                               for(i_predict in seq(n_samples))
+                               {
+                                # range
+                                 for(name in row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                                 {
+                                   idx = match(name, row.names(mcmc_nngp_list$states$chain_1$params$noise_beta))
+                                   res[[name]][,,i_predict] = X_noise_pred[,idx] * chain$noise_beta[idx,,i_start + i_predict]
+                                 }
+                               }
+                               res$total_linear_effects = Reduce("+", res)
+                               res[match(removed_fixed_effects, c(colnames(X_noise_pred)))]=NULL
+                               return(res)
+                             })
   summaries = list()
   predicted_samples_ = list()
   for(name in names(predicted_samples[[1]]))

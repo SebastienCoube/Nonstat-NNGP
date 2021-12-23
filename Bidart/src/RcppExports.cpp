@@ -6,9 +6,14 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // nonstat_vecchia_Linv
-Rcpp::List nonstat_vecchia_Linv(arma::mat log_range, std::string covfun_name, bool sphere, arma::mat locs, arma::mat NNarray, bool compute_derivative);
-RcppExport SEXP _Bidart_nonstat_vecchia_Linv(SEXP log_rangeSEXP, SEXP covfun_nameSEXP, SEXP sphereSEXP, SEXP locsSEXP, SEXP NNarraySEXP, SEXP compute_derivativeSEXP) {
+Rcpp::List nonstat_vecchia_Linv(arma::mat log_range, std::string covfun_name, bool sphere, arma::mat locs, arma::mat NNarray, bool compute_derivative, double nu);
+RcppExport SEXP _Bidart_nonstat_vecchia_Linv(SEXP log_rangeSEXP, SEXP covfun_nameSEXP, SEXP sphereSEXP, SEXP locsSEXP, SEXP NNarraySEXP, SEXP compute_derivativeSEXP, SEXP nuSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,7 +23,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type NNarray(NNarraySEXP);
     Rcpp::traits::input_parameter< bool >::type compute_derivative(compute_derivativeSEXP);
-    rcpp_result_gen = Rcpp::wrap(nonstat_vecchia_Linv(log_range, covfun_name, sphere, locs, NNarray, compute_derivative));
+    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
+    rcpp_result_gen = Rcpp::wrap(nonstat_vecchia_Linv(log_range, covfun_name, sphere, locs, NNarray, compute_derivative, nu));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -64,7 +70,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Bidart_nonstat_vecchia_Linv", (DL_FUNC) &_Bidart_nonstat_vecchia_Linv, 6},
+    {"_Bidart_nonstat_vecchia_Linv", (DL_FUNC) &_Bidart_nonstat_vecchia_Linv, 7},
     {"_Bidart_derivative_sandwich", (DL_FUNC) &_Bidart_derivative_sandwich, 4},
     {"_Bidart_log_determinant_derivative", (DL_FUNC) &_Bidart_log_determinant_derivative, 3},
     {"_Bidart_nonstat_covmat", (DL_FUNC) &_Bidart_nonstat_covmat, 3},

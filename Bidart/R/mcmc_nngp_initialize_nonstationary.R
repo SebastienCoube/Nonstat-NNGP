@@ -58,15 +58,15 @@ process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info 
 
 #' @export
 
-NNGP_prior = function(range_param, vecchia_approx, log_NNGP_matern_smoothness, log_NNGP_matern_covfun, locs)
+NNGP_prior = function(range_param, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs)
 {
   if(is.null(range_param))return(NULL) 
   if(!is.null(range_param)) 
   {
     res = list()
     res$range = range_param
-    res$smoothness = log_NNGP_matern_smoothness
-    compressed_sparse_chol = GpGp::vecchia_Linv(covparms = c(1, range_param, log_NNGP_matern_smoothness, 0), covfun_name = log_NNGP_matern_covfun, locs = locs, NNarray = vecchia_approx$NNarray)
+    res$smoothness = log_NNGP_nu
+    compressed_sparse_chol = GpGp::vecchia_Linv(covparms = c(1, range_param, log_NNGP_nu, 0), covfun_name = log_NNGP_matern_covfun, locs = locs, NNarray = vecchia_approx$NNarray)
     res$sparse_chol = Matrix::sparseMatrix(
       i = vecchia_approx$sparse_chol_row_idx, 
       j = vecchia_approx$sparse_chol_column_idx, 
@@ -83,12 +83,13 @@ mcmc_nngp_initialize_nonstationary =
            observed_field = NULL, # Response variable
            X = NULL, # Covariates per observation
            m = 5, #number of Nearest Neighbors
+           nu =1.5, #Matern smoothness
            reordering = "maxmin", #Reordering
            covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
            noise_X = NULL, noise_range = NULL, # range for latent field of parameters, if NULL no latent field
            scale_X = NULL, scale_range = NULL, # range for latent field of parameters, if NULL no latent field
            range_X = NULL, range_range = NULL, # range for latent field of parameters, if NULL no latent field
-           log_NNGP_matern_covfun = NULL, log_NNGP_matern_smoothness = NULL, # covariance function for the hyperpriors
+           log_NNGP_matern_covfun = NULL, log_NNGP_nu = NULL, # covariance function for the hyperpriors
            n_chains = 3,  # number of MCMC chains
            seed = 1
   )
@@ -106,8 +107,17 @@ mcmc_nngp_initialize_nonstationary =
     
     # allowed functions
     if(!reordering[1] %in% c("maxmin", "random", "coord", "dist_to_point", "middleout"))stop("reordering should be chosen among : maxmin, random, coord, dist_to_point, middleout")
-    if(!covfun %in% c("exponential_isotropic", "exponential_sphere", "exponential_spacetime", "exponential_spheretime", "exponential_anisotropic2D", "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"))stop("covfun should be chosen among : exponential_isotropic, exponential_sphere, exponential_spacetime, exponential_spheretime, exponential_anisotropic2D, nonstationary_exponential_isotropic, nonstationary_exponential_isotropic_sphere, nonstationary_exponential_anisotropic, nonstationary_exponential_anisotropic_sphere")
     if(response_model!="Gaussian") stop("response_model should be chosen among : Gaussian")
+    if(!covfun %in% c("exponential_isotropic", "exponential_sphere",  "exponential_spacetime", "exponential_spheretime", "exponential_anisotropic2D", 
+                      "matern_isotropic",      "matern_sphere",       "matern_spacetime",      "matern_spheretime",      "matern_anisotropic2D", 
+                      "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", 
+                      "nonstationary_matern_isotropic",      "nonstationary_matern_isotropic_sphere", 
+                      "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"))stop(
+                        "covfun should be chosen among : 
+                        exponential_isotropic,     exponential_sphere, exponential_spacetime,   exponential_spheretime,     exponential_anisotropic2D, 
+                        matern_isotropic, matern_sphere, matern_spacetime, matern_spheretime, matern_anisotropic2D, 
+                        nonstationary_exponential_isotropic, nonstationary_exponential_isotropic_sphere" , "nonstationary_matern_isotropic", 
+                        "nonstationary_matern_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere")
     # format
     if(!is.matrix(observed_locs))stop("observed_locs should be a matrix")
     if(!is.vector(observed_field))stop("observed_field should be a vector")
@@ -137,23 +147,25 @@ mcmc_nngp_initialize_nonstationary =
               "range_X has", nrow(range_X), "rows."
         )
       )
+    if ((nu != 1)&(nu != 2)&(nu != 1.5))stop("only nu = 1, 1.5, 2 for now (1.5 recommended)")
+    if ((nu == 1)|(nu == 2))message("nu = 1.5 is much faster")
     #nonstationary range is provided field and/or covariates
     #if((length(grep("nonstationary", covfun))!=0) & is.null(range_X)&(is.null(range_range)))stop(paste("Nonstationary covariance function", covfun, "should be provided with at least :  1 or 2 range parameter (s) for the random field (range_range)  or/and : one set of covariates (range_X)"))
     #stationary range is not provided field or covariates
     if((length(grep("nonstationary", covfun))==0) & (!is.null(range_X)|(!is.null(range_range))))stop(paste("Stationary covariance function", covfun, "should have no range parameter for the random field (range_range)  and no covariates (range_X)"))
     # useless log_NNGP_matern_covfun provided
-    if(!is.null(log_NNGP_matern_covfun)&(is.null(scale_range)&is.null(noise_range)&is.null(range_range)&is.null(log_NNGP_matern_smoothness))) stop("A covariance function was indicated for the log-NNGP prior. Indicate hyperprior range/smoothness arguments or remove the covariance function.")
+    if(!is.null(log_NNGP_matern_covfun)&(is.null(scale_range)&is.null(noise_range)&is.null(range_range)&is.null(log_NNGP_nu))) stop("A covariance function was indicated for the log-NNGP prior. Indicate hyperprior range/smoothness arguments or remove the covariance function.")
     # no log_NNGP_matern_covfun provided
-    if(is.null(log_NNGP_matern_covfun)&(!is.null(scale_range)|!is.null(noise_range)|!is.null(range_range)|!is.null(log_NNGP_matern_smoothness))) stop("No covariance function was indicated for the log-NNGP prior. Indicate a covariance function or remove hyperprior range/smoothness arguments.")
+    if(is.null(log_NNGP_matern_covfun)&(!is.null(scale_range)|!is.null(noise_range)|!is.null(range_range)|!is.null(log_NNGP_nu))) stop("No covariance function was indicated for the log-NNGP prior. Indicate a covariance function or remove hyperprior range/smoothness arguments.")
     # bad log_NNGP_matern_covfun provided
     if(!is.null(log_NNGP_matern_covfun)){if(!log_NNGP_matern_covfun %in% c("matern_spheretime", "matern_isotropic", "matern_spacetime", "matern_sphere"))stop("log_NNGP_matern_covfun should be chosen among : matern_spheretime, matern_isotropic, matern_spacetime, matern_sphere")}
     # message about discrepancy
     if (length(grep("sphere", log_NNGP_matern_covfun)) != length(grep("sphere", covfun))) message("The hyperprior covariance is on the sphere while the nonstationary covariance is on the plane (or the other way around)")
     # setting default smoothness for log-NNGP prior
-    if(is.null(log_NNGP_matern_smoothness)&(!is.null(log_NNGP_matern_covfun)))
+    if(is.null(log_NNGP_nu)&(!is.null(log_NNGP_matern_covfun)))
     {
-      log_NNGP_matern_smoothness = 1
-      message("No parameter was given for the hyperprior smoothness log_NNGP_matern_smoothness. It was set by default to 1")
+      log_NNGP_nu = 1
+      message("No parameter was given for the hyperprior smoothness log_NNGP_nu. It was set by default to 1")
     }
     
     
@@ -221,13 +233,14 @@ mcmc_nngp_initialize_nonstationary =
     hierarchical_model = list()
     hierarchical_model$response_model = response_model
     hierarchical_model$covfun = covfun
+    hierarchical_model$nu = nu
     
     # log-NNGP hyperpriors
     hierarchical_model$hyperprior_covariance = list()
     hierarchical_model$hyperprior_covariance$log_NNGP_matern_covfun = log_NNGP_matern_covfun
-    hierarchical_model$hyperprior_covariance$range_NNGP_prior = NNGP_prior(range_range, vecchia_approx, log_NNGP_matern_smoothness, log_NNGP_matern_covfun, locs = locs)
-    hierarchical_model$hyperprior_covariance$scale_NNGP_prior = NNGP_prior(scale_range, vecchia_approx, log_NNGP_matern_smoothness, log_NNGP_matern_covfun, locs = locs)
-    hierarchical_model$hyperprior_covariance$noise_NNGP_prior = NNGP_prior(noise_range, vecchia_approx, log_NNGP_matern_smoothness, log_NNGP_matern_covfun, locs = locs)
+    hierarchical_model$hyperprior_covariance$range_NNGP_prior = NNGP_prior(range_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
+    hierarchical_model$hyperprior_covariance$scale_NNGP_prior = NNGP_prior(scale_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
+    hierarchical_model$hyperprior_covariance$noise_NNGP_prior = NNGP_prior(noise_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
     
     ##############
     # covariates #
@@ -274,15 +287,15 @@ mcmc_nngp_initialize_nonstationary =
       #########
       
       # mean log-range (only parameter in the case of stationary model)
-      if(covfun == "exponential_spacetime")                             states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),-ncol(locs)]))     )-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))           , nrow = 1)
-      if(covfun == "exponential_isotropic")                             states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
-      if(covfun == "exponential_sphere")                                states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
-      if(covfun == "exponential_spacetime_sphere")                      states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))   , nrow = 1)
-      if(covfun == "nonstationary_exponential_isotropic")               states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
-      if(covfun == "exponential_anisotropic2D")                         states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
-      if(covfun == "nonstationary_exponential_anisotropic")             states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
-      if(covfun == "nonstationary_exponential_isotropic_sphere")        states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
-      if(covfun == "nonstationary_exponential_anisotropic_sphere")      states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
+      if(covfun %in% c("exponential_spacetime"                     , "matern_spacetime"                     )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),-ncol(locs)]))     )-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))           , nrow = 1)
+      if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic"                     )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
+      if(covfun %in% c("exponential_sphere"                        , "matern_sphere"                        )) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
+      if(covfun %in% c("exponential_spacetime_sphere"              , "matern_spacetime_sphere"              )) states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))   , nrow = 1)
+      if(covfun %in% c("nonstationary_exponential_isotropic"       , "nonstationary_matern_isotropic"       )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
+      if(covfun %in% c("nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic_sphere")) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
+      if(covfun %in% c("exponential_anisotropic2D"                 , "matern_anisotropic2D"                 )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
+      if(covfun == "nonstationary_exponential_anisotropic")                                                    states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 100),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
+      if(covfun == "nonstationary_exponential_anisotropic_sphere")                                             states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 100), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
       # initiate null regressors for other covariates                                                                                                                                          
       if(!is.null(covariates$range_X$X_locs))states[[i]]$params$range_beta = rbind(states[[i]]$params$range_beta, matrix(0#rnorm((ncol(covariates$range_X$X_locs)-1) * length(states[[i]]$params$range_beta))
                                                                                                                     , ncol(covariates$range_X$X_locs)-1, length(states[[i]]$params$range_beta)))
@@ -415,7 +428,7 @@ mcmc_nngp_initialize_nonstationary =
       ####################
       # NNGP sparse chol #
       ####################
-      states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, range_X = covariates$range_X$X_locs, range_beta = states[[i]]$params$range_beta, range_field = states[[i]]$params$range_field, NNarray = vecchia_approx$NNarray, locs = locs)
+      states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, range_X = covariates$range_X$X_locs, range_beta = states[[i]]$params$range_beta, range_field = states[[i]]$params$range_field, NNarray = vecchia_approx$NNarray, locs = locs, nu = nu)
       states[[i]]$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(x =  states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, triangular = T)
       states[[i]]$sparse_chol_and_stuff$precision_diag = as.vector((states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
       ################
