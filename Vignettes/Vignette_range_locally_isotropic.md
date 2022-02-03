@@ -8,8 +8,7 @@ This toy example shows how to model *locally isotropic range*. It shows
     with locally isotropic range and nonstationary variance
 -   how to do predictions
 
-Generate synthetic data
------------------------
+## Generate synthetic data
 
     set.seed(1)
     # Generate locations
@@ -46,8 +45,7 @@ Let’s plot the latent field…
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-Nonstationary model
--------------------
+## Nonstationary model
 
 Initialize
 
@@ -60,12 +58,12 @@ Initialize
       covfun = "nonstationary_exponential_isotropic", response_model = "Gaussian", # covariance model and response model
       range_range = .5, 
       log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-      log_NNGP_matern_smoothness = 1, # covariance function for the hyperpriors
+      log_NNGP_nu = 1, # covariance function for the hyperpriors
       n_chains = 3,  # number of MCMC chains
       seed = 10
     )
 
-    ## Setup done, 1.33916711807251 s elapsed
+    ## Setup done, 0.850374221801758 s elapsed
 
 Run
 
@@ -80,8 +78,7 @@ Check convergence, look at the Gelman-Rubin-Broks diagnostics
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-2.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-3.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-4.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-5.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-6.png)![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-6-7.png)
 
-Stationary model
-----------------
+## Stationary model
 
 Initialize
 
@@ -96,7 +93,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 0.610378742218018 s elapsed
+    ## Setup done, 0.4007728099823 s elapsed
 
 Run
 
@@ -107,8 +104,7 @@ Run
 
 Convergence is checked with diagnostic\_plots() like before.
 
-Nonstationary elliptic model (over-modelling)
----------------------------------------------
+## Nonstationary elliptic model (over-modelling)
 
 Initialize
 
@@ -121,12 +117,12 @@ Initialize
       covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
       range_range = .5, 
       log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-      log_NNGP_matern_smoothness = 1, # covariance function for the hyperpriors
+      log_NNGP_nu = 1, # covariance function for the hyperpriors
       n_chains = 3,  # number of MCMC chains
       seed = 10
     )
 
-    ## Setup done, 1.12564754486084 s elapsed
+    ## Setup done, 0.463422536849976 s elapsed
 
 Run
 
@@ -135,7 +131,7 @@ Run
       mcmc_nngp_list_range_ell = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list_range_ell, n_iterations_update = 100, n_cycles = 1)
     }
 
-Lo and behold, the two \`\`anisotropy" components are low ! (normally
+Lo and behold, the two \`\`anisotropy” components are low ! (normally
 this pops up automatically)
 
     Bidart::plot_log_scale(log_scale_arrays =
@@ -151,8 +147,7 @@ this pops up automatically)
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-11-1.png)
 
-Nonstationary model with range and scale (over modelling)
----------------------------------------------------------
+## Nonstationary model with range and scale (over modelling)
 
 Initialize
 
@@ -166,12 +161,12 @@ Initialize
       range_range = .5, 
       scale_range = .5, 
       log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-      log_NNGP_matern_smoothness = 1, # covariance function for the hyperpriors
+      log_NNGP_nu = 1, # covariance function for the hyperpriors
       n_chains = 3,  # number of MCMC chains
       seed = 10
     )
 
-    ## Setup done, 0.668893337249756 s elapsed
+    ## Setup done, 0.529970645904541 s elapsed
 
 Run
 
@@ -196,19 +191,17 @@ pop up automatically)
 
 ![](Vignette_range_locally_isotropic_files/figure-markdown_strict/unnamed-chunk-14-1.png)
 
-Model comparison
-----------------
+## Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 18529.64
+    ## [1] 18529.77
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 18621.97
+    ## [1] 18622.83
 
-Prediction
-----------
+## Prediction
 
     predicted_locs = as.matrix(expand.grid(seq(0, 5, .1), seq(0, 5, .1)))
     pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)

@@ -6,8 +6,7 @@ shows :
 -   how to compare the models (with a stationary model) using DIC
 -   how to do predictions
 
-Generate synthetic data
------------------------
+## Generate synthetic data
 
     set.seed(1)  
     # locations and latent fields
@@ -47,8 +46,7 @@ Let’s plot the latent field…
 
 ![](Vignette_range_locally_anisotropic_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-Nonstationary model
--------------------
+## Nonstationary model
 
 Initialize
 
@@ -60,12 +58,12 @@ Initialize
       covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
       range_range = .5, 
       log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-      log_NNGP_matern_smoothness = 1, # covariance function for the hyperpriors
+      log_NNGP_nu = 1, # covariance function for the hyperpriors
       n_chains = 3,  # number of MCMC chains
       seed = 10
     )
 
-    ## Setup done, 3.68718981742859 s elapsed
+    ## Setup done, 1.23082256317139 s elapsed
 
 Run
 
@@ -108,8 +106,7 @@ order to get decent pictures in the md lower functions are called)
 
 ![](Vignette_range_locally_anisotropic_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
-Stationary model
-----------------
+## Stationary model
 
 Initialize
 
@@ -123,7 +120,7 @@ Initialize
       seed = 10
     )
 
-    ## Setup done, 1.01590991020203 s elapsed
+    ## Setup done, 0.836781978607178 s elapsed
 
 Run
 
@@ -134,19 +131,17 @@ Run
 
 Convergence is checked using diagnostic\_plots()
 
-Model comparison
-----------------
+## Model comparison
 
     print(Bidart::DIC(mcmc_nngp_list_range))
 
-    ## [1] 47429.92
+    ## [1] 47427.15
 
     print(Bidart::DIC(mcmc_nngp_list_stat))
 
-    ## [1] 47598.2
+    ## [1] 47605.01
 
-Prediction
-----------
+## Prediction
 
     predicted_locs = as.matrix(expand.grid(seq(0, 5, .1), seq(0, 5, .1)))
     pred = Bidart::predict_latent_field(mcmc_nngp_list = mcmc_nngp_list_range, predicted_locs = predicted_locs)

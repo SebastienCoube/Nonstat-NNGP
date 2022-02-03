@@ -69,7 +69,7 @@ mcmc_nngp_list_range = Bidart::mcmc_nngp_initialize_nonstationary (
   covfun = "nonstationary_exponential_anisotropic", response_model = "Gaussian", # covariance model and response model
   range_range = .5, 
   log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-  log_NNGP_matern_smoothness = 1, # covariance function for the hyperpriors
+  log_NNGP_nu = 1, # covariance function for the hyperpriors
   n_chains = 3,  # number of MCMC chains
   seed = 10
 )
