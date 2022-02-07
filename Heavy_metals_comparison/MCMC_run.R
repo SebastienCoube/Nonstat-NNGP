@@ -36,7 +36,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 )
 
 remove(X)
-for(i in seq(20))
+for(i in seq(40))
 { 
   mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
 }
