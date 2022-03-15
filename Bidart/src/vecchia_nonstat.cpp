@@ -53,7 +53,7 @@ Rcpp::List nonstat_vecchia_Linv(
     arma::cube grad1(n,m, m);
     grad1.fill(0);
     // loop over every observation   
-    # pragma omp parallel for
+#pragma omp parallel for
     for(int i=1; i<n; i++){
       int bsize = std::min(i+1,m);
       // first, fill in ysub, locsub, and X0 NOT in reverse order
@@ -215,7 +215,7 @@ Rcpp::List nonstat_vecchia_Linv(
     arma::cube grad1(n,m, m);
     grad1.fill(0);
     // loop over every observation   
-    # pragma omp parallel for
+# pragma omp parallel for
     for(int i=1; i<n; i++){
       int bsize = std::min(i+1,m);
       // first, fill in ysub, locsub, and X0 NOT in reverse order
@@ -310,7 +310,7 @@ Rcpp::List nonstat_vecchia_Linv(
                 pow(1.000001 * range(NNarray(i,j1) - 1) *    range(NNarray(i,j2) -1)    , dim*.25  ) * 
                   pow(1.000001 * range(NNarray(i,j1) - 1)*.5 + range(NNarray(i,j2) -1)*.5 , dim*(-.5)) * 
                   exp(- paciorek_dist) * (paciorek_dist + 1.0)
-              - sigma11 (j1-1, j2-1)) * 1000000 
+                - sigma11 (j1-1, j2-1)) * 1000000 
               ;
             }
           }
@@ -400,7 +400,7 @@ Rcpp::List nonstat_vecchia_Linv(
     double paciorek_dist;
     
     int threadID = 0;
-    #pragma omp parallel for num_threads(nThreads) private(threadID)
+#pragma omp parallel for num_threads(nThreads) private(threadID)
     // loop over every observation    
     for(int i=1; i<n; i++){
       threadID = omp_get_thread_num();
@@ -567,7 +567,7 @@ Rcpp::List nonstat_vecchia_Linv(
         for(int j=1; j<bsize; j++){
           Linv(i, j) = - salt(j-1) * inverse_cond_sd;
         }
-
+        
         // computing gradient of Vecchia approx 
         
         // case child range is differentiated 
@@ -578,7 +578,7 @@ Rcpp::List nonstat_vecchia_Linv(
         //c = 0
         //rest of the coefficients
         arma::vec the_rest = 
-           - agmis11 *  dsigma12_child * Linv(i, 0) // d
+          - agmis11 *  dsigma12_child * Linv(i, 0) // d
           //e = 0
           - salt * grad1(i, 0, 0)
           ; //f
@@ -677,9 +677,10 @@ Rcpp::List nonstat_vecchia_Linv(
         grad2.fill(0);
         grad3.fill(0);
         
-        // loop over every observation    
+        // loop over every observation   
+#pragma omp parallel for
         for(int i=1; i<n; i++){
-          Rcpp::checkUserInterrupt();
+          //Rcpp::checkUserInterrupt();
           int bsize = std::min(i+1,m);
           
           // first, fill in ysub, locsub, and X0 NOT in reverse order
@@ -731,7 +732,6 @@ Rcpp::List nonstat_vecchia_Linv(
             //derivative of sigma11
             for(int j2=1; j2<bsize; j2++){
               arma::mat locdiff = locsub.row(j2) - locsub.row(j1);
-              
               arma::mat hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               arma::mat mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
               sigma11 (j1-1, j2-1) = 

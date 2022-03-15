@@ -138,7 +138,7 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
     lines(PSRF$iterations, PSRF$PSRF_quantiles[2,], col = 2)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[3,], col = 3)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[4,], col = 4)
-    legend("topleft", legend = c("max", .99, .9, .5), fill = c(1, 2, 3, 4))
+    legend(bg = "white", "topleft", legend = c("max", .99, .9, .5), fill = c(1, 2, 3, 4))
   }
   if(prod(dim(PSRF$PSRF)[c(1, 2)])<10)
   {
@@ -153,7 +153,7 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
     if(dim(PSRF$PSRF)[2]>1 & !is.null(individual_varnames)) labs = paste(rep(individual_varnames, dim(PSRF$PSRF)[2]), rep(seq(dim(PSRF$PSRF)[2]), each = length(individual_varnames)))
     if(dim(PSRF$PSRF)[2]==1 & !is.null(individual_varnames)) labs = individual_varnames
     if(is.null(individual_varnames)) labs = paste("component", seq(prod(dim(PSRF$PSRF)[c(1, 2)])))
-    legend("topleft", legend = labs, fill = seq(length(labs)))
+    legend(bg = "white", "topleft", legend = labs, fill = seq(length(labs)))
   }
   abline(h = 1.2, lty = "longdash")
   abline(h = 1)
@@ -203,7 +203,7 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
         lines(iterations[kept_iterations],marginal_logvars[[i]][j,], col = j)
       }
     }
-    legend("topleft", legend = c("Determinant", "Anisotropy", "Anisotropy"), fill = seq(3))
+    legend(bg = "white", "topleft", legend = c("Determinant", "Anisotropy", "Anisotropy"), fill = seq(3))
   }
 }
 
@@ -239,7 +239,7 @@ plot_beta = function(beta_arrays, iterations, starting_proportion = .5, varname,
     {
       for(x in beta_arrays)lines(iterations[kept_iterations], x[j, i, kept_iterations], col = j)
     }
-    if(!is.null(var_names))legend("topleft", legend = var_names, fill = seq(dim(beta_arrays[[1]])[1]))
+    if(!is.null(var_names))legend(bg = "white", "topleft", legend = var_names, fill = seq(dim(beta_arrays[[1]])[1]))
   }
 }
 
