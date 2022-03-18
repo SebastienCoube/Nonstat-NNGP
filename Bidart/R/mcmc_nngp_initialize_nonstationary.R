@@ -225,6 +225,9 @@ mcmc_nngp_initialize_nonstationary =
     vecchia_approx$coloring = naive_greedy_coloring(vecchia_approx$MRF_adjacency_mat)
     # duplicated locs
     vecchia_approx$duplicated_locs = duplicated_locs
+    # partition of locs for field update
+    vecchia_approx$locs_partition = sapply(seq(n/10000, 2*(n/10000) ), function(i)
+      kmeans(locs, centers = i)$cluster)
     
     #################################
     # Info about hierarchical model #

@@ -38,7 +38,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(X)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_stat")
 
@@ -66,7 +66,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(X)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nr")
 
@@ -134,7 +134,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nsr_15_basis_validation.RDS")
 
@@ -158,7 +158,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nr_15_basis_validation.RDS")
 
@@ -183,7 +183,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 3)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_n_15_validation.RDS")
 
@@ -208,7 +208,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 3)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_stat_15_validation.RDS")
 
@@ -233,7 +233,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nsr_exp_basis_validation.RDS")
 
@@ -256,7 +256,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(40))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nr_exp_basis_validation.RDS")
 
@@ -280,7 +280,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(4))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_n_exp_validation.RDS")
 
@@ -304,7 +304,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
 remove(train_data_set)
 for(i in seq(4))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, debug_outfile = NULL, field_n_mala = 3, field_n_chromatic = 1)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_stat_exp_validation.RDS")
 

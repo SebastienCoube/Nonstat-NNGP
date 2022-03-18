@@ -3,7 +3,6 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
                          burn_in = .5, seed = 1, swap_range_scale = F, # MCMC parameters
                          n_cores = NULL, thinning = .1, n_iterations_update = 300, #run parameters
                          n_cycles = 5, plot_diags = T, 
-                         field_n_chromatic = 3, field_n_mala = 1, 
                          plot_PSRF_fields = F, debug_outfile = NULL
                          )
 {
@@ -27,12 +26,6 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
   if(n_iterations_update<50)stop("n_iterations_update must be bigger than or equal to 50")
   if(!is.numeric(thinning))stop("thinning is a proportion and must be between 0 and 1")
   if((thinning<0)|(thinning>1))stop("thinning is a proportion and must be between 0 and 1")
-  # field
-  if(!is.numeric(field_n_chromatic))stop("field_n_chromatic must be a positive round number")
-  if((floor(field_n_chromatic)!=field_n_chromatic)|  field_n_chromatic<0)stop("field_n_chromatic must be a positive round number")
-  if(!is.numeric(field_n_mala))stop("field_n_mala must be a positive round number")
-  if((floor(field_n_mala)!=field_n_mala)|  field_n_mala<0)stop("field_n_mala must be a positive round number")
-  if((field_n_chromatic==0) & (field_n_mala==0)) stop("Either field_n_chromatic or field_n_mala must be different from 0")
   gc()
   cl = parallel::makeCluster(n_cores, outfile = debug_outfile)
   mcmc_nngp_list_ = mcmc_nngp_list[-match(c("records", "states"), names(mcmc_nngp_list))]
@@ -55,7 +48,6 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
         vecchia_approx = mcmc_nngp_list_$vecchia_approx, 
         state = mcmc_nngp_list$states[[i]], 
         n_iterations_update = n_iterations_update, thinning = thinning, 
-        field_n_chromatic = field_n_chromatic, field_n_mala = field_n_mala, 
         iter_start = iter_start, 
         seed = seed + iter_start + i, swap_range_scale = swap_range_scale
         )
@@ -81,6 +73,6 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
     diagnostic_plots(mcmc_nngp_list, plot_PSRF_fields = plot_PSRF_fields, burn_in = burn_in)
     i_cycle = i_cycle+1
   }
-  #parallel::stopCluster(cl = cl)
+  parallel::stopCluster(cl = cl)
   return(mcmc_nngp_list)
 }

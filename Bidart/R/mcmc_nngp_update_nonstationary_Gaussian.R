@@ -3,8 +3,6 @@ mcmc_nngp_update_Gaussian = function(data,
                                      hierarchical_model, vecchia_approx, # model architecture
                                      state, # model state
                                      n_iterations_update = 400, thinning = .1, iter_start = 0, seed = 1,# practical settings
-                                     field_n_chromatic = 1,  # number of chromatic steps for the latent field at each iteration
-                                     field_n_mala = 1,  # number of mala steps for the latent field at each iteration
                                      swap_range_scale = F # additional step in case of badly identified range and variance in small geographic areas
 )
 {
@@ -15,10 +13,6 @@ mcmc_nngp_update_Gaussian = function(data,
   if((floor(n_iterations_update)!=n_iterations_update) |  n_iterations_update<1)stop("n_iterations_update must be a positive round number")
   if((thinning<0)|(thinning>1))stop("thinning is a proportion and must be between 0 and 1")
   if((floor(iter_start)!=iter_start)|  iter_start<0)stop("iter_start must be a positive round number")
-  # field
-  if((floor(field_n_chromatic)!=field_n_chromatic)|  field_n_chromatic<0)stop("field_n_chromatic must be a positive round number")
-  if((floor(field_n_mala)!=field_n_mala)|  field_n_mala<0)stop("field_n_mala must be a positive round number")
-  if((field_n_chromatic==0) & (field_n_mala==0)) stop("Either field_n_chromatic or field_n_mala must be different from 0")
   # set seed 
   set.seed(seed)
   #########################################
@@ -1990,145 +1984,42 @@ mcmc_nngp_update_Gaussian = function(data,
     #print(Sys.time()-t1)
     ################
     # Latent field #
-    ################
-    #####################
-    # Chromatic sampler #
-    #####################
-    t1 = Sys.time()
-    if(field_n_chromatic!=0)
-    {
-      # spatial-location-wise sum of Linear regression residuals, weighted by noise precision
-      weighted_residuals_sum = as.vector(vecchia_approx$locs_match_matrix%*%(as.vector(data$observed_field-  data$covariates$X$X%*%matrix(state$params$beta, ncol = 1))/state$sparse_chol_and_stuff$noise)) 
-      # Diagonal of posterior precision, obtained by summing the diagonal of the prior and some extra precision brought by Gaussian observations
-      posterior_precision_diag = as.vector(
-        state$sparse_chol_and_stuff$precision_diag/state$sparse_chol_and_stuff$scale # diag from prior precision
-        + vecchia_approx$locs_match_matrix %*%(1/state$sparse_chol_and_stuff$noise) # diag from observations precision
+    ################    
+    locs_partition = vecchia_approx$locs_partition[,runif(1, 1, ncol(vecchia_approx$locs_partition))]
+    additional_precision = vecchia_approx$locs_match_matrix %*% (1/state$sparse_chol_and_stuff$noise)
+    additional_mean = vecchia_approx$locs_match_matrix %*% ((data$observed_field - state$sparse_chol_and_stuff$lm_fit)/state$sparse_chol_and_stuff$noise)
+    chol_sub_list = lapply(
+      seq(length(unique(locs_partition))), function(idx)
+      {
+        selected_locs = which(locs_partition==idx)
+        state$sparse_chol_and_stuff$sparse_chol[,selected_locs] %*% Matrix::Diagonal(x = 1/sqrt(state$sparse_chol_and_stuff$scale[selected_locs]))
+      }
+    )
+    chol_Q_AA_sub_list = 
+      lapply(
+        seq(length(unique(locs_partition))), function(idx)
+        {
+          selected_locs = which(locs_partition==idx)
+          Q_AA_sub =  Matrix::crossprod(chol_sub_list[[idx]])
+          Matrix::diag(Q_AA_sub) = Matrix::diag(Q_AA_sub) + additional_precision[selected_locs]
+          expanded = Matrix::expand(Matrix::Cholesky(Q_AA_sub, perm = T))
+        }
       )
-      
-      for(i in seq(field_n_chromatic)){
-        for(color_idx in unique(vecchia_approx$coloring))
-        {
-          selected_locs = which(vecchia_approx$coloring==color_idx)
-          #conditional mean
-          cond_mean = # mu A/B = inv(Q_AA)Q_AB (X_B - mu_B)
-            - (1/posterior_precision_diag[selected_locs]) * # inverse of Q_AA
-            ( 
-              as.vector(Matrix::crossprod(
-                state$sparse_chol_and_stuff$sparse_chol[,selected_locs] %*% Matrix::Diagonal(x = 1/sqrt(state$sparse_chol_and_stuff$scale[selected_locs])), 
-                state$sparse_chol_and_stuff$sparse_chol %*%(state$params$field * (vecchia_approx$coloring!=color_idx)/sqrt(state$sparse_chol_and_stuff$scale)))) # rest of the latent field
-              - weighted_residuals_sum[selected_locs]# Gaussian observations 
-            )
-          # field sampling
-          state$params$field [selected_locs] = as.vector(cond_mean +rnorm(length(selected_locs))/sqrt(posterior_precision_diag[selected_locs]))
-        }
-      }
-    }
-    #print(Sys.time()-t1)
-    ########
-    # MALA #
-    ########
-    t1 = Sys.time()
-    if(field_n_mala!=0)
+    Sys.time() - t1
+    
+    for(idx in seq(length(unique(locs_partition))))
     {
-      for(i in seq(field_n_mala)){
-        state$momenta$field = sqrt(.9) * state$momenta$field + sqrt(.1)*rnorm(vecchia_approx$n_locs)
-        p = state$momenta$field
-        # Whitened MALA
-        q = as.vector(state$sparse_chol_and_stuff$sparse_chol  %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))
-        current_U =
-          .5 * sum(q^2) + # whitenend prior 
-          .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-        # Make a. half step for momentum at the beginning
-        p = p - exp(state$transition_kernels$latent_field_mala) *
-          (q  # white noise prior derivative
-           + as.vector( Matrix::solve(Matrix::t(state$sparse_chol_and_stuff$sparse_chol), # solving prior for whitening
-                                      Matrix::Diagonal(x = sqrt(state$sparse_chol_and_stuff$scale)) %*%
-                                        (
-                                          as.vector(vecchia_approx$locs_match_matrix %*% 
-                                                      ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                                         state$sparse_chol_and_stuff$noise)
-                                          )
-                                        )
-           )
-           )
-          )/2
-        #n_hmc_steps = 15 + rbinom(1, 1, .5)
-        n_hmc_steps = 25 + rpois(1, 10)
-        for(hmc_idx in seq(n_hmc_steps))
-        {
-          # Make a full step for the position
-          q = q + exp(state$transition_kernels$latent_field_mala) * p
-          new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(state$sparse_chol_and_stuff$sparse_chol, q)) 
-          if(hmc_idx != n_hmc_steps)
-          {
-            # Make a half step for momentum at the end.
-            p = p - exp(state$transition_kernels$latent_field_mala) *
-              (q  # white noise prior derivative
-               + as.vector( Matrix::solve(Matrix::t(state$sparse_chol_and_stuff$sparse_chol), # solving prior for whitening
-                                          Matrix::Diagonal(x = sqrt(state$sparse_chol_and_stuff$scale)) %*%
-                                            (
-                                              as.vector(vecchia_approx$locs_match_matrix %*% 
-                                                          ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                                             state$sparse_chol_and_stuff$noise)
-                                              )
-                                            )
-               )
-               )
-              )
-          }
-        }
-        # Make a half step for momentum at the end.
-        p = p - exp(state$transition_kernels$latent_field_mala) *
-          (q  # white noise prior derivative
-           + as.vector( Matrix::solve(Matrix::t(state$sparse_chol_and_stuff$sparse_chol), # solving prior for whitening
-                                      Matrix::Diagonal(x = sqrt(state$sparse_chol_and_stuff$scale)) %*%
-                                        (
-                                          as.vector(vecchia_approx$locs_match_matrix %*% 
-                                                      ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                                         state$sparse_chol_and_stuff$noise)
-                                          )
-                                        )
-           )
-           )
-          )/2
-        p = - p
-        # Evaluate potential and kinetic energies at start and end of trajectory
-        current_K = sum (state$momenta$field ^2) / 2
-        proposed_U = 
-          .5 * sum(q^2) +
-          .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise)
-        proposed_K = sum(p^2) / 2
-        if(!is.nan(current_U-proposed_U+current_K- proposed_K))
-        {
-          if (log(runif(1)) < current_U-proposed_U+current_K- proposed_K)
-          {
-            current_U = proposed_U
-            state$momenta$field = p
-            state$params$field = new_field
-            acceptance_records$latent_field_mala[iter - 50*(iter %/% 50) ] = acceptance_records$latent_field_mala[iter - 50*(iter %/% 50) ] + 1
-          }
-        }
-      }
-      # updating MALA kernel
-      if(iter_start + iter < 1000)
-      {
-        if(iter %/% 50 ==iter / 50)
-        {
-          if(mean(acceptance_records$latent_field_mala)>field_n_mala * .91)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala + rnorm(1, .4, .05)
-          if(mean(acceptance_records$latent_field_mala)<field_n_mala * .51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .4, .05)
-          acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
-        }
-      }
-      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
-      {
-        if(iter %/% 50 ==iter / 50)
-        {
-          if(mean(acceptance_records$latent_field_mala)<field_n_mala * .51)state$transition_kernels$latent_field_mala = state$transition_kernels$latent_field_mala - rnorm(1, .2, .05)
-          acceptance_records$latent_field_mala =  0*acceptance_records$latent_field_mala
-        }
-      }
+      selected_locs = which(locs_partition==idx)
+      cond_mean = - 
+        Matrix::t(chol_Q_AA_sub_list[[idx]]$P) %*%
+        Matrix::solve(Matrix::t(chol_Q_AA_sub_list[[idx]]$L),
+                      Matrix::solve(chol_Q_AA_sub_list[[idx]]$L, # inverse of precision matrix...
+                                    chol_Q_AA_sub_list[[idx]]$P %*%
+                                      (as.vector(Matrix::crossprod(chol_sub_list[[idx]], state$sparse_chol_and_stuff$sparse_chol%*%((state$params$field/sqrt(state$sparse_chol_and_stuff$scale))*(locs_partition!=idx)))) # rest of the latent field
+                                       - additional_mean[selected_locs]))) # Gaussian observations 
+      state$params$field [selected_locs] = as.vector(as.vector(cond_mean) +  Matrix::t(chol_Q_AA_sub_list[[idx]]$P) %*% Matrix::solve(Matrix::t(chol_Q_AA_sub_list[[idx]]$L), rnorm(length(selected_locs))) )
     }
-    #print(Sys.time()-t1)
+    
     #######################
     # Storing the samples #
     #######################

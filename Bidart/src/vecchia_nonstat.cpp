@@ -400,7 +400,7 @@ Rcpp::List nonstat_vecchia_Linv(
     double paciorek_dist;
     
     int threadID = 0;
-#pragma omp parallel for num_threads(nThreads) private(threadID)
+//#pragma omp parallel for num_threads(nThreads) private(threadID)
     // loop over every observation    
     for(int i=1; i<n; i++){
       threadID = omp_get_thread_num();
