@@ -1,6 +1,6 @@
 #' @export
 mcmc_nngp_run_nonstationary = function(mcmc_nngp_list, 
-                         burn_in = .5, seed = 1, swap_range_scale = F, # MCMC parameters
+                         burn_in = .5, seed = 1, # MCMC parameters
                          n_cores = NULL, thinning = .1, n_iterations_update = 300, #run parameters
                          n_cycles = 5, plot_diags = T, 
                          plot_PSRF_fields = F, debug_outfile = NULL
@@ -49,7 +49,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
         state = mcmc_nngp_list$states[[i]], 
         n_iterations_update = n_iterations_update, thinning = thinning, 
         iter_start = iter_start, 
-        seed = seed + iter_start + i, swap_range_scale = swap_range_scale
+        seed = seed + iter_start + i
         )
       )
     gc()
@@ -70,7 +70,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
     t_start = Sys.time()
     mcmc_nngp_list$iterations$thinning = c(mcmc_nngp_list$iterations$thinning, iter_start + which(seq(n_iterations_update)*thinning == floor(seq(n_iterations_update)*thinning)))
     # plot diagnostics
-    diagnostic_plots(mcmc_nngp_list, plot_PSRF_fields = plot_PSRF_fields, burn_in = burn_in)
+    if(plot_diags) diagnostic_plots(mcmc_nngp_list, plot_PSRF_fields = plot_PSRF_fields, burn_in = burn_in)
     i_cycle = i_cycle+1
   }
   parallel::stopCluster(cl = cl)

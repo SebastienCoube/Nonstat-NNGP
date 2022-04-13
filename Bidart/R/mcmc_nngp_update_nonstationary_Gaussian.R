@@ -1,9 +1,40 @@
 #' @export
+update_centered_beta = function(beta, field, X, beta_prior, NNGP_prior, log_scale)
+{
+  centered_field = as.vector(field + X$X_locs %*% beta[X$which_locs]) # centering the field
+  # including a priori
+  posterior_precision = # (Q1 + Q2)
+    exp(-log_scale) * X$crossprod_sparse_chol_X_locs + # Q1 precision wrt latent field info
+    beta_prior$precision[X$which_locs, X$which_locs] # Q2 a priori conditional precision Q[which_locs|!which_locs] = Q[which_locs]
+  posterior_mean = # (Q1 + Q2)^-1 (Q1 mu1 + Q2 mu2)
+    solve(posterior_precision,  # (Q1 + Q2)^-1
+          exp(-log_scale) * t (as.vector(NNGP_prior$sparse_chol %*% centered_field)  %*% X$sparse_chol_X_locs) # Q1 mu1 with mu1 = Q1^-1 XT Q_nngp w  (Q1 cancels out)
+          + beta_prior$precision[X$which_locs, X$which_locs] %*% beta_prior$mean[X$which_locs] # Q2 mu2, with mu2 = (mu[which_locs]|mu[!which_locs]) = mu[which_locs] - Q[which_locs]Q[which_locs, !which_locs](beta[!which_locs]-mu[!which_locs])
+          )
+  if(ncol(X$X_locs)!=ncol(X$X)) 
+  {
+    posterior_mean = posterior_mean - 
+    solve(posterior_precision, # (Q1 + Q2)
+          solve(matrix(beta_prior$precision[X$which_locs, X$which_locs], length(X$which_locs)), # QAA-1
+                matrix(beta_prior$precision[X$which_locs,- X$which_locs], length(X$which_locs)) %*% #QAB
+                  (beta[-X$which_locs]- beta_prior$mean[-X$which_locs]))) #xB - muB
+  }
+  # Q2 mu2, with mu2 = (mu[which_locs]|mu[!which_locs]) = mu[which_locs] - Q[which_locs]Q[which_locs, !which_locs](beta[!which_locs]-mu[!which_locs])
+  new_beta  = as.vector(posterior_mean + t(chol(solve(posterior_precision))) %*% rnorm(length(posterior_mean))) 
+  new_field = centered_field - as.vector(X$X_locs %*% matrix(new_beta, ncol = 1))
+  return(list(
+    beta = new_beta, 
+    field = new_field
+  ))
+}
+
+
+
+#' @export
 mcmc_nngp_update_Gaussian = function(data,
                                      hierarchical_model, vecchia_approx, # model architecture
                                      state, # model state
-                                     n_iterations_update = 400, thinning = .1, iter_start = 0, seed = 1,# practical settings
-                                     swap_range_scale = F # additional step in case of badly identified range and variance in small geographic areas
+                                     n_iterations_update = 400, thinning = .1, iter_start = 0, seed = 1# practical settings
 )
 {
   #################
@@ -32,67 +63,7 @@ mcmc_nngp_update_Gaussian = function(data,
   for(iter in seq(1, n_iterations_update))
   {
     gc()
-    cat(paste(iter, " "))
-    
-    #########################################################
-    # swapping range and scale for small geographical areas #
-    #########################################################
-    
-    if(swap_range_scale)
-    {
-      innovation = rnorm(1, 0, exp(state$transition_kernels$range_scale_joint))
-      new_scale_beta = state$params$scale_beta
-      new_scale_beta[1] = new_scale_beta[1]+innovation
-      new_scale = state$sparse_chol_and_stuff$scale * exp(innovation)
-      new_range_beta = state$params$range_beta
-      if(ncol(new_range_beta)==3)new_range_beta[1, c(1, 2)] = new_range_beta[1, c(1, 2)] + innovation
-      if(ncol(new_range_beta)==1)new_range_beta[1, 1] = new_range_beta[1, 1] + innovation/sqrt(2)
-      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
-                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
-                                                                        locs = data$locs, 
-                                                                        range_field = state$params$range_field, 
-                                                                        range_X = data$covariates$range_X$X_locs, 
-                                                                        nu = hierarchical_model$nu)
-      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-      if(log(runif(1))< 
-         sum(log(new_compressed_sparse_chol_and_grad[[1]][,1])) - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
-         -0.5*sum(log(new_scale)) +0.5*sum(log(state$sparse_chol_and_stuff$scale))
-         -.5 * sum((new_sparse_chol                         %*% (state$params$field /sqrt(new_scale                        )))^2)
-         +.5 * sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field /sqrt(state$sparse_chol_and_stuff$scale)))^2)
-      )
-      {
-        # range
-        state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
-        state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
-        state$params$range_beta[] = new_range_beta
-        state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
-        # scale
-        state$sparse_chol_and_stuff$scale = new_scale 
-        state$params$scale_beta = new_scale_beta
-        # acceptance
-        acceptance_records$range_scale_joint[iter - 50*(iter %/% 50) ] = acceptance_records$range_scale_joint[iter - 50*(iter %/% 50) ] + 1
-      }
-      # updating MALA kernel
-      if(iter_start + iter < 1000)
-      {
-        if(iter %/% 50 ==iter / 50)
-        {
-          if(mean(acceptance_records$range_scale_joint)>.51)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint + rnorm(1, .4, .05)
-          if(mean(acceptance_records$range_scale_joint)<.11)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint - rnorm(1, .4, .05)
-          acceptance_records$range_scale_joint =  0*acceptance_records$range_scale_joint
-        }
-      }
-      # updating MALA kernel
-      if((iter_start + iter > 1000)&(iter_start + iter < 2000))
-      {
-        if(iter %/% 50 ==iter / 50)
-        {
-          if(mean(acceptance_records$range_scale_joint)<.11)state$transition_kernels$range_scale_joint = state$transition_kernels$range_scale_joint - rnorm(1, .2, .05)
-          acceptance_records$range_scale_joint =  0*acceptance_records$range_scale_joint
-        }
-      }
-    }
-    
+    #cat(paste(iter, " "))
     #########
     # Range #
     #########
@@ -117,6 +88,9 @@ mcmc_nngp_update_Gaussian = function(data,
         log(runif(1))<
         -.5 * sum((new_field         [vecchia_approx$locs_match]- state$sparse_chol_and_stuff$lm_residuals)^2/state$sparse_chol_and_stuff$noise)
         +.5 * sum((state$params$field[vecchia_approx$locs_match]- state$sparse_chol_and_stuff$lm_residuals)^2/state$sparse_chol_and_stuff$noise)
+        # prior
+        - .5 * (new_range_beta_0        - hierarchical_model$beta_priors$range_beta$mean)^2 * hierarchical_model$beta_priors$range_beta$precision
+        + .5 * (state$params$range_beta - hierarchical_model$beta_priors$range_beta$mean)^2 * hierarchical_model$beta_priors$range_beta$precision
       )
       {
         state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
@@ -167,6 +141,9 @@ mcmc_nngp_update_Gaussian = function(data,
          sum(log(new_compressed_sparse_chol_and_grad[[1]][,1])) - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
          -.5 * sum((new_sparse_chol                         %*% (state$params$field /sqrt(state$sparse_chol_and_stuff$scale)))^2)
          +.5 * sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field /sqrt(state$sparse_chol_and_stuff$scale)))^2)
+         # prior
+         - .5 * (new_range_beta_0        - hierarchical_model$beta_priors$range_beta$mean)^2 * hierarchical_model$beta_priors$range_beta$precision
+         + .5 * (state$params$range_beta - hierarchical_model$beta_priors$range_beta$mean)^2 * hierarchical_model$beta_priors$range_beta$precision
       )
       {
         state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
@@ -202,8 +179,8 @@ mcmc_nngp_update_Gaussian = function(data,
     {
       q = t(solve(data$covariates$range_X$chol_solve_crossprod_X_locs)) %*% state$params$range_beta # whitening wrt covariates of the range
       current_U =
-        (
-          0 # improper prior 
+        as.vector(
+          + .5*t(c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) %*% hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) # normal prior 
           + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
         )
       # MALA whitened
@@ -211,11 +188,13 @@ mcmc_nngp_update_Gaussian = function(data,
       p = state$momenta$range_beta_ancillary
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_ancillary) *
-        (0  # improper prior derivative
-         + as.matrix(
-           solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+        (+ as.matrix(
+          0.5* matrix(hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened), ncol = ncol(q))
+          + solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+                 # normal prior derivative                
                  t(data$covariates$range_X$X_locs) %*%   # Jacobian of range field wrt range_beta
-                   (# natural gradient of obs likelihood wrt range field
+                   (
+                     # natural gradient of obs likelihood wrt range field
                      Bidart::derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
                                                    left_vector = as.vector(
                                                      Matrix::solve(
@@ -243,11 +222,14 @@ mcmc_nngp_update_Gaussian = function(data,
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
       # Make a half step for momentum at the end.
       p = p - exp(state$transition_kernels$range_beta_ancillary) *
-        (0  # improper prior derivative
+        (
          + as.matrix(
-           solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+           0.5* matrix(hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened), ncol = ncol(q))
+           + solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+                 # normal prior derivative                
                  t(data$covariates$range_X$X_locs) %*%   # Jacobian of range field wrt range_beta
-                   (# natural gradient of obs likelihood wrt range field
+                   (
+                     # natural gradient of obs likelihood wrt range field
                      Bidart::derivative_sandwiches(derivatives = new_compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
                                                    left_vector = as.vector(
                                                      Matrix::solve(
@@ -264,8 +246,8 @@ mcmc_nngp_update_Gaussian = function(data,
       # Evaluate potential and kinetic energies at start and end of trajectory
       current_K = sum (state$momenta$range_beta_ancillary ^2) / 2
       proposed_U =
-        (
-          0 # improper prior 
+        as.vector (
+          + .5*t(c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) %*% hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) # normal prior 
           + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
         )
       proposed_K = sum(p^2) / 2
@@ -305,22 +287,55 @@ mcmc_nngp_update_Gaussian = function(data,
     #######################################
     # Nonstationary range beta (centered) #
     #######################################
+###    if(!is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior))
+###    {
+###      # rotating field and beta in order to get 3 decorrelated components (each component has spatial correlation tho)
+###      rotated_field = state$params$range_field  %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
+###      rotated_beta  = matrix(state$params$range_beta, nrow = ncol(data$covariates$range_X$X_locs)) %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
+###      # center
+###      centered_field = as.matrix(rotated_field + data$covariates$range_X$X_locs %*% rotated_beta)
+###      sparse_chol_X = data$covariates$range_X$sparse_chol_X_locs
+###      beta_covmat = data$covariates$range_X$solve_crossprod_sparse_chol_X_locs
+###      # beta mean =  w^t RtRX (XtRtRX)^{-1}(((Xt))) 
+###      beta_mean =  t(
+###        t(as.matrix(hierarchical_model$hyperprior_covariance$range_NNGP_prior$sparse_chol %*% centered_field))  %*% sparse_chol_X #vbw^t RtRX 
+###        %*% beta_covmat # (XtRtRX)^{-1} 
+###      )
+###      # sampling new beta
+###      rotated_beta = beta_mean +  t(chol(beta_covmat)) %*% matrix(rnorm(length(beta_mean)), nrow = nrow(beta_mean))
+###      # de-centering and de-rotating
+###      rotated_field = centered_field - as.matrix(data$covariates$range_X$X_locs %*% rotated_beta)
+###      state$params$range_field = rotated_field %*% chol(Bidart::expmat(state$params$range_log_scale))
+###      state$params$range_beta[] = rotated_beta %*% chol(Bidart::expmat(state$params$range_log_scale))
+###    }
     if(!is.null(hierarchical_model$hyperprior_covariance$range_NNGP_prior))
     {
+      
       # rotating field and beta in order to get 3 decorrelated components (each component has spatial correlation tho)
       rotated_field = state$params$range_field  %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
       rotated_beta  = matrix(state$params$range_beta, nrow = ncol(data$covariates$range_X$X_locs)) %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
-      # center
+      # data knowing parameter
       centered_field = as.matrix(rotated_field + data$covariates$range_X$X_locs %*% rotated_beta)
       sparse_chol_X = data$covariates$range_X$sparse_chol_X_locs
       beta_covmat = data$covariates$range_X$solve_crossprod_sparse_chol_X_locs
-      # beta mean =  w^t RtRX (XtRtRX)^{-1}(((Xt))) 
-      beta_mean =  t(
-        t(as.matrix(hierarchical_model$hyperprior_covariance$range_NNGP_prior$sparse_chol %*% centered_field))  %*% sparse_chol_X #vbw^t RtRX 
-        %*% beta_covmat # (XtRtRX)^{-1} 
-      )
+      # prior (whitened wrt log scale)
+      rotation_matrix = t(solve(chol(Bidart::expmat(state$params$range_log_scale)))) %x% diag(1, nrow(rotated_beta), nrow(rotated_beta))
+      solve_rotation_matrix = solve(rotation_matrix)
+      beta_precision_prior = t(solve_rotation_matrix) %*% hierarchical_model$beta_priors$range_beta$precision %*% solve_rotation_matrix
+      # combining data knowing parameter with prior 
+        # Q1 + Q2
+      beta_precision_posterior = diag(1, 3, 3) %x% solve(beta_covmat) + beta_precision_prior
+        # (Q1 + Q2)-1 (Q1 mu1 + Q2 mu2)
+      beta_mean_posterior = solve(beta_precision_posterior, 
+                                  c(
+                                    t(as.matrix(hierarchical_model$hyperprior_covariance$range_NNGP_prior$sparse_chol %*% centered_field))  %*% sparse_chol_X # Q1 mu1 
+                                    )
+                                  + 
+                                    beta_precision_prior %*% rotation_matrix %*% hierarchical_model$beta_priors$range_beta$mean
+                                  )
+      
       # sampling new beta
-      rotated_beta = beta_mean +  t(chol(beta_covmat)) %*% matrix(rnorm(length(beta_mean)), nrow = nrow(beta_mean))
+      rotated_beta = matrix(beta_mean_posterior +  t(chol(solve(beta_precision_posterior))) %*% rnorm(length(beta_mean_posterior)), nrow = nrow(state$params$range_beta))
       # de-centering and de-rotating
       rotated_field = centered_field - as.matrix(data$covariates$range_X$X_locs %*% rotated_beta)
       state$params$range_field = rotated_field %*% chol(Bidart::expmat(state$params$range_log_scale))
@@ -332,20 +347,20 @@ mcmc_nngp_update_Gaussian = function(data,
     if(length(grep("nonstat", hierarchical_model$covfun))==1)
     {
       q = t(solve(data$covariates$range_X$chol_solve_crossprod_X_locs)) %*% state$params$range_beta # whitening wrt covariates of the range
-      current_U =
-        (
-          0 # improper prior 
+      current_U = as.vector(
+          +.5*t(c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) %*% hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) # normal prior 
           + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
           - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
         )
+      
       # MALA whitened
       state$momenta$range_beta_sufficient = sqrt(.9) * state$momenta$range_beta_sufficient + sqrt(.1)*matrix(rnorm(length(q)), nrow = nrow(q))
       p = state$momenta$range_beta_sufficient
       # Make a half step for momentum at the beginning
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
-        (0  # improper prior derivative
-         + as.matrix(
-           solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+        (+ as.matrix(
+           0.5* matrix(hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened), ncol = ncol(q))  # normal prior derivative                
+           + solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
                  t(data$covariates$range_X$X_locs) %*%   # Jacobian of range field wrt range_beta
                    (# natural gradient of obs likelihood wrt range field
                      Bidart::derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
@@ -369,10 +384,11 @@ mcmc_nngp_update_Gaussian = function(data,
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       # Make a half step for momentum at the end.
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
-        (0  # improper prior derivative
-         + as.vector(
-           solve(solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-                 t(data$covariates$range_X$X_locs) %*%   # Jacobian of range field wrt range_beta
+        (        
+         + as.matrix(
+           0.5* matrix(hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened), ncol = ncol(q))  # normal prior derivative
+           + solve (solve(data$covariates$range_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+                  t(data$covariates$range_X$X_locs) %*%   # Jacobian of range field wrt range_beta
                    (# natural gradient of obs likelihood wrt range field
                      Bidart::derivative_sandwiches(derivatives = new_compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
                                                    left_vector = as.vector(new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))), # left vector = whitened latent field
@@ -384,9 +400,8 @@ mcmc_nngp_update_Gaussian = function(data,
         )/ 2
       # Evaluate potential and kinetic energies at start and end of trajectory
       current_K = sum (state$momenta$range_beta_sufficient ^2) / 2
-      proposed_U =
-        (
-          0 # improper prior 
+      proposed_U = as.vector(
+          +.5*t(c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) %*% hierarchical_model$beta_priors$range_beta$precision_whitened %*% (c(q) - hierarchical_model$beta_priors$range_beta$mean_whitened) # normal prior 
           + .5* sum((new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
           - sum(log(new_compressed_sparse_chol_and_grad[[1]][,1]))
         )
@@ -430,17 +445,28 @@ mcmc_nngp_update_Gaussian = function(data,
       # rotating field and beta in order to get 3 decorrelated components (each component has spatial correlation tho)
       rotated_field = state$params$range_field  %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
       rotated_beta  = matrix(state$params$range_beta, nrow = ncol(data$covariates$range_X$X_locs)) %*% solve(chol(Bidart::expmat(state$params$range_log_scale)))
-      # center
+      # data knowing parameter
       centered_field = as.matrix(rotated_field + data$covariates$range_X$X_locs %*% rotated_beta)
       sparse_chol_X = data$covariates$range_X$sparse_chol_X_locs
       beta_covmat = data$covariates$range_X$solve_crossprod_sparse_chol_X_locs
-      # beta mean =  w^t RtRX (XtRtRX)^{-1}(((Xt))) 
-      beta_mean =  t(
-        t(as.matrix(hierarchical_model$hyperprior_covariance$range_NNGP_prior$sparse_chol %*% centered_field))  %*% sparse_chol_X #vbw^t RtRX 
-        %*% beta_covmat # (XtRtRX)^{-1} 
+      # prior (whitened wrt log scale)
+      rotation_matrix = t(solve(chol(Bidart::expmat(state$params$range_log_scale)))) %x% diag(1, nrow(rotated_beta), nrow(rotated_beta))
+      solve_rotation_matrix = solve(rotation_matrix)
+      beta_precision_prior = t(solve_rotation_matrix) %*% hierarchical_model$beta_priors$range_beta$precision %*% solve_rotation_matrix
+      # combining data knowing parameter with prior 
+      # Q1 + Q2
+      beta_precision_posterior = diag(1, 3, 3) %x% solve(beta_covmat) + beta_precision_prior
+      # (Q1 + Q2)-1 (Q1 mu1 + Q2 mu2)
+      beta_mean_posterior = solve(beta_precision_posterior, 
+                                  c(
+                                    t(as.matrix(hierarchical_model$hyperprior_covariance$range_NNGP_prior$sparse_chol %*% centered_field))  %*% sparse_chol_X # Q1 mu1 
+                                  )
+                                  + 
+                                    beta_precision_prior %*% rotation_matrix %*% hierarchical_model$beta_priors$range_beta$mean
       )
+      
       # sampling new beta
-      rotated_beta = beta_mean +  t(chol(beta_covmat)) %*% matrix(rnorm(length(beta_mean)), nrow = nrow(beta_mean))
+      rotated_beta = matrix(beta_mean_posterior +  t(chol(solve(beta_precision_posterior))) %*% rnorm(length(beta_mean_posterior)), nrow = nrow(state$params$range_beta))
       # de-centering and de-rotating
       rotated_field = centered_field - as.matrix(data$covariates$range_X$X_locs %*% rotated_beta)
       state$params$range_field = rotated_field %*% chol(Bidart::expmat(state$params$range_log_scale))
@@ -1000,7 +1026,6 @@ mcmc_nngp_update_Gaussian = function(data,
           }
         }
       }
-      
     }
     #########
     # Noise #
@@ -1012,51 +1037,11 @@ mcmc_nngp_update_Gaussian = function(data,
     ##############
     # Noise beta #
     ##############
-    #### MH sampling within Gibbs sweep over all regression coefficients (which are only an intercept in the stationary case)
-    ###whitened_noise_beta = t(solve(data$covariates$noise_X$chol_solve_crossprod_X)) %*% state$params$noise_beta
-    ###for(i in seq(ncol(data$covariates$noise_X$X_white)))
-    ###{
-    ###  innovation = rnorm(1, 0, exp(state$transition_kernels$noise_beta[i]))
-    ###  new_noise = state$sparse_chol_and_stuff$noise * exp(data$covariates$noise_X$X_white[,i])^innovation
-    ###  if(
-    ###    -.5* sum(log(new_noise))-.5*sum(squared_residuals/new_noise)
-    ###    +.5* sum(log(state$sparse_chol_and_stuff$noise))+.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise)
-    ###    > log(runif(1))
-    ###  )
-    ###  {
-    ###    state$sparse_chol_and_stuff$noise = new_noise 
-    ###    whitened_noise_beta[i] = whitened_noise_beta[i] + innovation
-    ###    acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] = acceptance_records$noise_beta[iter - 50*(iter %/% 50), i] + 1
-    ###  }
-    ###}
-    ###state$params$noise_beta[] = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% whitened_noise_beta
-    #### updating MALA kernel
-    ###if(iter_start + iter <1000)
-    ###{
-    ###  if(iter %/% 50 ==iter / 50)
-    ###  {
-    ###    acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
-    ###    state$transition_kernels$noise_beta[acceptance_means>.41] = state$transition_kernels$noise_beta[acceptance_means>.41] + rnorm(sum(acceptance_means>.41), .4, .05)
-    ###    state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-    ###    acceptance_records$noise_beta =  0*acceptance_records$noise_beta
-    ###  }
-    ###}
-    
-    ###if(iter_start + iter <1000 & iter_start + iter >1000)
-    ###{
-    ###  if(iter %/% 50 ==iter / 50)
-    ###  {
-    ###    acceptance_means = apply(acceptance_records$noise_beta, 2, mean)
-    ###    state$transition_kernels$noise_beta[acceptance_means<.11] = state$transition_kernels$noise_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-    ###    acceptance_records$noise_beta =  0*acceptance_records$noise_beta
-    ###  }
-    ###}
-    
     # HMC update
     q = t(solve(data$covariates$noise_X$chol_solve_crossprod_X)) %*% state$params$noise_beta
     current_U =
       (
-        0 # improper prior 
+        +.5*t(q - hierarchical_model$beta_priors$noise_beta$mean_whitened) %*% hierarchical_model$beta_priors$noise_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$noise_beta$mean_whitened) # normal prior 
         +.5* sum(log(state$sparse_chol_and_stuff$noise)) # det
         +.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise) # observations
       )
@@ -1066,13 +1051,15 @@ mcmc_nngp_update_Gaussian = function(data,
     
     # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$noise_beta_mala) *
-      solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
-            t(data$covariates$noise_X$X) %*%
-              (
-                .5 # determinant part of normal likelihood
-                - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
-              )
-      )/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$noise_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$noise_beta$mean_whitened) 
+        + solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
+              t(data$covariates$noise_X$X) %*%
+                (
+                  .5 # determinant part of normal likelihood
+                  - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
+                )
+      ))/ 2
     # checking gradient with finite differences
     ###noise_beta_ = state$params$noise_beta 
     ###noise_beta_[1] = noise_beta_[1] + 0.0001
@@ -1091,25 +1078,45 @@ mcmc_nngp_update_Gaussian = function(data,
     ###      - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
     ###    ))[1]
     ###)
-    # Make a full step for the position
-    q = q + exp(state$transition_kernels$noise_beta_mala) * p
-    new_noise_beta = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% q
-    new_noise = Bidart::variance_field(new_noise_beta, state$params$noise_field[vecchia_approx$locs_match], data$covariates$noise_X$X)
-    # Make a half step for momentum at the beginning
+    nsteps = 4 + rbinom(1, 1, .5)
+    for(i in seq(nsteps))
+    {
+      # Make a full step for the position
+      q = q + exp(state$transition_kernels$noise_beta_mala) * p
+      new_noise_beta = t(data$covariates$noise_X$chol_solve_crossprod_X) %*% q
+      new_noise = Bidart::variance_field(new_noise_beta, state$params$noise_field[vecchia_approx$locs_match], data$covariates$noise_X$X)
+      # Make a full step for momentum at the end
+      if(i!= nsteps)
+      {
+        p = p - exp(state$transition_kernels$noise_beta_mala) *
+          (
+            + 0.5* hierarchical_model$beta_priors$noise_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$noise_beta$mean_whitened) 
+            + solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
+                  t(data$covariates$noise_X$X) %*%
+                    (
+                      .5 # determinant part of normal likelihood
+                      - (squared_residuals/new_noise)/2 # exponential part of normal likelihood
+                    )
+          ))
+      }
+    }
+    # Make a half step for momentum at the end
     p = p - exp(state$transition_kernels$noise_beta_mala) *
-      solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
-            t(data$covariates$noise_X$X) %*%
-              (
-                .5 # determinant part of normal likelihood
-                - (squared_residuals/new_noise)/2 # exponential part of normal likelihood
-              )
-      )/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$noise_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$noise_beta$mean_whitened) 
+        + solve(solve(data$covariates$noise_X$chol_solve_crossprod_X), # solving by prior sparse chol because of whitening
+              t(data$covariates$noise_X$X) %*%
+                (
+                  .5 # determinant part of normal likelihood
+                  - (squared_residuals/new_noise)/2 # exponential part of normal likelihood
+                )
+      ))/ 2
     
     # Evaluate potential and kinetic energies at start and end of trajectory
     current_K = sum (state$momenta$noise_beta ^2) / 2
     proposed_U = 
       (
-        0 # improper prior 
+        +.5*t(q - hierarchical_model$beta_priors$noise_beta$mean_whitened) %*% hierarchical_model$beta_priors$noise_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$noise_beta$mean_whitened) # normal prior 
         +.5* sum(log(new_noise)) # det
         +.5*sum(squared_residuals/new_noise) # observations
       )
@@ -1143,18 +1150,31 @@ mcmc_nngp_update_Gaussian = function(data,
       }
     }
     
-    
+    ########################
+    # Noise beta and field #
+    ########################
     if(!is.null(hierarchical_model$hyperprior_covariance$noise_NNGP_prior))
     {
       #######################################################
       # Gaussian update of centered regression coefficients #
       #######################################################
-      centered_field = as.vector(state$params$noise_field + data$covariates$noise_X$X_locs %*% matrix(state$params$noise_beta[data$covariates$noise_X$which_locs], ncol = 1))
-      sparse_chol_X = data$covariates$noise_X$sparse_chol_X_locs
-      beta_covmat = data$covariates$noise_X$solve_crossprod_sparse_chol_X_locs
-      beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$noise_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-      state$params$noise_beta [data$covariates$noise_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$noise_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-      state$params$noise_field = centered_field - as.vector(data$covariates$noise_X$X_locs %*% matrix(state$params$noise_beta[data$covariates$noise_X$which_locs], ncol = 1))
+      #centered_field = as.vector(state$params$noise_field + data$covariates$noise_X$X_locs %*% matrix(state$params$noise_beta[data$covariates$noise_X$which_locs], ncol = 1))
+      #sparse_chol_X = data$covariates$noise_X$sparse_chol_X_locs
+      #beta_covmat = data$covariates$noise_X$solve_crossprod_sparse_chol_X_locs
+      #beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$noise_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
+      #state$params$noise_beta [data$covariates$noise_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$noise_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
+      #state$params$noise_field = centered_field - as.vector(data$covariates$noise_X$X_locs %*% matrix(state$params$noise_beta[data$covariates$noise_X$which_locs], ncol = 1))
+      new_beta_and_field = Bidart::update_centered_beta(
+        beta = state$params$noise_beta, 
+        field = state$params$noise_field,
+        X = data$covariates$noise_X,
+        beta_prior = hierarchical_model$beta_priors$noise_beta, 
+        NNGP_prior = hierarchical_model$hyperprior_covariance$noise_NNGP_prior, 
+        log_scale = state$params$noise_log_scale
+      )
+      state$params$noise_beta[data$noise_X$which_locs] = new_beta_and_field$beta
+      state$params$noise_field[] = new_beta_and_field$field
+      
       
       ######################################################################
       # HMC update of the latent field with whitening & momentum recycling #
@@ -1303,7 +1323,7 @@ mcmc_nngp_update_Gaussian = function(data,
           (
             -.5*vecchia_approx$n_locs*new_noise_log_scale -.5* exp(-new_noise_log_scale)*unscaled_thingy
             +.5*vecchia_approx$n_locs*state$params$noise_log_scale -.5* exp(-state$params$noise_log_scale)*unscaled_thingy
-          )
+          ) > log(runif(1))
           & (new_noise_log_scale > -8)
           & (new_noise_log_scale < 3)        ){
           state$params$noise_log_scale = new_noise_log_scale
@@ -1318,114 +1338,14 @@ mcmc_nngp_update_Gaussian = function(data,
     ##############
     # Scale beta #
     ##############
-    #    #  MH within Gibbs sweep over all regression coefficients (which are only an intercept in the stationary case)
-    #    whitened_scale_beta = t(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs)) %*% state$params$scale_beta
-    #    scaled_field = state$params$field / sqrt(state$sparse_chol_and_stuff$scale)
-    #    for(i in seq(ncol(data$covariates$scale_X$X_locs_white)))
-    #    {
-    #      innovation = rnorm(1, 0, exp(state$transition_kernels$scale_ancillary_beta[i]))
-    #      new_scale = state$sparse_chol_and_stuff$scale * exp(data$covariates$scale_X$X_locs_white[,i])^innovation
-    #      if(
-    #          sum(dnorm(data$observed_field, state$sparse_chol_and_stuff$lm_fit + (scaled_field*sqrt(new_scale                        ))[vecchia_approx$locs_match], sqrt(state$sparse_chol_and_stuff$noise), log = T))
-    #        - sum(dnorm(data$observed_field, state$sparse_chol_and_stuff$lm_fit + (scaled_field*sqrt(state$sparse_chol_and_stuff$scale))[vecchia_approx$locs_match], sqrt(state$sparse_chol_and_stuff$noise), log = T))
-    #        > log(runif(1))
-    #      )
-    #      {
-    #        state$sparse_chol_and_stuff$scale = new_scale 
-    #        whitened_scale_beta[i] = whitened_scale_beta[i] + innovation
-    #        acceptance_records$scale_ancillary_beta[iter - 50*(iter %/% 50), i] = acceptance_records$scale_ancillary_beta[iter - 50*(iter %/% 50), i] + 1
-    #      }
-    #    }
-    #    state$params$scale_beta[] = t(data$covariates$scale_X$chol_solve_crossprod_X_locs) %*% whitened_scale_beta
-    #    state$params$field = scaled_field * sqrt(state$sparse_chol_and_stuff$scale)
-    #    # updating Metropolis kernel
-    #    if(iter_start + iter <1000)
-    #    {
-    #      if(iter %/% 50 ==iter / 50)
-    #      {
-    #        acceptance_means = apply(acceptance_records$scale_ancillary_beta, 2, mean)
-    #        state$transition_kernels$scale_ancillary_beta[acceptance_means>.41] = state$transition_kernels$scale_ancillary_beta[acceptance_means>.41] + rnorm(sum(acceptance_means>.41), .4, .05)
-    #        state$transition_kernels$scale_ancillary_beta[acceptance_means<.11] = state$transition_kernels$scale_ancillary_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-    #        acceptance_records$scale_ancillary_beta =  0*acceptance_records$scale_ancillary_beta
-    #      }
-    #    }
-    #    if(iter_start + iter <1000 & iter_start + iter >1000)
-    #    {
-    #      if(iter %/% 50 ==iter / 50)
-    #      {
-    #        acceptance_means = apply(acceptance_records$scale_ancillary_beta, 2, mean)
-    #        state$transition_kernels$scale_ancillary_beta[acceptance_means<.11] = state$transition_kernels$scale_ancillary_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-    #        acceptance_records$scale_ancillary_beta =  0*acceptance_records$scale_ancillary_beta
-    #      }
-    #    }
-    #    # centered
-    #    if(!is.null(hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
-    #    {
-    #      centered_field = as.vector(state$params$scale_field + data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-    #      sparse_chol_X = data$covariates$scale_X$sparse_chol_X_locs
-    #      beta_covmat = data$covariates$scale_X$solve_crossprod_sparse_chol_X_locs
-    #      beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-    #      state$params$scale_beta [data$covariates$scale_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$scale_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-    #      state$params$scale_field = centered_field - as.vector(data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-    #    }
-    #    # sufficient scale beta
-    #    whitened_scale_beta = t(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs)) %*% state$params$scale_beta
-    #    sparse_chol_diag_field = state$sparse_chol_and_stuff$sparse_chol %*% Matrix::Diagonal(x = state$params$field)
-    #    for(i in seq(ncol(data$covariates$scale_X$X_locs_white)))
-    #    {
-    #      innovation = rnorm(1, 0, exp(state$transition_kernels$scale_sufficient_beta[i]))
-    #      new_scale = state$sparse_chol_and_stuff$scale * exp(data$covariates$scale_X$X_locs_white[,i])^innovation
-    #      if(
-    #        -0.5*sum(log(new_scale))
-    #        -0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/new_scale))^2)  
-    #        +0.5*sum(log(state$sparse_chol_and_stuff$scale))
-    #        +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)  
-    #        > log(runif(1))
-    #      )
-    #      {
-    #        state$sparse_chol_and_stuff$scale = new_scale 
-    #        whitened_scale_beta[i] = whitened_scale_beta[i] + innovation
-    #        acceptance_records$scale_sufficient_beta[iter - 50*(iter %/% 50), i] = acceptance_records$scale_sufficient_beta[iter - 50*(iter %/% 50), i] + 1
-    #      }
-    #    }
-    #    state$params$scale_beta[] = t(data$covariates$scale_X$chol_solve_crossprod_X_locs) %*% whitened_scale_beta
-    #    # updating Metropolis kernel
-    #    if(iter_start + iter <1000)
-    #    {
-    #      if(iter %/% 50 ==iter / 50)
-    #      {
-    #        acceptance_means = apply(acceptance_records$scale_sufficient_beta, 2, mean)
-    #        state$transition_kernels$scale_sufficient_beta[acceptance_means>.41]  = state$transition_kernels$scale_sufficient_beta[acceptance_means>.41]  + rnorm(sum(acceptance_means>.41), .4, .05)
-    #        state$transition_kernels$scale_sufficient_beta[acceptance_means<.11]  = state$transition_kernels$scale_sufficient_beta[acceptance_means<.11]  - rnorm(sum(acceptance_means<.11), .4, .05)
-    #        acceptance_records$scale_sufficient_beta =  0*acceptance_records$scale_sufficient_beta
-    #      }
-    #    }
-    #    if(iter_start + iter <1000 & iter_start + iter >1000)
-    #    {
-    #      if(iter %/% 50 ==iter / 50)
-    #      {
-    #        acceptance_means = apply(acceptance_records$scale_sufficient_beta, 2, mean)
-    #        state$transition_kernels$scale_sufficient_beta[acceptance_means<.11] = state$transition_kernels$scale_sufficient_beta[acceptance_means<.11] - rnorm(sum(acceptance_means<.11), .4, .05)
-    #        acceptance_records$scale_sufficient_beta =  0*acceptance_records$scale_sufficient_beta
-    #      }
-    #    }
-    #    # centered 
-    #    if(!is.null(hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
-    #    {
-    #      centered_field = as.vector(state$params$scale_field + data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-    #      sparse_chol_X = data$covariates$scale_X$sparse_chol_X_locs
-    #      beta_covmat = data$covariates$scale_X$solve_crossprod_sparse_chol_X_locs
-    #      beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-    #      state$params$scale_beta [data$covariates$scale_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$scale_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-    #      state$params$scale_field = centered_field - as.vector(data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-    #    }
-    
-    # sufficient HMC
+      ##############################
+      # ancillary - sufficient HMC #
+      ##############################
     sparse_chol_diag_field = state$sparse_chol_and_stuff$sparse_chol %*% Matrix::Diagonal(x = state$params$field)
     q = t(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs)) %*% state$params$scale_beta
     current_U =
       (
-        0 # improper prior 
+        +0.5*t(q - hierarchical_model$beta_priors$scale_beta$mean_whitened) %*% hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
         +0.5*sum(log(state$sparse_chol_and_stuff$scale))# determinant part
         +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
       )
@@ -1434,13 +1354,15 @@ mcmc_nngp_update_Gaussian = function(data,
     p = state$momenta$scale_beta_sufficient
     # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
-      solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-            t(data$covariates$scale_X$X_locs) %*%
-              (
-                .5  # determinant part 
-                -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
-              )
-      )/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+        + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+              t(data$covariates$scale_X$X_locs) %*%
+                (
+                  .5  # determinant part 
+                  -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
+                )
+      ))/ 2
     # testing gradient vs finite difference
     ###scale_beta_ = state$params$scale_beta 
     ###scale_beta_[1] = scale_beta_[1] + .001
@@ -1470,28 +1392,33 @@ mcmc_nngp_update_Gaussian = function(data,
       if(i != n_hmc_steps)
       {
         p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
-          solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-                t(data$covariates$scale_X$X_locs) %*%
-                  (
-                    .5  # determinant part 
-                    -.5 * sqrt(1/new_scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/new_scale)))# natural derivative
-                  )
-          )
+          (
+            + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+            + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+                  t(data$covariates$scale_X$X_locs) %*%
+                    (
+                      .5  # determinant part 
+                      -.5 * sqrt(1/new_scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/new_scale)))# natural derivative
+                    )
+          ))
       }
     }
     # Make a half step for momentum at the end.
     p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
-      solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-            t(data$covariates$scale_X$X_locs) %*%
-              (
-                .5  # determinant part 
-                -.5 * sqrt(1/new_scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/new_scale)))# natural derivative
-              )
-      )/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+        + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+              t(data$covariates$scale_X$X_locs) %*%
+                (
+                  .5  # determinant part 
+                  -.5 * sqrt(1/new_scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/new_scale)))# natural derivative
+                )
+      ))/ 2
     # Evaluate potential and kinetic energies at start and end of trajectory
     current_K = sum (state$momenta$scale_beta_sufficient ^2) / 2
     proposed_U = 
       (
+        +0.5*t(q - hierarchical_model$beta_priors$scale_beta$mean_whitened) %*% hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
         +0.5*sum(log(new_scale))# determinant part
         +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/new_scale))^2)# covmat product part
       )
@@ -1524,24 +1451,30 @@ mcmc_nngp_update_Gaussian = function(data,
         acceptance_records$scale_beta_sufficient_mala =  0*acceptance_records$scale_beta_sufficient_mala
       }
     }
-    
-    
-    
+      ######################################
+      # sufficient - sufficient analytical #
+      ######################################
     if(!is.null(hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
     {
-      centered_field = as.vector(state$params$scale_field + data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-      sparse_chol_X = data$covariates$scale_X$sparse_chol_X_locs
-      beta_covmat = data$covariates$scale_X$solve_crossprod_sparse_chol_X_locs
-      beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-      state$params$scale_beta [data$covariates$scale_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$scale_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-      state$params$scale_field = centered_field - as.vector(data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
+      new_beta_and_field = Bidart::update_centered_beta(
+        beta = state$params$scale_beta, 
+        field = state$params$scale_field,
+        X = data$covariates$scale_X,
+        beta_prior = hierarchical_model$beta_priors$scale_beta, 
+        NNGP_prior = hierarchical_model$hyperprior_covariance$scale_NNGP_prior, 
+        log_scale = state$params$scale_log_scale
+      )
+      state$params$scale_beta[] = new_beta_and_field$beta
+      state$params$scale_field[] = new_beta_and_field$field
     }
     
-    # ancillary 
+      #############################
+      # ancillary - ancillary HMC #
+      #############################
     q = t(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs)) %*% state$params$scale_beta
     current_U =
       (
-        0 # improper prior 
+        +0.5*t(q - hierarchical_model$beta_priors$scale_beta$mean_whitened) %*% hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
         +.5 * sum((data$observed_field - state$sparse_chol_and_stuff$lm_fit - state$params$field[vecchia_approx$locs_match] )^2/state$sparse_chol_and_stuff$noise)
       )
     # MALA whitened
@@ -1549,13 +1482,16 @@ mcmc_nngp_update_Gaussian = function(data,
     p = state$momenta$scale_beta_ancillary
     # Make a. half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_ancillary_mala) *
-      solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-            t(data$covariates$scale_X$X_locs) %*%
-              (.5 * state$params$field * 
-                 as.vector(vecchia_approx$locs_match_matrix %*% 
-                             ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                state$sparse_chol_and_stuff$noise)
-                 )))/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+        + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+              t(data$covariates$scale_X$X_locs) %*%
+                (.5 * state$params$field * 
+                   as.vector(vecchia_approx$locs_match_matrix %*% 
+                               ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
+                                  state$sparse_chol_and_stuff$noise)
+                   ))
+      ))/ 2
     n_hmc_steps = 4 + rbinom(1, 1, .5)
     for(i in seq(n_hmc_steps))
     {
@@ -1568,28 +1504,35 @@ mcmc_nngp_update_Gaussian = function(data,
       if(i != n_hmc_steps)
       {
         p = p - exp(state$transition_kernels$scale_beta_ancillary_mala) *
-          solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-                t(data$covariates$scale_X$X_locs) %*%
-                  (.5 * new_field * 
-                     as.vector(vecchia_approx$locs_match_matrix %*% 
-                                 ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                    state$sparse_chol_and_stuff$noise)
-                     )))
+          (
+            + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+            + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+                  t(data$covariates$scale_X$X_locs) %*%
+                    (.5 * new_field * 
+                       as.vector(vecchia_approx$locs_match_matrix %*% 
+                                   ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
+                                      state$sparse_chol_and_stuff$noise)
+                       )))
+          )
       }
     }
     # Make a half step for momentum at the end.
     p = p - exp(state$transition_kernels$scale_beta_ancillary_mala) *
-      solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
-            t(data$covariates$scale_X$X_locs) %*%
-              (.5 * new_field * 
-                 as.vector(vecchia_approx$locs_match_matrix %*% 
-                             ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
-                                state$sparse_chol_and_stuff$noise)
-                 )))/ 2
+      (
+        + 0.5* hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
+        + solve(solve(data$covariates$scale_X$chol_solve_crossprod_X_locs), # solving by prior sparse chol because of whitening
+              t(data$covariates$scale_X$X_locs) %*%
+                (.5 * new_field * 
+                   as.vector(vecchia_approx$locs_match_matrix %*% 
+                               ((new_field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals)/
+                                  state$sparse_chol_and_stuff$noise)
+                   ))
+      ))/ 2
     # Evaluate potential and kinetic energies at start and end of trajectory
     current_K = sum (state$momenta$scale_beta_ancillary ^2) / 2
     proposed_U = 
       (
+        +0.5*t(q - hierarchical_model$beta_priors$scale_beta$mean_whitened) %*% hierarchical_model$beta_priors$scale_beta$precision_whitened %*% (q - hierarchical_model$beta_priors$scale_beta$mean_whitened) # prior 
         +.5 * sum((data$observed_field - state$sparse_chol_and_stuff$lm_fit - new_field[vecchia_approx$locs_match] )^2/state$sparse_chol_and_stuff$noise)
       )
     proposed_K = sum(p^2) / 2
@@ -1623,15 +1566,23 @@ mcmc_nngp_update_Gaussian = function(data,
       }
     }
     
+      #####################################
+      # sufficient - ancillary analytical #
+      #####################################
     if(!is.null(hierarchical_model$hyperprior_covariance$scale_NNGP_prior))
     {
-      centered_field = as.vector(state$params$scale_field + data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-      sparse_chol_X = data$covariates$scale_X$sparse_chol_X_locs
-      beta_covmat = data$covariates$scale_X$solve_crossprod_sparse_chol_X_locs
-      beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-      state$params$scale_beta [data$covariates$scale_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$scale_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-      state$params$scale_field = centered_field - as.vector(data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
+      new_beta_and_field = Bidart::update_centered_beta(
+        beta = state$params$scale_beta, 
+        field = state$params$scale_field,
+        X = data$covariates$scale_X,
+        beta_prior = hierarchical_model$beta_priors$scale_beta, 
+        NNGP_prior = hierarchical_model$hyperprior_covariance$scale_NNGP_prior, 
+        log_scale = state$params$scale_log_scale
+      )
+      state$params$scale_beta[] = new_beta_and_field$beta
+      state$params$scale_field[] = new_beta_and_field$field
     }
+    
     #############################################
     # Nonstationary with log-scale latent field #
     #############################################
@@ -1640,15 +1591,7 @@ mcmc_nngp_update_Gaussian = function(data,
       
       # recomputation to avoid errors
       state$sparse_chol_and_stuff$scale = Bidart::variance_field(beta = state$params$scale_beta, X = data$covariates$scale_X$X_locs, field = state$params$scale_field)
-      ################################
-      # Updating centered scale beta #
-      ################################
-      #centered_field = as.vector(state$params$scale_field + data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
-      #sparse_chol_X = data$covariates$scale_X$sparse_chol_X_locs
-      #beta_covmat = data$covariates$scale_X$solve_crossprod_sparse_chol_X_locs
-      #beta_mean =  c(as.vector(hierarchical_model$hyperprior_covariance$scale_NNGP_prior$sparse_chol %*% centered_field)  %*% sparse_chol_X %*% beta_covmat)
-      #state$params$scale_beta [data$covariates$scale_X$which_locs] = as.vector(beta_mean + exp(.5 * state$params$scale_log_scale) * t(chol(beta_covmat)) %*% rnorm(length(beta_mean)))
-      #state$params$scale_field = centered_field - as.vector(data$covariates$scale_X$X_locs %*% matrix(state$params$scale_beta, ncol = 1))
+
       ######################
       # scale latent field #
       ######################
@@ -1885,6 +1828,7 @@ mcmc_nngp_update_Gaussian = function(data,
           (
             +.5*vecchia_approx$n_locs*state$params$scale_log_scale  +.5* exp(-state$params$scale_log_scale)*unscaled_thingy
             -.5*vecchia_approx$n_locs*new_scale_log_scale  -.5* exp(-new_scale_log_scale)*unscaled_thingy
+            > log(runif(1))
           )
           & (new_scale_log_scale > -8)
           & (new_scale_log_scale < 3)
@@ -1942,6 +1886,7 @@ mcmc_nngp_update_Gaussian = function(data,
           (
             +.5*vecchia_approx$n_locs*state$params$scale_log_scale  +.5* exp(-state$params$scale_log_scale)*unscaled_thingy
             -.5*vecchia_approx$n_locs*new_scale_log_scale  -.5* exp(-new_scale_log_scale)*unscaled_thingy
+            > log(runif(1))
           )
           & (new_scale_log_scale > -8)
           & (new_scale_log_scale < 3)

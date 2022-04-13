@@ -158,11 +158,11 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
   abline(h = 1.2, lty = "longdash")
   abline(h = 1)
 }
-arrays =                   list(
-  array(rnorm(600), dim = c(4, 2, 100)),
-  array(rnorm(600), dim = c(4, 2, 100)),
-  array(rnorm(600), dim = c(4, 2, 100))
-)
+#arrays =                   list(
+#  array(rnorm(600), dim = c(4, 2, 100)),
+#  array(rnorm(600), dim = c(4, 2, 100)),
+#  array(rnorm(600), dim = c(4, 2, 100))
+#)
 #test = grb_diags_field(iterations = seq(100), record_arrays = arrays, burn_in = .5, starting_proportion = .5)
 #plot_PSRF(test, individual_varnames = seq(4), varname = "tatato")
 
@@ -221,7 +221,7 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
 #' @export
 plot_beta = function(beta_arrays, iterations, starting_proportion = .5, varname, var_names = NULL)
 {
-  if(dim(beta_arrays[[1]])[2]==3)beta_arrays = lapply(beta_arrays, function(x)array_multiply_2(x, matrix(c(1/sqrt(2), 1/sqrt(2), 0, 1/sqrt(2), -1/sqrt(2), 0, 0, 0, 1/sqrt(2)), 3)))
+  if(dim(beta_arrays[[1]])[2]==3)beta_arrays = lapply(beta_arrays, function(x)array_multiply_2(x, matrix(c(1/sqrt(2), 1/sqrt(2), 0, 1/sqrt(2), -1/sqrt(2), 0, 0, 0, 1), 3)))
   kept_iterations = which(iterations>starting_proportion*iterations[length(iterations)])
   for(i in seq(dim(beta_arrays[[1]])[2]))
   {
@@ -274,7 +274,8 @@ diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, plot_PSRF_actu
   for(i in list(range_names, noise_names, scale_names))
   {
     #print(i)
-    par(mfrow = c(length(grep("log_scale", i)) + dim(mcmc_nngp_list$records$chain_1 [[i[grep("beta", i)]]])[2], 1))
+    #par(mfrow = c(length(grep("log_scale", i)) + dim(mcmc_nngp_list$records$chain_1 [[i[grep("beta", i)]]])[2], 1))
+    par(mfrow = c(1, 1))
     if(length(grep("log_scale", i))>0)plot_log_scale(log_scale_arrays = lapply(mcmc_nngp_list$records, function(x)x[[i[grep("log_scale", i)]]]), iterations = mcmc_nngp_list$iterations$thinning, starting_proportion = starting_proportion, varname = i[grep("log_scale", i)])
     plot_beta(beta_arrays = lapply(mcmc_nngp_list$records, function(x)x[[i[grep("beta", i)]]]), iterations = mcmc_nngp_list$iterations$thinning, starting_proportion = starting_proportion, varname = i[grep("beta", i)], var_names = row.names(mcmc_nngp_list$states$chain_1$params[[i[grep("beta", i)]]]))
   }
