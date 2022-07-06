@@ -4,4 +4,4 @@ This script will replicate experiment.R (into experiment1.R, experiment2.R, etc)
 You may want to change Run_several.sh and Run.sh to adapt the characteristics of your cluster. 
 The results will appear in the foler. 
 Do the same in the other folder. 
-Then, rsync the results to your laptop and run Analysis.R in each folder (if you don't want to wait for the folders to copy, it might be smarter to run Analysis.R on your cluster, and just pull the generated pdf files to our laptop)
+Then, rsync the results to your laptop and run Analysis.R in each folder to get the figures of the paper (if you don't want to wait for the folders to copy, it might be smarter to run Analysis.R on your cluster, and just pull the generated pdf files to our laptop)
