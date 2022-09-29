@@ -1,5 +1,5 @@
 #' @export
-process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info = NULL, locs_match_matrix = F)
+process_covariates = function(X, observed_locs, vecchia_approx, KL = NULL, use_KL = F)
 {
   # covariates in the observed field #
   res = list()
@@ -17,14 +17,12 @@ process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info 
     res$X = matrix(model.matrix(~., as.data.frame(rep(1, nrow(observed_locs))))[,-1], nrow(observed_locs))
     colnames(res$X) = "(Intercept)"
   }
-  # scaling (minus the intercept)
-  res$X_mean =  apply(res$X, 2, mean) 
-  res$X_sd =  apply(res$X, 2, sd) 
-  res$X =  scale(res$X, scale = F)
-  res$X[,1] =  1
+  X_ = res$X
+  if(use_KL) X_ = cbind(res$X, KL$basis %*% diag(KL$KL_decomposition$d))
   # pre- computing XTX
-  res$solve_crossprod_X = solve(crossprod(res$X))
-  res$chol_solve_crossprod_X = chol(res$solve_crossprod_X)
+  crossprod_X = crossprod(X_)
+  res$chol_crossprod_X = chol(crossprod_X)
+  res$n_regressors = ncol(res$X)
   # identifying  which X do not vary within location
   res$which_locs = c()
   for(i in seq(ncol(res$X))) 
@@ -33,150 +31,33 @@ process_covariates = function(X, observed_locs, vecchia_approx, NNGP_prior_info 
   }
   res$X_locs = matrix(res$X[vecchia_approx$hctam_scol_1,res$which_locs], ncol = length(res$which_locs))
   colnames(res$X_locs) = colnames(res$X)[res$which_locs]
-  res$solve_crossprod_X_locs = solve(crossprod(res$X_locs))
-  res$chol_solve_crossprod_X_locs = chol(res$solve_crossprod_X_locs)
-  # if needed multiplying by log-NNGP prior sparse chol
-  if(!is.null(NNGP_prior_info))
-  {
-    res$sparse_chol_X_locs = as.matrix(NNGP_prior_info$sparse_chol %*% res$X_locs)
-    res$crossprod_sparse_chol_X_locs = crossprod(res$sparse_chol_X_locs)
-    res$solve_crossprod_sparse_chol_X_locs = solve(res$crossprod_sparse_chol_X_locs, tol = min(rcond(res$crossprod_sparse_chol_X_locs),.Machine$double.eps))
-    res$chol_solve_crossprod_sparse_chol_X_locs = chol(res$solve_crossprod_sparse_chol_X_locs)
-  }
+  X_locs_ = res$X_locs
+  if(use_KL)X_locs_ = cbind(X_locs_, (KL$basis %*% diag(KL$KL_decomposition$d))[vecchia_approx$hctam_scol_1,])
+  crossprod_X_locs = crossprod(X_locs_)
+  res$chol_crossprod_X_locs = chol(crossprod_X_locs)
   res
 }
 
-#' @export
-beta_prior_sanity_check = function(beta_mean, beta_precision, precision_parameter_name, mean_parameter_name = NULL, X)
-{
-  if(is.null(mean_parameter_name))mean_parameter_name = precision_parameter_name
-  # input must be list or NULL
-  if(!is.list(beta_precision) & !is.null(beta_precision))stop(paste(precision_parameter_name, "_beta_precision must be a list or NULL", sep = ""))
-  if(!is.list(beta_mean) & !is.null(beta_mean))stop(paste(precision_parameter_name, "_beta_precision must be a list or NULL", sep = ""))
-  # expanding NULL into list of NULLs
-  if(is.null(beta_precision))
-  {
-    if(!is.null(X))beta_precision = lapply(seq(ncol(X)+1 ), function(x)NULL)
-    if(is.null(X)) beta_precision = lapply(1, function(x)NULL)
-  }
-  if(is.null(beta_mean))
-  {
-    if(!is.null(X))beta_mean = lapply(seq(ncol(X)+1 ), function(x)NULL)
-    if(is.null(X)) beta_mean = lapply(1, function(x)NULL)
-  }
-  # checking lengths
-  if( is.null(X) &(length(beta_mean)!=1 | length(beta_precision)!=1))stop(
-    paste(mean_parameter_name, "_X is NULL, then ", mean_parameter_name, "_beta_mean and ", precision_parameter_name, "_beta_precision must have length equal to 1")
-  )
-  if(!is.null(X))
-  {
-    if(length(unique(c(ncol(X)+1, length(beta_mean), length(beta_precision))))>1)stop(
-      paste(mean_parameter_name, "_X has ", ncol(X)+1, "columns (couting the intercept), ", mean_parameter_name, "_beta_mean has length equal to", length(beta_mean), precision_parameter_name ,"_beta_precision has length equal to", length(beta_precision), "please make those all equal")
-    )
-  }
-  # sanity checks
-  if(!all(sapply(beta_mean, is.null) == sapply(beta_precision, is.null)))stop("The NULL elements in ", mean_parameter_name, "_beta_mean and ", precision_parameter_name, "_beta_precision should match")
-  if(!all(sapply(beta_mean, is.numeric) + sapply(beta_mean, is.null)))stop("all elements of ", mean_parameter_name, "_beta_mean must be numeric or NULL")
-  if(!all(sapply(beta_precision, is.numeric) + sapply(beta_precision, is.null)))stop("all elements of ", precision_parameter_name, "_beta_precision must be numeric or NULL")
-  if(any(unlist(beta_precision)<0))stop("all elements of ", precision_parameter_name, "_beta_precision must be greater than or equal to 0 (or NULL)")
-  return(list("mean" = beta_mean, "precision" = beta_precision))
-}
 
-
-#' @export
-beta_prior_fill_missing = function(beta_prior,  parameter_name, target_beta_0, X)
-{
-  res = list(); res$arg = beta_prior
-  #only one regressor
-  if(ncol(X$X)==1)
-  {
-    # first coefficient, using target_beta_0 if base model is needed 
-    if(is.null(beta_prior$mean[[1]])) 
-    {
-      beta_prior$mean = target_beta_0
-      beta_prior$precision = 1/25
-      message("values 1 (intercept) of ", parameter_name, "_beta_mean and ", parameter_name, "_beta_precision were automatially set to a waek prior")
-    }
-    beta_prior$mean = matrix(unlist(beta_prior$mean));beta_prior$precision = matrix(unlist(beta_prior$precision))
-  }
-  #more than one regressor
-  if(ncol(X$X)>1)
-  {
-    # rest of the coefficients, putting weak centered prior if needed
-    for(i in seq(2, length(beta_prior$mean)))
-    {
-      if(is.null(beta_prior$mean[[i]])) 
-      {
-        beta_prior$mean[[i]] = 0
-        beta_prior$precision[[i]] = (1/25)*var(X$X[,i])
-        message(paste("values ", i, " of ", parameter_name, "_beta_mean and ", parameter_name, "_beta_precision were automatially set to a weak centered prior", sep = ""))
-      }
-    }
-    # first coefficient, using target_beta_0 if base model is needed 
-    if(is.null(beta_prior$mean[[1]])) 
-    {
-      beta_prior$mean[[1]] = sum(unlist(beta_prior$mean[-1])*X$X_mean[-1]) + target_beta_0
-      beta_prior$precision[[1]] = 1/25
-      message("values 1 (intercept) of ", parameter_name, "_beta_mean and ", parameter_name, "_beta_precision were automatially set to a waek prior")
-    }
-    # linear transform to keep up with centering of the variables
-    C = diag(rep(1, length(beta_prior$mean)))
-    C[1, -1] = - X$X_mean[-1]
-    beta_prior$mean = solve(C, unlist(beta_prior$mean))
-    beta_prior$precision = (t(C) %*% diag(beta_prior$precision) %*% C)
-  }
-  res$mean = beta_prior$mean
-  res$precision = beta_prior$precision
-  if(parameter_name %in% c("scale", "range", "anisotropy"))
-  {
-    res$mean_whitened = t(solve(X$chol_solve_crossprod_X_locs)) %*% beta_prior$mean
-    res$precision_whitened = X$chol_solve_crossprod_X_locs %*% beta_prior$precision  %*% t(X$chol_solve_crossprod_X_locs)
-  }
-  if(parameter_name %in% c("noise"))
-  {
-    res$mean_whitened = t(solve(X$chol_solve_crossprod_X)) %*% beta_prior$mean
-    res$precision_whitened = X$chol_solve_crossprod_X %*% beta_prior$precision  %*% t(X$chol_solve_crossprod_X)
-  }
-  res
-}
-
-merge_beta_prior_range_precision = function(beta_prior_range, beta_prior_anisotropy)
-{
-  res = list()
-  res$arg_range = beta_prior_range$arg
-  res$arg_anisotropy = beta_prior_anisotropy$arg
-  M = matrix(c(sqrt(2)/2, sqrt(2)/2, 0, sqrt(2)/2, -sqrt(2)/2, 0, 0,0,1),3) %x% diag(nrow = length(beta_prior_range$mean))
-  res$mean = M %*% c(beta_prior_range$mean, beta_prior_anisotropy$mean, beta_prior_anisotropy$mean)
-  res$precision = t(solve(M)) %*% as.matrix(Matrix::bdiag(beta_prior_range$precision, beta_prior_anisotropy$precision, beta_prior_anisotropy$precision)) %*% solve(M)
-  res$mean_whitened = M %*% c(beta_prior_range$mean_whitened, beta_prior_anisotropy$mean_whitened, beta_prior_anisotropy$mean_whitened)
-  res$precision_whitened = t(solve(M)) %*% Matrix::bdiag(beta_prior_range$precision_whitened, beta_prior_anisotropy$precision_whitened, beta_prior_anisotropy$precision_whitened) %*% solve(M)
-  return(res)
-}
-
-
-#' @export
-NNGP_prior = function(range_param, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs)
-{
-  if(is.null(range_param))return(NULL) 
-  if(!is.null(range_param)) 
-  {
-    res = list()
-    res$range = range_param
-    res$smoothness = log_NNGP_nu
-    compressed_sparse_chol = GpGp::vecchia_Linv(covparms = c(1, range_param, log_NNGP_nu, 0), covfun_name = log_NNGP_matern_covfun, locs = locs, NNarray = vecchia_approx$NNarray)
-    res$sparse_chol = Matrix::sparseMatrix(
-      i = vecchia_approx$sparse_chol_row_idx, 
-      j = vecchia_approx$sparse_chol_column_idx, 
-      x = compressed_sparse_chol[vecchia_approx$NNarray_non_NA], 
-      triangular = T)
-    res$precision_diag =    as.vector((compressed_sparse_chol[vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
-    return(res)
-  }
-}
-
-
-
-#' @export
+#' Initializes a list containing the observations, the hierarchical model, and the MCMC chains.
+#' 
+#' @param observed_locs a matrix of spatial coordinates where observations are done
+#' @param observed_field a vector of observations of the interest variable
+#' @param X a data.frame of covariates explaining the interest variable through fixed linear effects
+#' @param m number of nearest neighbors to do Vecchia's approximation
+#' @param nu Matern smoothness, either 0.5 or 1.5
+#' @param reordering indicates the ordering heuristic, either "random", "maxmin", "middleout", list("coord", which coordinate is used), list("dist_to_point", coordinate of the starting point)
+#' @param covfun covariance function for the Gaussian latent field, either "exponential_isotropic", "exponential_sphere", "exponential_anisotropic2D", "matern_isotropic",      "matern_sphere",      "matern_anisotropic2D", "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic",      "nonstationary_matern_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"
+#' @param noise_X a data.frame of covariates explaining the Gaussian noise variance through fixed linear effects
+#' @param scale_X a data.frame of covariates explaining the Gaussian process marginal variance through fixed linear effects
+#' @param range_X a data.frame of covariates explaining the Gaussian process range through fixed linear effects
+#' @param noise_beta_mean vector indicating the prior mean for the regression coefficients explaining the Gaussian noise variance through fixed linear effects. Filled automatically if NULL. The number of rows is equal to the number of variables in X_noise after adding an intercept and expanding the factors, the number of columns is 1.
+#' @param scale_beta_mean vector indicating the prior mean for the regression coefficients explaining the Gaussian process marginal variance through fixed linear effects. Filled automatically if NULL. The number of rows is equal to the number of variables in X_scale after adding an intercept, the number of columns is 1.
+#' @param range_beta_mean vector (3-columns matrix in anisotropy case) indicating the prior mean for the regression coefficients explaining the Gaussian process range through fixed linear effects. Filled automatically if NULL.The number of rows is equal to the number of variables in X_range after adding an intercept, the number of columns is 1 if isotropic function or 3 if anisotropic function.
+#' @param noise_beta_precision matrix for the prior precision for the regression coefficients explaining the Gaussian noise variance through fixed linear effects. Filled automatically if NULL.
+#' @param scale_beta_precision matrix for the prior precision for the regression coefficients explaining the Gaussian process marginal variance through fixed linear effects. Filled automatically if NULL.
+#' @param range_beta_precision matrix for the prior precision for the regression coefficients explaining the Gaussian process range through fixed linear effects. Filled automatically if NULL. In anisotropic case, the matrix has size 3*n_var, each 3-block indicating the precision for a determinant-direction-direction 3-uplet: intecrept-det, intercept-dir, intercept-dir, V1-det, V1-dir, V1-dir, etc...
+ 
 mcmc_nngp_initialize_nonstationary = 
   function(observed_locs = NULL, #spatial locations
            observed_field = NULL, # Response variable
@@ -184,10 +65,11 @@ mcmc_nngp_initialize_nonstationary =
            m = 5, #number of Nearest Neighbors
            nu =1.5, #Matern smoothness
            reordering = "maxmin", #Reordering
-           covfun = "exponential_isotropic", response_model = "Gaussian", # covariance model and response model
-           noise_X = NULL, noise_beta_mean = NULL, noise_beta_precision = NULL, noise_range = NULL, # range for latent field of parameters, if NULL no latent field
-           scale_X = NULL, scale_beta_mean = NULL, scale_beta_precision = NULL, scale_range = NULL, # range for latent field of parameters, if NULL no latent field
-           range_X = NULL, range_beta_mean = NULL, range_beta_precision = NULL, range_range = NULL, anisotropy_beta_precision = NULL, # range for latent field of parameters, if NULL no latent field
+           covfun = "exponential_isotropic",
+           noise_X = NULL, noise_beta_mean = NULL, noise_beta_precision = NULL, noise_KL = F, noise_log_scale_prior = NULL, 
+           scale_X = NULL, scale_beta_mean = NULL, scale_beta_precision = NULL, scale_KL = F, scale_log_scale_prior = NULL, 
+           range_X = NULL, range_beta_mean = NULL, range_beta_precision = NULL, range_KL = F, range_log_scale_prior = NULL, 
+           KL = NULL, 
            log_NNGP_matern_covfun = NULL, log_NNGP_nu = NULL, # covariance function for the hyperpriors
            n_chains = 3,  # number of MCMC chains
            seed = 1
@@ -206,67 +88,63 @@ mcmc_nngp_initialize_nonstationary =
     
     # allowed functions
     if(!reordering[1] %in% c("maxmin", "random", "coord", "dist_to_point", "middleout"))stop("reordering should be chosen among : maxmin, random, coord, dist_to_point, middleout")
-    if(response_model!="Gaussian") stop("response_model should be chosen among : Gaussian")
-    if(!covfun %in% c("exponential_isotropic", "exponential_sphere",  "exponential_spacetime", "exponential_spheretime", "exponential_anisotropic2D", 
-                      "matern_isotropic",      "matern_sphere",       "matern_spacetime",      "matern_spheretime",      "matern_anisotropic2D", 
-                      "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", 
-                      "nonstationary_matern_isotropic",      "nonstationary_matern_isotropic_sphere", 
-                      "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere"))stop(
-                        "covfun should be chosen among : 
-                        exponential_isotropic,     exponential_sphere, exponential_spacetime,   exponential_spheretime,     exponential_anisotropic2D, 
-                        matern_isotropic, matern_sphere, matern_spacetime, matern_spheretime, matern_anisotropic2D, 
-                        nonstationary_exponential_isotropic, nonstationary_exponential_isotropic_sphere" , "nonstationary_matern_isotropic", 
-                        "nonstationary_matern_isotropic_sphere", "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere")
+    allowed_covfuns = c("exponential_isotropic", "exponential_sphere", 
+                        "exponential_anisotropic2D", 
+      "matern_isotropic",      "matern_sphere",      
+      "matern_anisotropic2D", 
+      "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", 
+      "nonstationary_matern_isotropic",      "nonstationary_matern_isotropic_sphere", 
+      "nonstationary_exponential_anisotropic", "nonstationary_exponential_anisotropic_sphere", 
+      "nonstationary_matern_anisotropic", "nonstationary_matern_anisotropic_sphere"
+      )
+    if(!covfun %in% allowed_covfuns)stop(do.call("paste", as.list(c("covfun should be chosen among :", allowed_covfuns))))
     # format
     if(!is.matrix(observed_locs))stop("observed_locs should be a matrix")
     if(!is.vector(observed_field))stop("observed_field should be a vector")
-    if(!is.data.frame(X            ) & !is.null(X))stop("X should be a data.frame or nothing")
+    
+    if(!is.data.frame(X) & !is.null(X))stop("X should be a data.frame or nothing")
+    
     if(!is.data.frame(noise_X) & !is.null(noise_X))stop("noise_X should be a data.frame or nothing")
     if(!is.data.frame(scale_X) & !is.null(scale_X))stop("scale_X should be a data.frame or nothing")
     if(!is.data.frame(range_X) & !is.null(range_X))stop("range_X should be a data.frame or nothing")
-    # positivity of ranges
-    if(any(!noise_range>0)) stop("noise_range should be greater than 0")
-    if(any(!scale_range>0)) stop("scale_range should be greater than 0")
-    if(any(!range_range>0)) stop("range_range should be greater than 0")
+    
+    if((is.null(KL)) & (noise_KL | range_KL | scale_KL))stop("either noise_KL, range_KL, or scale_KL is TRUE, while nothing was provided for KL")
+    
+    if(is.matrix(noise_beta_mean))stop("noise_beta_mean should be a matrix or nothing")
+    if(is.matrix(scale_beta_mean))stop("scale_beta_mean should be a matrix or nothing")
+    if(is.matrix(range_beta_mean))stop("range_beta_mean should be a matrix or nothing")
+    
+    if(is.matrix(noise_beta_precision))stop("noise_beta_precision should be a matrix or nothing")
+    if(is.matrix(scale_beta_precision))stop("scale_beta_precision should be a matrix or nothing")
+    if(is.matrix(range_beta_precision))stop("range_beta_precision should be a matrix or nothing")
     #length of observations
     if(
-      length(unique(c(
+      !all(unique(c(
         length(observed_field),
         nrow(observed_locs),
         nrow(X),
         nrow(scale_X),
         nrow(noise_X),
-        nrow(range_X)))
-      )!=1) stop(
+        nrow(range_X),
+        length(KL$idx)
+        )) %in% c(0, length(observed_field))
+      )) stop(
         paste("Lengths are not matching : observed_field has", length(observed_field), "observations,",
               "observed_locs has", nrow(observed_locs), "rows,", 
               "X has", nrow(X), "rows,", 
-              "scale_X has", nrow(scale_X), "rows,", 
-              "noise_X has", nrow(noise_X), "rows,", 
-              "range_X has", nrow(range_X), "rows."
+              "scale_X has", nrow(scale_X), "rows (can only be either 0 or the length of the observations),", 
+              "noise_X has", nrow(noise_X), "rows (can only be either 0 or the length of the observations),", 
+              "range_X has", nrow(range_X), "rows (can only be either 0 or the length of the observations),", 
+              "KL has", length(KL$idx), "locations (can only be either 0 or the length of the observations)"
         )
       )
-    if ((nu != 1)&(nu != 2)&(nu != 1.5))stop("only nu = 1, 1.5, 2 for now (1.5 recommended)")
-    if ((nu == 1)|(nu == 2))message("nu = 1.5 is much faster")
-    #nonstationary range is provided field and/or covariates
-    #if((length(grep("nonstationary", covfun))!=0) & is.null(range_X)&(is.null(range_range)))stop(paste("Nonstationary covariance function", covfun, "should be provided with at least :  1 or 2 range parameter (s) for the random field (range_range)  or/and : one set of covariates (range_X)"))
-    #stationary range is not provided field or covariates
-    if((length(grep("nonstationary", covfun))==0) & (!is.null(range_X)|(!is.null(range_range))))stop(paste("Stationary covariance function", covfun, "should have no range parameter for the random field (range_range)  and no covariates (range_X)"))
-    # useless log_NNGP_matern_covfun provided
-    if(!is.null(log_NNGP_matern_covfun)&(is.null(scale_range)&is.null(noise_range)&is.null(range_range)&is.null(log_NNGP_nu))) stop("A covariance function was indicated for the log-NNGP prior. Indicate hyperprior range/smoothness arguments or remove the covariance function.")
-    # no log_NNGP_matern_covfun provided
-    if(is.null(log_NNGP_matern_covfun)&(!is.null(scale_range)|!is.null(noise_range)|!is.null(range_range)|!is.null(log_NNGP_nu))) stop("No covariance function was indicated for the log-NNGP prior. Indicate a covariance function or remove hyperprior range/smoothness arguments.")
-    # bad log_NNGP_matern_covfun provided
-    if(!is.null(log_NNGP_matern_covfun)){if(!log_NNGP_matern_covfun %in% c("matern_spheretime", "matern_isotropic", "matern_spacetime", "matern_sphere"))stop("log_NNGP_matern_covfun should be chosen among : matern_spheretime, matern_isotropic, matern_spacetime, matern_sphere")}
-    # message about discrepancy
-    if (length(grep("sphere", log_NNGP_matern_covfun)) != length(grep("sphere", covfun))) message("The hyperprior covariance is on the sphere while the nonstationary covariance is on the plane (or the other way around)")
-
-    # prior length and NULL patterns
-    noise_beta_prior = beta_prior_sanity_check(beta_mean = noise_beta_mean, beta_precision = noise_beta_precision, precision_parameter_name = "noise", X = noise_X)
-    range_beta_prior = beta_prior_sanity_check(beta_mean = range_beta_mean, beta_precision = range_beta_precision, precision_parameter_name = "range", X = range_X)
-    scale_beta_prior = beta_prior_sanity_check(beta_mean = scale_beta_mean, beta_precision = scale_beta_precision, precision_parameter_name = "scale", X = scale_X)
-    if((length(grep("anisotropic", covfun))==1) & (length(grep("nonstationary", covfun))==1))anisotropy_beta_prior = beta_prior_sanity_check(beta_mean = anisotropy_beta_precision, beta_precision = anisotropy_beta_precision, mean_parameter_name = "range", precision_parameter_name = "anisotropy", X = range_X)
     
+    # smoothness
+    if (nu != 1.5)stop("only nu = 1.5")
+    #stationary range is provided field or covariates
+    if((length(grep("nonstationary", covfun))==0) & (!is.null(range_X)))stop(paste("Stationary covariance function", covfun, "should have no covariates (range_X)"))
+
+  
     ###############
     # Re-ordering #
     ###############
@@ -326,56 +204,136 @@ mcmc_nngp_initialize_nonstationary =
     vecchia_approx$locs_partition = sapply(seq(n/10000+1, 2*(n/10000)+1 ), function(i)
       kmeans(locs, centers = i)$cluster)
     
+    ##############
+    # covariates #
+    ##############
+    
+
+    covariates = list()
+    
+    covariates$X = process_covariates(X, observed_locs, vecchia_approx)  
+    
+    covariates$range_X = process_covariates(range_X, observed_locs, vecchia_approx, KL, range_KL)
+    if(!identical(covariates$range_X$which_locs, seq(ncol(covariates$range_X$X_locs))))stop("The covariates range_X cannot vary within one spatial location of observed_locs")
+    
+    covariates$scale_X = process_covariates(scale_X, observed_locs, vecchia_approx, KL, scale_KL)
+    if(!identical(covariates$scale_X$which_locs, seq(ncol(covariates$scale_X$X))))stop("The covariates scale_X cannot vary within one spatial location of observed_locs")
+    
+    covariates$noise_X = process_covariates(noise_X, observed_locs, vecchia_approx, KL, noise_KL)
+    
+    
+    ############################################
+    # More sanity checks for priors dimensions #
+####    ############################################
+####    
+####      # priors for scale
+####    if(
+####      !all(unique(c(
+####        ncol(noise_beta_precision),
+####        nrow(noise_beta_precision),
+####        nrow(noise_beta_mean),
+####        ncol(covariates$noise_X$X)
+####      )) %in% c(0, ncol(covariates$noise_X$X))
+####      )) stop(
+####        paste("Lengths are not matching : ", 
+####              "noise_beta_precision has "  , ncol(noise_beta_precision)         , "columns",                                                      
+####              "noise_beta_precision has "  , nrow(noise_beta_precision)         , "rows",                                                      
+####              "noise_beta_mean has "       , nrow(noise_beta_mean)              , "rows",                                                 
+####              "pre-processed noise_X has " , ncol(covariates$noise_X$X)         , "columns after adding an intercept (use model.matrix)"))     
+####    # priors for noise
+####    if(
+####      all(unique(c(
+####        ncol(scale_beta_precision),
+####        nrow(scale_beta_precision),
+####        nrow(scale_beta_mean),     
+####        ncol(covariates$scale_X$X)       
+####      )) %in% c(0, ncol(covariates$scale_X$X))
+####      )) stop(
+####        paste("Lengths are not matching : ", 
+####              "scale_beta_precision has ", ncol(scale_beta_precision)          , "columns",                                                      
+####              "scale_beta_precision has ", nrow(scale_beta_precision)          , "rows",                                                         
+####              "scale_beta_mean has "     , nrow(scale_beta_mean)               , "rows",                                                    
+####              "pre-processed scale_X has " , ncol(covariates$scale_X$X), "columns after adding an intercept (use model.matrix)"))         
+####      # priors for range
+####    if(
+####      all(unique(c(
+####        ncol(range_beta_precision)/(1+2*length(grep("anisotropic", covfun))),
+####        nrow(range_beta_precision)/(1+2*length(grep("anisotropic", covfun))),
+####        nrow(range_beta_mean),       
+####        ncol(covariates$range_X$X)             
+####      )) %in% c(0, ncol(covariates$range_X$X))
+####      )) stop(
+####        paste("Lengths are not matching : ", 
+####              "range_beta_precision has ", ncol(range_beta_precision)           , "columns (should be equal to nrow(range_beta_mean) or 3*nrow(range_beta_mean) in case of nonstationary anisotropic function)",                                                      
+####              "range_beta_precision has ", nrow(range_beta_precision)           , "rows    (should be equal to nrow(range_beta_mean) or 3*nrow(range_beta_mean) in case of nonstationary anisotropic function)",                                                      
+####              "range_beta_mean has "     , nrow(range_beta_mean)                , "rows",                                                    
+####              "pre-processed range_X has " , ncol(covariates$range_X$X), "columns after adding an intercept (use model.matrix)"))         
+####      # priors for range mean wrt anisotropy
+####    if(!is.null(range_beta_mean))
+####    {
+####      if(!ncol(range_beta_mean) %in%(c(1, 3)))stop("range_beta_mean must have 1 column (when isotropic function) or 3 columns (anisotropic function)")
+####      if((ncol(range_beta_mean)!=3)&(length(grep("anisotropic", covfun))==1))stop("range_beta_mean must have 1 column (when isotropic function) or 3 columns (anisotropic function)")
+####      if((ncol(range_beta_mean)!=1)&(length(grep("anisotropic", covfun))==0))stop("range_beta_mean must have 1 column (when isotropic function) or 3 columns (anisotropic function)")
+####    }
+    
     #################################
     # Info about hierarchical model #
     #################################
     
     hierarchical_model = list()
-    hierarchical_model$response_model = response_model
     hierarchical_model$covfun = covfun
     hierarchical_model$nu = nu
     hierarchical_model$beta_priors = list()
-      
-    # log-NNGP hyperpriors
-    hierarchical_model$hyperprior_covariance = list()
-    hierarchical_model$hyperprior_covariance$log_NNGP_matern_covfun = log_NNGP_matern_covfun
-    hierarchical_model$hyperprior_covariance$range_NNGP_prior = NNGP_prior(range_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
-    hierarchical_model$hyperprior_covariance$scale_NNGP_prior = NNGP_prior(scale_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
-    hierarchical_model$hyperprior_covariance$noise_NNGP_prior = NNGP_prior(noise_range, vecchia_approx, log_NNGP_nu, log_NNGP_matern_covfun, locs = locs)
+    hierarchical_model$KL = KL
+    if(is.null(hierarchical_model$KL)) hierarchical_model$KL = list("n_KL" = 0)
+    hierarchical_model$noise_KL = noise_KL
+    hierarchical_model$scale_KL = scale_KL
+    hierarchical_model$range_KL = range_KL
     
-
-    ##############
-    # covariates #
-    ##############
-    covariates = list()
+    if(is.null(noise_log_scale_prior))
+      {
+      message("noise_log_scale_prior was automatically set to an uniform on (-5, 2)")
+      noise_log_scale_prior = c(-5, 2)
+      }
+    hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
+    if(is.null(scale_log_scale_prior))
+      {
+      message("scale_log_scale_prior was automatically set to an uniform on (-5, 2)")
+      scale_log_scale_prior = c(-5, 2)
+      }
+    hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
+    if(is.null(range_log_scale_prior))
+      {
+      message("range_log_scale_prior was automatically set to an uniform on (-5, 2)")
+      range_log_scale_prior = c(-5, 2)
+      }
+    hierarchical_model$range_log_scale_prior = as.matrix(range_log_scale_prior) %x%rep(1, 1+2*length(grep("anisotropic", covfun)))
     
-    covariates$X = process_covariates(X, observed_locs, vecchia_approx)  
+    # OLS to get residual variance to make a guess 
+    naive_ols =  lm(observed_field~covariates$X$X-1)
+    lm_fit = as.vector(covariates$X$X%*%matrix(naive_ols$coefficients, ncol = 1))
+    lm_residuals = as.vector(observed_field- lm_fit)
     
-    covariates$range_X = process_covariates(range_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$range_NNGP_prior)
-    if(!identical(covariates$range_X$which_locs, seq(ncol(covariates$range_X$X_locs))))stop("The covariates range_X cannot vary within one spatial location of observed_locs")
-    
-    covariates$scale_X = process_covariates(scale_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$scale_NNGP_prior)
-    if(!identical(covariates$scale_X$which_locs, seq(ncol(covariates$scale_X$X))))stop("The covariates scale_X cannot vary within one spatial location of observed_locs")
-    
-    covariates$noise_X = process_covariates(noise_X, observed_locs, vecchia_approx, hierarchical_model$hyperprior_covariance$noise_NNGP_prior, locs_match_matrix = T)
-    
-    
-    ####################
-    # range beta prior #
-    ####################
-    # prior 
-    # using high-range model as base model
-    hierarchical_model$beta_priors$range_beta = beta_prior_fill_missing(beta_prior = range_beta_prior, parameter_name = "range", target_beta_0 = log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 1000),]))), X = covariates$range_X)
-    if((length(grep("anisotropic", covfun))==1) & (length(grep("nonstationary", covfun))==1))
-    {
-      anisotropy_beta_prior$mean = lapply(anisotropy_beta_prior$mean, function(x)
-        {
-        if(is.numeric(x)) return(0)
-        if(is.null(x))return(NULL)
-      })
-      anisotropy_beta_prior = beta_prior_fill_missing(beta_prior = anisotropy_beta_prior, parameter_name = "anisotropy", target_beta_0 = 0, X = covariates$range_X)
-      hierarchical_model$beta_priors$range_beta = merge_beta_prior_range_precision(hierarchical_model$beta_priors$range_beta, anisotropy_beta_prior)
+    hierarchical_model$beta_priors$noise_beta_mean = noise_beta_mean
+    hierarchical_model$beta_priors$scale_beta_mean = scale_beta_mean
+    hierarchical_model$beta_priors$range_beta_mean = range_beta_mean
+    # Default mean prior computed from a reasonable case. 
+    # The intercept is set to reasonable value and the rest is set to 0
+    if(is.null(noise_beta_mean)) hierarchical_model$beta_priors$noise_beta_mean = matrix(c(log(var(lm_residuals)) - log(2),                     rep(0, covariates$noise_X$n_regressors-1)), ncol=1)
+    if(is.null(scale_beta_mean)) hierarchical_model$beta_priors$scale_beta_mean = matrix(c(log(var(lm_residuals)) - log(2),                     rep(0, covariates$scale_X$n_regressors-1)), ncol=1)
+    if(is.null(range_beta_mean)) hierarchical_model$beta_priors$range_beta_mean = matrix(0, covariates$range_X$n_regressors, 1 + 2*length(grep("anisotropic", covfun)))
+    if(is.null(range_beta_mean)) hierarchical_model$beta_priors$range_beta_mean[1,1] = c(log(max(dist(locs[seq(1000), seq(2)])))-log(50))
+    hierarchical_model$beta_priors$noise_beta_precision = noise_beta_precision
+    hierarchical_model$beta_priors$scale_beta_precision = scale_beta_precision
+    hierarchical_model$beta_priors$range_beta_precision = range_beta_precision
+    if(is.null(noise_beta_precision)) hierarchical_model$beta_priors$noise_beta_precision =diag(.0001, covariates$noise_X$n_regressors, covariates$noise_X$n_regressors)
+    if(is.null(scale_beta_precision)) hierarchical_model$beta_priors$scale_beta_precision =diag(.0001, covariates$scale_X$n_regressors, covariates$scale_X$n_regressors)
+    if(is.null(range_beta_precision)) 
+      {
+      hierarchical_model$beta_priors$range_beta_precision = diag(.0001, covariates$range_X$n_regressors, covariates$range_X$n_regressors)
+      hierarchical_model$beta_priors$range_beta_precision = hierarchical_model$beta_priors$range_beta_precision %x% diag(1, (1+2*length(grep("anisotropic", covfun))))
     }
+    
     
     ################
     # Chain states #
@@ -402,46 +360,21 @@ mcmc_nngp_initialize_nonstationary =
       #########
       
       # mean log-range (only parameter in the case of stationary model)
-      if(covfun %in% c("exponential_spacetime"                     , "matern_spacetime"                     )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),-ncol(locs)]))     )-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))           , nrow = 1)
       if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic"                     )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
       if(covfun %in% c("exponential_sphere"                        , "matern_sphere"                        )) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
-      if(covfun %in% c("exponential_spacetime_sphere"              , "matern_spacetime_sphere"              )) states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1         ), sample(log(max(dist(locs[sample(seq(vecchia_approx$n_locs), 100),ncol(locs)])))-log(seq(5, 10, 1)), 1))   , nrow = 1)
       if(covfun %in% c("nonstationary_exponential_isotropic"       , "nonstationary_matern_isotropic"       )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
       if(covfun %in% c("nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic_sphere")) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
       if(covfun %in% c("exponential_anisotropic2D"                 , "matern_anisotropic2D"                 )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
       if(covfun == "nonstationary_exponential_anisotropic")                                                    states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
       if(covfun == "nonstationary_exponential_anisotropic_sphere")                                             states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
       # initiate null regressors for other covariates                                                                                                                                          
-      if(!is.null(covariates$range_X$X_locs))states[[i]]$params$range_beta = rbind(states[[i]]$params$range_beta, matrix(0#rnorm((ncol(covariates$range_X$X_locs)-1) * length(states[[i]]$params$range_beta))
-                                                                                                                    , ncol(covariates$range_X$X_locs)-1, length(states[[i]]$params$range_beta)))
-      row.names(states[[i]]$params$range_beta) = colnames(covariates$range_X$X_locs)
+      states[[i]]$params$range_beta = rbind(states[[i]]$params$range_beta, matrix(0, ncol(covariates$range_X$X_locs)+hierarchical_model$KL$n_KL*range_KL-1, length(states[[i]]$params$range_beta)))
+      if(range_KL)row.names(states[[i]]$params$range_beta) = c(colnames(covariates$range_X$X_locs), paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
+      if(!range_KL)row.names(states[[i]]$params$range_beta) = c(colnames(covariates$range_X$X_locs))
+      if(range_KL)states[[i]]$params$range_log_scale = runif(1 + 2*length(grep("aniso", covfun)), hierarchical_model$range_log_scale_prior[1,], hierarchical_model$range_log_scale_prior[2,])
       states[[i]]$momenta$range_beta_ancillary = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
       states[[i]]$momenta$range_beta_sufficient = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
         
-      # field 
-      if(!is.null(hierarchical_model$hyperprior_covariance$range))
-      {
-        # scale is given by a PD matrix whose Cholesky coefficients are given here
-        if(covfun == "nonstationary_exponential_isotropic" | covfun == "nonstationary_exponential_isotropic_sphere")
-        {
-          states[[i]]$params$range_field = matrix(rnorm(1 * vecchia_approx$n_locs), ncol = 1)
-          states[[i]]$params[["range_log_scale"]] = rnorm(1, -4, 1)
-          states[[i]]$momenta[["range_log_scale_ancillary"]] = rnorm(1)
-          states[[i]]$momenta[["range_log_scale_sufficient"]] = rnorm(1)
-        }
-        if(covfun == "nonstationary_exponential_anisotropic" | covfun == "nonstationary_exponential_anisotropic_sphere") 
-        {
-          states[[i]]$params$range_field = matrix(rnorm(ncol(locs)*(ncol(locs)+1)/2 * vecchia_approx$n_locs), ncol = ncol(locs)*(ncol(locs)+1)/2)
-          states[[i]]$params[["range_log_scale"]] =             c(-2, -2, -2, 0, 0, 0)
-          states[[i]]$momenta[["range_log_scale_ancillary"]] =  rnorm(ncol(states[[i]]$params$range_field)*(ncol(states[[i]]$params$range_field)+1)/2)
-          states[[i]]$momenta[["range_log_scale_sufficient"]] = rnorm(ncol(states[[i]]$params$range_field)*(ncol(states[[i]]$params$range_field)+1)/2)
-        }
-        # range field
-        states[[i]]$params$range_field =  as.matrix(Matrix::solve(hierarchical_model$hyperprior_covariance$range$sparse_chol, states[[i]]$params$range_field)) %*% chol(Bidart::expmat(states[[i]]$params$range_log_scale))
-        states[[i]]$momenta$range_field_ancillary  =  matrix(rnorm(length(states[[i]]$params$range_field)), nrow = nrow(states[[i]]$params$range_field))
-        states[[i]]$momenta$range_field_sufficient =  matrix(rnorm(length(states[[i]]$params$range_field)), nrow = nrow(states[[i]]$params$range_field))
-      }
-      
       ######################
       # Transition kernels #  
       ######################
@@ -453,111 +386,71 @@ mcmc_nngp_initialize_nonstationary =
       # can be used in both stationary and nonstationary cases respectively as a random walk Metropolis or MALA step size 
       # have an ancillary and a sufficient version when applicable
       # range
-      states[[i]]$transition_kernels$range_scale_joint = -4
-      states[[i]]$transition_kernels$range_field_sufficient_mala = -2
-      states[[i]]$transition_kernels$range_field_ancillary_mala  = -2
       states[[i]]$transition_kernels$range_log_scale_sufficient = -4
       states[[i]]$transition_kernels$range_log_scale_ancillary =  -4
       states[[i]]$transition_kernels$range_beta_sufficient = -4
       states[[i]]$transition_kernels$range_beta_ancillary  = -4
       # scale
-      states[[i]]$transition_kernels$scale_field_sufficient_mala = -3
-      states[[i]]$transition_kernels$scale_field_ancillary_mala = -3
-      states[[i]]$transition_kernels$scale_beta_sufficient_mala = -2
-      states[[i]]$transition_kernels$scale_beta_ancillary_mala  = -2
-      states[[i]]$transition_kernels$scale_sufficient_beta = rep(0, ncol(covariates$scale_X$X_locs))
-      states[[i]]$transition_kernels$scale_ancillary_beta = rep(0, ncol(covariates$scale_X$X_locs))
-      states[[i]]$transition_kernels$scale_sufficient_log_scale = -1
-      states[[i]]$transition_kernels$scale_ancillary_log_scale = -1
+      states[[i]]$transition_kernels$scale_beta_sufficient_mala = -4
+      states[[i]]$transition_kernels$scale_beta_ancillary_mala  = -4
+      states[[i]]$transition_kernels$scale_log_scale_sufficient = -4
+      states[[i]]$transition_kernels$scale_log_scale_ancillary =  -4
       # noise variance
-      states[[i]]$transition_kernels$noise_field_mala = -3
-      states[[i]]$transition_kernels$noise_beta = rep(0, ncol(covariates$noise_X$X))
-      states[[i]]$transition_kernels$noise_beta_mala = -1
-      states[[i]]$transition_kernels$noise_log_scale = -3
-      # MALA for latent field 
-      # states[[i]]$transition_kernels$latent_field_mala = -2
+      states[[i]]$transition_kernels$noise_beta_mala = -2
+      states[[i]]$transition_kernels$noise_log_scale = -2
       
-      ##############################################################################
-      # Linear regression coefficients, noise variance, and gaussian process scale #
-      ##############################################################################
-      # Cases are treated following data model
+      ###################################
+      # Linear regression coefficients  #
+      ###################################
+      # Naive OLS to determine starting values for beta, the field, 
+      naive_ols =  lm(observed_field~covariates$X$X-1)
+      #starting points for regression coeffs
+      perturb = t(chol(vcov(naive_ols)))%*%rnorm(length(naive_ols$coefficients))
+      states[[i]]$params[["beta"]] = naive_ols$coefficients + perturb
+      row.names(states[[i]]$params[["beta"]]) = colnames(covariates$X$X)
+      # Residuals of the OLS model that have to be explained by the latent field and the noise
+      states[[i]]$sparse_chol_and_stuff$lm_fit = as.vector(covariates$X$X%*%matrix(states[[i]]$params[["beta"]], ncol = 1))
+      states[[i]]$sparse_chol_and_stuff$lm_fit_locs = as.vector(covariates$X$X_locs%*%matrix(states[[i]]$params[["beta"]][covariates$X$which_locs], ncol = 1))
+      states[[i]]$sparse_chol_and_stuff$lm_residuals = as.vector(observed_field-  states[[i]]$sparse_chol_and_stuff$lm_fit)
+      ##################
+      # Noise variance #
+      ##################
+      # beta is just an intercept in stationary case
+      states[[i]]$params$noise_beta    = matrix(rep(0, ncol(covariates$noise_X$X)+noise_KL*hierarchical_model$KL$n_KL), ncol = 1) #random starting values
+      states[[i]]$params$noise_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) +rnorm(1, 0, .5) # setting sensible value for the intercept
+      if(!noise_KL) row.names(states[[i]]$params$noise_beta) = colnames(covariates$noise_X$X)
+      if(noise_KL ) row.names(states[[i]]$params$noise_beta) = c(colnames(covariates$noise_X$X), paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
+      states[[i]]$momenta$noise_beta = rnorm(ncol(covariates$noise_X$X))
+      # effective variance field, shall be used in density computations
+      states[[i]]$sparse_chol_and_stuff$noise = variance_field(beta = states[[i]]$params$noise_beta, KL = KL, use_KL = noise_KL, X = covariates$noise_X$X)
+      # log scale if latent field
+      if(noise_KL)states[[i]]$params$noise_log_scale = runif(1, hierarchical_model$noise_log_scale_prior[1], hierarchical_model$noise_log_scale_prior[2])
       
-      #################
-      # Gaussian case #
-      #################
-      if(response_model == "Gaussian")
-      {
-        ###################################
-        # Linear regression coefficients  #
-        ###################################
-        # Naive OLS to determine starting values for beta, the field, 
-        naive_ols =  lm(observed_field~covariates$X$X-1)
-        #starting points for regression coeffs
-        perturb = t(chol(vcov(naive_ols)))%*%rnorm(length(naive_ols$coefficients))
-        states[[i]]$params[["beta"]] = naive_ols$coefficients + perturb
-        row.names(states[[i]]$params[["beta"]]) = colnames(covariates$X$X)
-        # Residuals of the OLS model that have to be explained by the latent field and the noise
-        states[[i]]$sparse_chol_and_stuff$lm_fit = as.vector(covariates$X$X%*%matrix(states[[i]]$params[["beta"]], ncol = 1))
-        states[[i]]$sparse_chol_and_stuff$lm_fit_locs = as.vector(covariates$X$X_locs%*%matrix(states[[i]]$params[["beta"]][covariates$X$which_locs], ncol = 1))
-        states[[i]]$sparse_chol_and_stuff$lm_residuals = as.vector(observed_field-  states[[i]]$sparse_chol_and_stuff$lm_fit)
-        ##################
-        # Noise variance #
-        ##################
-        # beta is just an intercept in stationary case
-        states[[i]]$params$noise_beta    = matrix(rep(0, ncol(covariates$noise_X$X)), ncol = 1) #random starting values
-        states[[i]]$params$noise_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) +rnorm(1, 0, .5) # setting sensible value for the intercept
-        row.names(states[[i]]$params$noise_beta) = colnames(covariates$noise_X$X)
-        states[[i]]$momenta$noise_beta = rnorm(ncol(covariates$noise_X$X))
-        # field  when required
-        if(!is.null(hierarchical_model$hyperprior_covariance$noise))
-        {
-          states[[i]]$params$noise_log_scale = rnorm(1, -4, 1) 
-          states[[i]]$params$noise_field = exp(.5*states[[i]]$params$noise_log_scale) * as.matrix(Matrix::solve(hierarchical_model$hyperprior_covariance$noise$sparse_chol,  rnorm(vecchia_approx$n_locs)))
-          states[[i]]$momenta$noise_field = rnorm(vecchia_approx$n_locs)
-        }
-        # effective variance field, shall be used in density computations
-        states[[i]]$sparse_chol_and_stuff$noise = Bidart::variance_field(states[[i]]$params$noise_beta, states[[i]]$params$noise_field[vecchia_approx$locs_match], covariates$noise_X$X)
-        # prior 
-        if(i==1) 
-        {
-          # using high-noise model as base model
-          hierarchical_model$beta_priors$noise_beta = beta_prior_fill_missing(beta_prior = noise_beta_prior, parameter_name = "noise", target_beta_0 = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)), X = covariates$noise_X)
-        }
-        
-        #########
-        # Scale #
-        #########
-        # beta is just an intercept in stationary case
-        states[[i]]$params$scale_beta    = matrix(0, ncol(covariates$scale_X$X_locs), ncol = 1) #random starting values
-        states[[i]]$momenta$scale_beta_ancillary = rnorm(ncol(covariates$scale_X$X_locs))
-        states[[i]]$momenta$scale_beta_sufficient = rnorm(ncol(covariates$scale_X$X_locs))
-        states[[i]]$params$scale_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) + rnorm(1, 0, .5) # setting sensible value for the intercept
-        row.names(states[[i]]$params$scale_beta) = colnames(covariates$scale_X$X_locs)
-        
-        # prior 
-        if(i==1) 
-        {
-          hierarchical_model$beta_priors$scale_beta = beta_prior_fill_missing(beta_prior = scale_beta_prior, parameter_name = "scale", target_beta_0 = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)), X = covariates$scale_X)
-        }
-        
-        
-        # field  when required
-        if(!is.null(hierarchical_model$hyperprior_covariance$scale))
-        {
-          states[[i]]$params$scale_log_scale = rnorm(1, -4, 1)
-          states[[i]]$transition_kernels$scale_log_scale = rnorm(1)
-          states[[i]]$params$scale_field = exp(.5*states[[i]]$params$scale_log_scale) * as.matrix(Matrix::solve(hierarchical_model$hyperprior_covariance$scale$sparse_chol,  rnorm(vecchia_approx$n_locs)))
-          states[[i]]$momenta$scale_field_ancillary =  rnorm(length(states[[i]]$params$scale_field))
-          states[[i]]$momenta$scale_field_sufficient = rnorm(length(states[[i]]$params$scale_field))
-        }
-        # effective variance field, shall be used in density computations
-        states[[i]]$sparse_chol_and_stuff$scale = Bidart::variance_field(states[[i]]$params$scale_beta, states[[i]]$params$scale_field, covariates$scale_X$X_locs)
-        #######
-      }
+      #########
+      # Scale #
+      #########
+      # beta is just an intercept in stationary case
+      states[[i]]$params$scale_beta    = matrix(0, ncol(covariates$scale_X$X_locs) + scale_KL * hierarchical_model$KL$n_KL, ncol = 1) #random starting values
+      states[[i]]$momenta$scale_beta_ancillary = rnorm(ncol(covariates$scale_X$X_locs))
+      states[[i]]$momenta$scale_beta_sufficient = rnorm(ncol(covariates$scale_X$X_locs))
+      states[[i]]$params$scale_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) + rnorm(1, 0, .5) # setting sensible value for the intercept
+      if(!scale_KL)row.names(states[[i]]$params$scale_beta) = colnames(covariates$scale_X$X_locs)
+      if(scale_KL)row.names(states[[i]]$params$scale_beta) = c(colnames(covariates$scale_X$X_locs),  paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
+      if(scale_KL)states[[i]]$params$scale_log_scale = runif(1, hierarchical_model$scale_log_scale_prior[1], hierarchical_model$scale_log_scale_prior[2])
+      # effective variance field, shall be used in density computations
+      states[[i]]$sparse_chol_and_stuff$scale = variance_field(beta = states[[i]]$params$scale_beta, KL = KL, use_KL = scale_KL, X = covariates$scale_X$X_locs, locs_idx = vecchia_approx$hctam_scol_1)
+      #######
+      
       ####################
       # NNGP sparse chol #
       ####################
-      states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, range_X = covariates$range_X$X_locs, range_beta = states[[i]]$params$range_beta, range_field = states[[i]]$params$range_field, NNarray = vecchia_approx$NNarray, locs = locs, nu = nu)
+      states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = 
+        Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                                    range_X = covariates$range_X$X_locs, 
+                                    range_beta = states[[i]]$params$range_beta, 
+                                    KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, 
+                                    NNarray = vecchia_approx$NNarray, locs_idx = vecchia_approx$hctam_scol_1, 
+                                    locs = locs, nu = nu)
       states[[i]]$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(x =  states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, triangular = T)
       states[[i]]$sparse_chol_and_stuff$precision_diag = as.vector((states[[i]]$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
       ################

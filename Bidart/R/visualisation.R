@@ -14,10 +14,12 @@ plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =
 }
 
 #' @export
-get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*100)+1]
+get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*99)+1]
 plot_pointillist_painting = function(locs, field, cex = 1, main = NULL)
 {
+  par(bg = "lightgrey")
   plot(locs, col = get_colors(field), main = main, pch = 15, cex = cex, xlab  ="", ylab = "")
+  par(bg = "white")
 }
 
 #' @export
@@ -264,7 +266,7 @@ diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, plot_PSRF_actu
   response_names = records_names
   for(i in list(range_names, noise_names, scale_names, response_names))
   {
-    par(mfrow = c(length(i), 1))
+    par(mfrow = c(1, 1))
     for(j in i)
     {
       PSRF = grb_diags_field(record_arrays = lapply(mcmc_nngp_list$records, function(x)x[[j]]), iterations = mcmc_nngp_list$iterations$thinning, burn_in = burn_in, starting_proportion = starting_proportion)

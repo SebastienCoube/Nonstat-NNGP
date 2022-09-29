@@ -42,7 +42,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
     samples = 
     parallel::parLapply(cl = cl, X = seq(length(mcmc_nngp_list$states)), 
       fun 
-       = function(i)mcmc_nngp_update_Gaussian(
+       = function(i)Bidart::mcmc_nngp_update_Gaussian(
         data = mcmc_nngp_list_$data, 
         hierarchical_model = mcmc_nngp_list_$hierarchical_model, 
         vecchia_approx = mcmc_nngp_list_$vecchia_approx, 

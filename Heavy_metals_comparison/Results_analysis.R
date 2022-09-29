@@ -1,7 +1,5 @@
 
 
-
-
 # getting US map
 #remove(list = ls());gc()
 library(magrittr)

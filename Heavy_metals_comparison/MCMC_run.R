@@ -8,7 +8,10 @@
   ####################
 
 locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs
-KL_decomposition = Bidart::get_KL_basis(locs, m = 10, n_PP = 500, n_KL = 25, covparms = c(1, 3, 1, 0))
+KL_decomposition = Bidart::get_KL_basis(locs, m = 5, n_PP = 500, n_KL = 100, covparms = c(1, 5, 2.5, .0005))
+plot(KL_decomposition$KL_decomposition$d^2)
+plot(c(0, cumsum(KL_decomposition$KL_decomposition$d^2)))
+KL_decomposition = Bidart::get_KL_basis(locs, m = 5, n_PP = 500, n_KL = 15, covparms =  c(1, 5, 2.5, .0005))
 saveRDS(KL_decomposition, "Heavy_metals_comparison/KL_decomposition.RDS")
 
   #######
@@ -19,7 +22,7 @@ saveRDS(KL_decomposition, "Heavy_metals_comparison/KL_decomposition.RDS")
 remove(mcmc_nngp_list) ; gc()
 
 X = readRDS("Heavy_metals_comparison/processed_data.RDS")$X_locs
-X$MAJOR1 = NULL ; X$glwd31 = NULL ; X$minotype = NULL
+
 
 mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs, #spatial locations
@@ -27,7 +30,7 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   X = X, # Covariates per observation
   m = 10, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
-  covfun = "matern_sphere", nu = 1.5, response_model = "Gaussian", # covariance model and response model
+  covfun = "matern_sphere", nu = 1.5,  # covariance model
   noise_X = NULL, # range for latent field of parameters, if NULL no latent field
   scale_X = NULL, # range for latent field of parameters, if NULL no latent field
   range_X = NULL, # range for latent field of parameters, if NULL no latent field
@@ -42,12 +45,13 @@ for(i in seq(40))
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_stat")
 
-# noise + range nonstat
+# noise + range + scale nonstat
 gc()
 
 X = readRDS("Heavy_metals_comparison/processed_data.RDS")$X_locs
-X$MAJOR1 = NULL ; X$glwd31 = NULL ; X$minotype = NULL
 KL_decomposition = readRDS("Heavy_metals_comparison/KL_decomposition.RDS")
+X$MAJOR1 = NULL ; X$glwd31 = NULL ; X$minotype = NULL
+
 
 mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs, #spatial locations
@@ -55,10 +59,11 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   X = X, # Covariates per observation
   m = 10, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
-  covfun = "nonstationary_matern_isotropic_sphere", nu = 1.5, response_model = "Gaussian", # covariance model and response model
-  noise_X = as.data.frame(cbind(KL_decomposition$basis[,seq(25)], X)), 
-  scale_X = NULL,
-  range_X = as.data.frame(cbind(KL_decomposition$basis[,seq(25)], X[, c("gcarb", "globedem", "twi")])), 
+  covfun = "nonstationary_matern_isotropic_sphere", nu = 1.5, # covariance model
+  noise_X = X,                                   noise_KL = T,  
+  scale_X = X[, c("gcarb", "globedem", "twi")],  scale_KL = T, 
+  range_X = X[, c("gcarb", "globedem", "twi")],  range_KL = T,  
+  KL = KL_decomposition,
   n_chains = 3,  # number of MCMC chains
   seed = 2
 )
@@ -68,7 +73,7 @@ for(i in seq(40))
 { 
   mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
 }
-saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nr")
+saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nsr")
 
 
 
