@@ -35,12 +35,13 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
   # constructing NNarray of observed and predicted locations for parameter fields
   if(mcmc_nngp_list$hierarchical_model$scale_KL | mcmc_nngp_list$hierarchical_model$range_KL) 
   {
+    KL = mcmc_nngp_list$hierarchical_model$KL
     NNarray_p = rbind(KL$NNarray, GpGp::find_ordered_nn(locs, m = ncol(KL$NNarray)-1)[-seq(nrow(KL$NNarray)),])
     NNarray_non_NA_p = !is.na(NNarray_p)
     sparse_chol_row_idx_p = row(NNarray_p)[NNarray_non_NA_p]
     sparse_chol_column_idx_p = NNarray_p[NNarray_non_NA_p]
     # if needed hyprprior NNGP for covariance parameter fields
-    KL_ = mcmc_nngp_list$hierarchical_model$KL
+    KL_ = KL
     KL_$sparse_chol =  Matrix::sparseMatrix(
       i = sparse_chol_row_idx_p, 
       j = sparse_chol_column_idx_p, 
@@ -143,8 +144,6 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
 }
 
 
-
-
 #' @export
 predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5)
 {
@@ -193,34 +192,37 @@ predict_fixed_effects = function(mcmc_nngp_list, X_pred = NULL, burn_in = .5)
 predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, predicted_locs = NULL)
 {
   if(mcmc_nngp_list$hierarchical_model$noise_KL & is.null(predicted_locs))stop("no predicted locs were provided, yet there is a GP prior for the noise")
-  if(nrow(predicted_locs)!= nrow(X_noise_pred))stop("X_noise_pred and predicted_locs should have the same number of rows")
+  if(!is.null(X_noise_pred))if(nrow(predicted_locs)!= nrow(X_noise_pred))stop("X_noise_pred and predicted_locs should have the same number of rows")
   if(!is.null(X_noise_pred)){if(identical(X_noise_pred, "No covariates were provided")){X_noise_pred = NULL}}
   if(is.null(X_noise_pred)&(!identical(mcmc_nngp_list$data$covariates$noise_X$arg,"No covariates were provided"))) stop("No covariates were provided for prediction, while covariates were provided for fit")
   if(!is.null(X_noise_pred)&(identical(mcmc_nngp_list$data$covariates$noise_X$arg, "No covariates were provided"))) stop("Covariates were provided for prediction, while no covariates were provided for fit")
   if(!is.null(X_noise_pred)) if(ncol(X_noise_pred)!=ncol(mcmc_nngp_list$data$covariates$noise_X$arg))stop("The number of provided covariates does not match")
   # adding intercept to prediction regressors
   if(!is.null(X_noise_pred))X_noise_pred = cbind(rep(1, nrow(X_noise_pred)), X_noise_pred)
-  if(is.null(X_noise_pred))X_noise_pred = matrix(1, 1, 1)
+  if(is.null(X_noise_pred))X_noise_pred = matrix(1, nrow(predicted_locs), 1)
   colnames(X_noise_pred) = colnames(mcmc_nngp_list$data$covariates$noise_X$X)
   # GP if needed
   if(mcmc_nngp_list$hierarchical_model$noise_KL) 
-    {
-      NNarray_p = rbind(KL$NNarray, GpGp::find_ordered_nn(locs, m = ncol(KL$NNarray)-1)[-seq(nrow(KL$NNarray)),])
-      NNarray_non_NA_p = !is.na(NNarray_p)
-      sparse_chol_row_idx_p = row(NNarray_p)[NNarray_non_NA_p]
-      sparse_chol_column_idx_p = NNarray_p[NNarray_non_NA_p]
-      # if needed hyprprior NNGP for covariance parameter fields
-      KL_ = mcmc_nngp_list$hierarchical_model$KL
-      KL_$sparse_chol =  Matrix::sparseMatrix(
-        i = sparse_chol_row_idx_p, 
-        j = sparse_chol_column_idx_p, 
-        x = GpGp::vecchia_Linv(covparms = KL$covparms, 
-                               covfun_name = KL$covfun_name, 
-                               NNarray = NNarray_p, 
-                               locs = rbind(KL$unique_reordered_locs, locs[-seq(nrow(KL$unique_reordered_locs)),]))[NNarray_non_NA_p]
-      )
-      KL_$idx = c(KL$idx, mcmc_nngp_list$vecchia_approx$n_locs+idx)
-    }
+  {
+    KL = mcmc_nngp_list$hierarchical_model$KL
+    locs = rbind(KL$unique_reordered_locs, predicted_locs); locs = locs[!duplicated(locs),]
+    predicted_locs_idx = match(split(predicted_locs, row(predicted_locs)), split(locs, row(locs)))
+    NNarray_p = rbind(KL$NNarray, GpGp::find_ordered_nn(locs, m = ncol(KL$NNarray)-1)[-seq(nrow(KL$NNarray)),])
+    NNarray_non_NA_p = !is.na(NNarray_p)
+    sparse_chol_row_idx_p = row(NNarray_p)[NNarray_non_NA_p]
+    sparse_chol_column_idx_p = NNarray_p[NNarray_non_NA_p]
+    # if needed hyprprior NNGP for covariance parameter fields
+    KL_ = KL
+    KL_$sparse_chol =  Matrix::sparseMatrix(
+      i = sparse_chol_row_idx_p, 
+      j = sparse_chol_column_idx_p, 
+      x = GpGp::vecchia_Linv(covparms = KL$covparms, 
+                             covfun_name = as.character(KL$covfun_name), 
+                             NNarray = NNarray_p, 
+                             locs = rbind(KL$unique_reordered_locs, locs[-seq(nrow(KL$unique_reordered_locs)),]))[NNarray_non_NA_p]
+    )
+    KL_$idx = c(KL$idx, predicted_locs_idx)
+  }
   
   # burn in
   kept_iterations = seq(length(mcmc_nngp_list$iterations$thinning))[which(mcmc_nngp_list$iterations$thinning > mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]* burn_in)]
@@ -232,29 +234,25 @@ predict_noise = function(mcmc_nngp_list, X_noise_pred = NULL, burn_in = .5, pred
     FUN = 
       function(chain)
       {
-        res = list(array(0, dim = c(nrow(X_noise_pred), 1, n_samples)))
+        res = array(0, dim = c(nrow(X_noise_pred), 1, n_samples))
         # looping over saved observations
         for(i_predict in seq(n_samples))
         {
-          res[,,i] = Bidart::X_KL_mult_right(
-            X = X_noise_pred, 
+          res[,,i_predict] = Bidart::X_KL_mult_right(
+            X = rbind(mcmc_nngp_list$data$covariates$noise_X$X, X_noise_pred), 
             KL = KL_, 
             use_KL = mcmc_nngp_list$hierarchical_model$noise_KL, 
-            locs_idx = , 
+            locs_idx = seq(nrow(rbind(mcmc_nngp_list$data$covariates$noise_X$X, X_noise_pred))), 
             Y = chain$noise_beta[,,i_start + i_predict]
-            
-          )
+          )[-seq(mcmc_nngp_list$vecchia_approx$n_obs),]
         }
         return(res)
       })
   summaries = list()
   predicted_samples_ = list()
-  for(name in names(predicted_samples[[1]]))
-  {
-    predicted_samples_[[name]] = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = lapply(predicted_samples, function(y)y[[name]]))
-    summaries[[name]] = get_array_summary(predicted_samples_[[name]])
-  }
-  return(list("predicted_samples" = predicted_samples_, "summaries" = summaries))
+  predicted_samples_ = Reduce(f = function(x, y)abind::abind(x, y, along = 3), x = predicted_samples)
+  summaries = Bidart::get_array_summary(predicted_samples_)
+  return(list("predicted_samples" = predicted_samples_, "summaries" = summaries, "predicted_locs" = predicted_locs))
 }
 
 #' @export
@@ -293,7 +291,7 @@ DIC = function(mcmc_nngp_list, burn_in = .5)
     {
       noise = Bidart::variance_field(
         beta = mcmc_nngp_list$records[[j]]$noise_beta[,,i], 
-        KL = KL, mcmc_nngp_list$hierarchical_model$noise_KL, 
+        KL = mcmc_nngp_list$hierarchical_model$KL, mcmc_nngp_list$hierarchical_model$noise_KL, 
         X = mcmc_nngp_list$data$covariates$noise_X$X, 
         locs_idx = NULL
         )

@@ -41,13 +41,13 @@ KL_range = as.data.frame(KL_$basis %*% diag(KL_$KL_decomposition$d))
 
 # regression coeffs
 beta = c(1000, 10,  -10)
-beta_noise = 1*c(1, rnorm(ncol(KL_noise)))
+beta_noise = 1*c(-3, 1, .4, rnorm(ncol(KL_noise)))
 beta_range = 1*c(-5, .6* rnorm(ncol(KL_noise)))
 
 
 
 # actual fields 
-log_noise_variance = as.matrix(cbind(1, KL_noise)) %*% beta_noise
+log_noise_variance = as.matrix(cbind(1, X, KL_noise)) %*% beta_noise
 log_range = as.matrix(cbind(1, KL_range)) %*% beta_range 
 
 NNarray = GpGp::find_ordered_nn(locs, 10)
@@ -81,7 +81,7 @@ mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
   X = X, observed_field = as.vector(observed_field), 
   m = 10, 
   reordering = "maxmin", covfun = "nonstationary_matern_isotropic", nu = 1.5,
-  noise_X = NULL, noise_KL = T,
+  noise_X = X, noise_KL = T,
   scale_X = NULL, scale_KL = F, 
   range_X = NULL, range_KL = T, 
   KL = KL
@@ -99,6 +99,10 @@ mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3
 
 
 
+
+
+mcmc_nngp_list = readRDS("range_run_converged.RDS")
+
 predicted_locs = seq(0, 10, .01);predicted_locs = cbind(predicted_locs, rnorm(length(predicted_locs), 0, .00001))
 X_range_pred = NULL
 X_scale_pred = NULL
@@ -106,6 +110,11 @@ burn_in = .5
 n_cores = 1
 predict_range = F
 predict_scale = F
+
+
+
+
+#remove(KL)
 
 pred = Bidart::predict_latent_field(
   mcmc_nngp_list = mcmc_nngp_list, predicted_locs = predicted_locs, 
@@ -122,10 +131,19 @@ plot(locs[,1], latent_field, cex = .3, pch = 15)
 lines(pred$predicted_locs[,1], pred$summaries$field[1,], col =2)
 
 
-source("Bidart/R/mcmc_nngp_predict_nonstationary.R")
 
-pred_fixed = predict_fixed_effects(mcmc_nngp_list, X_pred = X)
+pred_fixed = Bidart::predict_fixed_effects(mcmc_nngp_list, X_pred = X)
 plot(
 as.matrix(cbind(1, X)) %*% beta,
 pred_fixed$summaries$total_linear_effects[1,,])
-abline(a = 1, b = 1)
+abline(a = 1, b = 1, col = 2)
+
+
+X_noise_pred = cbind(rbinom(nrow(predicted_locs), 1, .5), predicted_locs[,1])
+pred_noise = Bidart::predict_noise(mcmc_nngp_list = mcmc_nngp_list, X_noise_pred = X_noise_pred, predicted_locs = predicted_locs)
+
+plot(observed_locs[,1], log_noise_variance)
+points(pred_noise$predicted_locs[,1], pred_noise$summaries[1,,], col =2)
+
+
+
