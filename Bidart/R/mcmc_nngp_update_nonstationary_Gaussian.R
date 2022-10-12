@@ -436,6 +436,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
       if(
         (
++ old_eigen - new_eigen
           + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
           - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
           - .5* sum((new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
@@ -476,6 +477,7 @@ mcmc_nngp_update_Gaussian = function(data,
           all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1,]))&
           all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2,]))&
           (
++ old_eigen - new_eigen
             + Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
                                     beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
                                     beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
@@ -508,6 +510,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
       if(
         ( 
++ old_eigen - new_eigen
           - .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
           + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
           > log(runif(1))
@@ -519,6 +522,7 @@ mcmc_nngp_update_Gaussian = function(data,
           all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2,]))
         )
         {
+          
           state$params$range_log_scale = new_range_log_scale
           state$params$field = new_field
           state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
@@ -548,6 +552,7 @@ mcmc_nngp_update_Gaussian = function(data,
           all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1,]))&
           all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2,]))&
           (
++ old_eigen - new_eigen
             + Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
                                     beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
                                     beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
@@ -711,9 +716,9 @@ mcmc_nngp_update_Gaussian = function(data,
       }
     }
     
-    ###################
-    # Noise log scale # 
-    ###################
+      ###################
+      # Noise log scale # 
+      ###################
     if(hierarchical_model$noise_KL)
     {
       # ancillary -- sufficient ####
@@ -724,6 +729,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_noise =Bidart::variance_field(beta = new_noise_beta, KL = hierarchical_model$KL, use_KL = hierarchical_model$noise_KL, X = data$covariates$noise_X$X)
       if(
         (
+- new_noise_log_scale + state$params$noise_log_scale +         
           -.5* sum(log(new_noise)) 
           -.5*sum(squared_residuals/new_noise)
           +.5* sum(log(state$sparse_chol_and_stuff$noise)) 
@@ -768,6 +774,7 @@ mcmc_nngp_update_Gaussian = function(data,
         new_noise_log_scale = state$params$noise_log_scale + rnorm(1, 0, .1)
         if(
           (
+- new_noise_log_scale + state$params$noise_log_scale  +         
             + Bidart::beta_prior_ll(beta = state$params$noise_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$noise_KL, 
                           beta_mean = hierarchical_model$beta_priors$noise_beta_mean, 
                           beta_precision = hierarchical_model$beta_priors$noise_beta_precision, 
@@ -805,7 +812,7 @@ mcmc_nngp_update_Gaussian = function(data,
         +0.5*sum(as.vector(sparse_chol_diag_field%*%sqrt(1/state$sparse_chol_and_stuff$scale))^2)# covmat product part
       )
     # HMC whitened
-    state$momenta$scale_beta_sufficient = sqrt(.9) * state$momenta$scale_beta_sufficient + sqrt(.1)*rnorm(ncol(data$covariates$scale_X$X_locs))
+    state$momenta$scale_beta_sufficient = sqrt(.9) * state$momenta$scale_beta_sufficient + sqrt(.1)*rnorm(length(state$momenta$scale_beta_sufficient))
     p = state$momenta$scale_beta_sufficient
     # Make a half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_sufficient_mala) *
@@ -914,7 +921,7 @@ mcmc_nngp_update_Gaussian = function(data,
         +.5 * sum((data$observed_field - state$sparse_chol_and_stuff$lm_fit - state$params$field[vecchia_approx$locs_match] )^2/state$sparse_chol_and_stuff$noise)
       )
     # MALA whitened
-    state$momenta$scale_beta_ancillary = sqrt(.9) * state$momenta$scale_beta_ancillary   + sqrt(.1)*rnorm(ncol(data$covariates$scale_X$X_locs))
+    state$momenta$scale_beta_ancillary = sqrt(.9) * state$momenta$scale_beta_ancillary   + sqrt(.1)*rnorm(length(state$momenta$scale_beta_ancillary))
     p = state$momenta$scale_beta_ancillary
     # Make a. half step for momentum at the beginning
     p = p - exp(state$transition_kernels$scale_beta_ancillary_mala) *
@@ -1030,6 +1037,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_scale =Bidart::variance_field(beta = new_scale_beta, KL = hierarchical_model$KL, use_KL = hierarchical_model$scale_KL, X = data$covariates$scale_X$X_locs)
       if(
         (
+- new_scale_log_scale + state$params$scale_log_scale +
           +.5* sum(log(state$sparse_chol_and_stuff$scale)) 
           -.5* sum(log(new_scale)) # log determinant
           +.5*sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
@@ -1075,6 +1083,7 @@ mcmc_nngp_update_Gaussian = function(data,
         new_scale_log_scale = state$params$scale_log_scale + rnorm(1, 0, .1)
         if(
           (
+- new_scale_log_scale + state$params$scale_log_scale +
             + Bidart::beta_prior_ll(beta = state$params$scale_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$scale_KL, 
                           beta_mean = hierarchical_model$beta_priors$scale_beta_mean, 
                           beta_precision =  hierarchical_model$beta_priors$scale_beta_precision, 
@@ -1102,6 +1111,7 @@ mcmc_nngp_update_Gaussian = function(data,
       new_field = state$params$field * sqrt(new_scale)/sqrt(state$sparse_chol_and_stuff$scale)
       if(
         (
+- new_scale_log_scale + state$params$scale_log_scale 
           -.5* sum((state$sparse_chol_and_stuff$lm_residuals -          new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) 
           +.5* sum((state$sparse_chol_and_stuff$lm_residuals - state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) 
           > log(runif(1))
@@ -1144,6 +1154,7 @@ mcmc_nngp_update_Gaussian = function(data,
         new_scale_log_scale = state$params$scale_log_scale + rnorm(1, 0, .1)
         if(
           (
+- new_scale_log_scale + state$params$scale_log_scale +
             + Bidart::beta_prior_ll(beta = state$params$scale_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$scale_KL, 
                                   beta_mean = hierarchical_model$beta_priors$scale_beta_mean, 
                                   beta_precision =  hierarchical_model$beta_priors$scale_beta_precision, 

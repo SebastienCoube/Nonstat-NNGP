@@ -213,7 +213,7 @@ Rcpp::List nonstat_vecchia_Linv(
     arma::cube grad1(n,m, m);
     grad1.fill(0);
     // loop over every observation   
-# pragma omp parallel for
+#pragma omp parallel for
     for(int i=1; i<n; i++){
       int bsize = std::min(i+1,m);
       // first, fill in ysub, locsub, and X0 NOT in reverse order

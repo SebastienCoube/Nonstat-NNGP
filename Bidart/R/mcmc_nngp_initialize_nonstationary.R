@@ -290,24 +290,24 @@ mcmc_nngp_initialize_nonstationary =
     hierarchical_model$scale_KL = scale_KL
     hierarchical_model$range_KL = range_KL
     
-    if(is.null(noise_log_scale_prior))
+    if(is.null(noise_log_scale_prior)&noise_KL)
       {
-      message("noise_log_scale_prior was automatically set to an uniform on (-5, 2)")
-      noise_log_scale_prior = c(-5, 2)
+      message("noise_log_scale_prior was automatically set to an uniform on (-8, 4)")
+      noise_log_scale_prior = c(-8, 4)
+      hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
       }
-    hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
-    if(is.null(scale_log_scale_prior))
+    if(is.null(scale_log_scale_prior)&scale_KL)
       {
-      message("scale_log_scale_prior was automatically set to an uniform on (-5, 2)")
-      scale_log_scale_prior = c(-5, 2)
+      message("scale_log_scale_prior was automatically set to an uniform on (-8, 4)")
+      scale_log_scale_prior = c(-8, 4)
+      hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
       }
-    hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
-    if(is.null(range_log_scale_prior))
+    if(is.null(range_log_scale_prior)&range_KL)
       {
-      message("range_log_scale_prior was automatically set to an uniform on (-5, 2)")
-      range_log_scale_prior = c(-5, 2)
+      message("range_log_scale_prior was automatically set to an uniform on (-8, 4)")
+      range_log_scale_prior = c(-8, 4)
+      hierarchical_model$range_log_scale_prior = as.matrix(range_log_scale_prior) %x%rep(1, 1+2*length(grep("anisotropic", covfun)))
       }
-    hierarchical_model$range_log_scale_prior = as.matrix(range_log_scale_prior) %x%rep(1, 1+2*length(grep("anisotropic", covfun)))
     
     # OLS to get residual variance to make a guess 
     naive_ols =  lm(observed_field~covariates$X$X-1)
@@ -420,9 +420,9 @@ mcmc_nngp_initialize_nonstationary =
       states[[i]]$params$noise_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) +rnorm(1, 0, .5) # setting sensible value for the intercept
       if(!noise_KL) row.names(states[[i]]$params$noise_beta) = colnames(covariates$noise_X$X)
       if(noise_KL ) row.names(states[[i]]$params$noise_beta) = c(colnames(covariates$noise_X$X), paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
-      states[[i]]$momenta$noise_beta = rnorm(ncol(covariates$noise_X$X))
+      states[[i]]$momenta$noise_beta = rnorm(ncol(covariates$noise_X$X)+noise_KL*hierarchical_model$KL$n_KL)
       # effective variance field, shall be used in density computations
-      states[[i]]$sparse_chol_and_stuff$noise = variance_field(beta = states[[i]]$params$noise_beta, KL = KL, use_KL = noise_KL, X = covariates$noise_X$X)
+      states[[i]]$sparse_chol_and_stuff$noise = Bidart::variance_field(beta = states[[i]]$params$noise_beta, KL = KL, use_KL = noise_KL, X = covariates$noise_X$X)
       # log scale if latent field
       if(noise_KL)states[[i]]$params$noise_log_scale = runif(1, hierarchical_model$noise_log_scale_prior[1], hierarchical_model$noise_log_scale_prior[2])
       
@@ -431,14 +431,14 @@ mcmc_nngp_initialize_nonstationary =
       #########
       # beta is just an intercept in stationary case
       states[[i]]$params$scale_beta    = matrix(0, ncol(covariates$scale_X$X_locs) + scale_KL * hierarchical_model$KL$n_KL, ncol = 1) #random starting values
-      states[[i]]$momenta$scale_beta_ancillary = rnorm(ncol(covariates$scale_X$X_locs))
-      states[[i]]$momenta$scale_beta_sufficient = rnorm(ncol(covariates$scale_X$X_locs))
+      states[[i]]$momenta$scale_beta_ancillary =  rnorm(ncol(covariates$scale_X$X_locs) + scale_KL * hierarchical_model$KL$n_KL)
+      states[[i]]$momenta$scale_beta_sufficient = rnorm(ncol(covariates$scale_X$X_locs) + scale_KL * hierarchical_model$KL$n_KL)
       states[[i]]$params$scale_beta[1] = log(var(states[[i]]$sparse_chol_and_stuff$lm_residuals)) - log(2) + rnorm(1, 0, .5) # setting sensible value for the intercept
       if(!scale_KL)row.names(states[[i]]$params$scale_beta) = colnames(covariates$scale_X$X_locs)
       if(scale_KL)row.names(states[[i]]$params$scale_beta) = c(colnames(covariates$scale_X$X_locs),  paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
       if(scale_KL)states[[i]]$params$scale_log_scale = runif(1, hierarchical_model$scale_log_scale_prior[1], hierarchical_model$scale_log_scale_prior[2])
       # effective variance field, shall be used in density computations
-      states[[i]]$sparse_chol_and_stuff$scale = variance_field(beta = states[[i]]$params$scale_beta, KL = KL, use_KL = scale_KL, X = covariates$scale_X$X_locs, locs_idx = vecchia_approx$hctam_scol_1)
+      states[[i]]$sparse_chol_and_stuff$scale = Bidart::variance_field(beta = states[[i]]$params$scale_beta, KL = KL, use_KL = scale_KL, X = covariates$scale_X$X_locs, locs_idx = vecchia_approx$hctam_scol_1)
       #######
       
       ####################
@@ -457,7 +457,6 @@ mcmc_nngp_initialize_nonstationary =
       # Latent field #
       ################
       states[[i]]$params$field = sqrt(states[[i]]$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(states[[i]]$sparse_chol_and_stuff$sparse_chol, rnorm(vecchia_approx$n_locs)))
-      states[[i]]$momenta$field = rnorm(length(states[[i]]$params$field))
     }
     
     #######################

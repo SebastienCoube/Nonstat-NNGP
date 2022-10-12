@@ -123,7 +123,7 @@ derivative_chol_expmat = function(coords)
 
 
 #' @export
-get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, seed = 1, m = 5)
+get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, seed = 1, m = 5, get_basis = F)
 {
   set.seed(seed)
   locs_ = locs[!duplicated(locs),]
@@ -148,8 +148,8 @@ predict_KL_basis = function(predicted_locs, KL_basis, seed = 1)
 {
   set.seed(seed)
   locs_ = predicted_locs[!duplicated(predicted_locs),]
-  reordering = GpGp::order_maxmin(locs_, lonlat = KL_basis$lonlat)
-  locs_ = locs_[reordering,]
+  #reordering = GpGp::order_maxmin(locs_, lonlat = KL_basis$lonlat)
+  #locs_ = locs_[reordering,]
   
   locs_ = rbind(KL_basis$unique_reordered_locs, locs_)
   NNarray = GpGp::find_ordered_nn(locs_, KL_basis$m, lonlat = KL_basis$lonlat)
@@ -258,6 +258,8 @@ beta_prior_ll_derivative = function(beta, n_KL, beta_mean, beta_precision, log_s
 #  )
 
 
+#KL$idx : match between the non redundant locations of KL and the redundant observed locations
+#locs_idx : match between the redundant observed locations and those of X
 X_KL_mult_right = function(X, KL = NULL, use_KL = F, locs_idx = NULL, Y)
 {
   if(is.null(locs_idx))locs_idx = seq(nrow(X))
@@ -287,8 +289,8 @@ X_KL_crossprod = function(X, KL = NULL, use_KL = F,  Y, locs_idx = NULL)
           as.matrix(
             Matrix::solve(
               Matrix::t(KL$sparse_chol), 
-              Matrix::sparseMatrix(x = 1, i = KL$idx, j = seq(length(KL$idx))) %*% ((Matrix::sparseMatrix(i = locs_idx, j = seq(nrow(Y)), dims = c(length(KL$idx), nrow(Y))) %*% Y)),
-              triangular = T)
+              Matrix::sparseMatrix(x = 1, i = KL$idx, j = seq(length(KL$idx))) %*% ((Matrix::sparseMatrix(i = locs_idx, j = seq(nrow(Y)), dims = c(length(KL$idx), nrow(Y))) %*% Y))
+              )
           )
         )[,1:KL$n_PP] %*% KL$KL_decomposition$v
       )
