@@ -8,6 +8,12 @@ derivative_sandwiches = function(
 {
   M = matrix(0, length(left_vector), length(derivatives))
   for( i in seq(length(derivatives)))M[,i] = Bidart::derivative_sandwich(derivatives[[i]], left_vector, right_vector, NNarray)
+  # changing basis between det/aniso and canonical
+  if(ncol(M)==3) M = M 
+  #%*% t(matrix(
+  #  c(1/sqrt(2), 1/sqrt(2), 0, 
+  #    1/sqrt(2),-1/sqrt(2), 0,
+  #    0, 0, 1), 3))
   M
 }
 
@@ -25,8 +31,7 @@ expmat = function(coords)
   if(length(coords)==1)logm = matrix(coords)
   if(length(coords)==3)
   {
-    logm = matrix(coords [c(1, 3, 3, 2)], 2)
-    logm[c(2, 3)] = logm[c(2, 3)]
+    logm = matrix(coords [c(1, 3, 3, 2)] , 2)
   }
   if(length(coords)==6)
   {
@@ -62,6 +67,9 @@ variance_field = function(beta, KL = NULL, use_KL = F, X, locs_idx = NULL)
   as.vector(exp(X_KL_mult_right(X = X, KL = KL, use_KL = use_KL, locs_idx = locs_idx, Y = beta)))
 }
 
+
+# NB : computes sparse chol wrt determinant/anisotropy basis of range, 
+# but gives derivatives wrt canonical
 #' @export
 compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, range_X = NULL, KL = NULL, use_KL = F, compute_derivative = T, nu = 1, locs_idx = NULL)
 {
@@ -79,6 +87,10 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   if(covfun_name=="matern_spacetime") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_spacetime", locs = locs, NNarray = NNarray)))
   
   
+  #if(ncol(range_beta)==3)range_beta = range_beta %*% matrix(
+  #  c(1/sqrt(2), 1/sqrt(2), 0, 
+  #    1/sqrt(2),-1/sqrt(2), 0,
+  #    0, 0, 1), 3)
   log_range = as.matrix(
     Bidart::X_KL_mult_right(
       X = range_X, 
@@ -86,6 +98,7 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
       Y = range_beta,  
       use_KL = use_KL, 
       locs_idx = locs_idx))
+  #Bidart::plot_ellipses(locs, log_range)
   # exp locally isotropic
   if(covfun_name=="nonstationary_exponential_isotropic")          res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_isotropic"  , sphere = F, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative, nu = nu)
   if(covfun_name=="nonstationary_exponential_isotropic_sphere")   res = Bidart::nonstat_vecchia_Linv(log_range = log_range*2, covfun_name = "nonstationary_exponential_isotropic"  , sphere = T, locs = locs, NNarray = NNarray, compute_derivative = compute_derivative, nu = nu)
@@ -104,23 +117,6 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   res[[2]] = lapply(res[[2]], function(x)x*2)
   return(res)
 }
-
-#' @export
-derivative_chol_expmat = function(coords)
-{
-  dimres = 1
-  if(length(coords)==6)dimres = 3
-  res = array(data = 0, dim = c(dimres, dimres, length(coords)))
-  chol_expmat = chol(Bidart::expmat(coords))
-  for(i in seq(length(coords)))
-  {
-    coords_ = coords
-    coords_[i] = coords_[i] + 0.00001
-    res[,,i] = 100000 * (chol(Bidart::expmat(coords_)) - chol_expmat)
-  }
-  res
-}
-
 
 #' @export
 get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, seed = 1, m = 5, get_basis = F)
@@ -167,18 +163,6 @@ predict_KL_basis = function(predicted_locs, KL_basis, seed = 1)
   return(basis)
 }
 
-
-#beta_prior_ll = function(beta, n_KL, beta_mean, beta_precision, log_scale)
-#{
-#  mean_mat = rbind(beta_mean, matrix(0, n_KL, ncol(beta_mean)))
-#  if(n_KL>0) 
-#  {
-#    scale_mat = Bidart::expmat(-log_scale)
-#    precision = Matrix::bdiag(append(list(beta_precision),lapply(1:n_KL, function(i)scale_mat)) )
-#  }
-#  if(n_KL==0) precision = beta_precision
-#  .5*Matrix::determinant(precision, logarithm = T)$mod -.5 * sum((c(t(beta)-t(mean_mat)) %*% precision) * c(t(beta)-t(mean_mat)))
-#}
 #' @export
 beta_prior_ll = function(beta, n_KL, beta_mean, beta_precision, log_scale)
 {
@@ -186,12 +170,10 @@ beta_prior_ll = function(beta, n_KL, beta_mean, beta_precision, log_scale)
   {
     scale_mat = Bidart::expmat(-log_scale)
     return(
-      sum(
-        c(
-          +.5 * n_KL * determinant(scale_mat, logarithm = T)$mod
-          -.5 * (c(t(beta[seq(nrow(beta)-n_KL),])-t(beta_mean)) %*% beta_precision) * c(t(beta[seq(nrow(beta)-n_KL),])-t(beta_mean)),
-          -.5 * (beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat) * beta[-seq(nrow(beta)-n_KL),,drop = F]
-        )
+      (
+          +.5 * n_KL * determinant(scale_mat, logarithm = T)$mod # determinant is changed by log scale
+          -sum(.5 * (c(t(beta[seq(nrow(beta)-n_KL),, drop = F])-t(beta_mean)) %*% beta_precision) * c(t(beta[seq(nrow(beta)-n_KL),,drop = F])-t(beta_mean)))
+          -sum(.5 * (beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat) * beta[-seq(nrow(beta)-n_KL),,drop = F])
       )
     )
   }
@@ -214,7 +196,7 @@ beta_prior_ll_derivative = function(beta, n_KL, beta_mean, beta_precision, log_s
     return(
       matrix(
         c(
-          -(c(t(beta[seq(nrow(beta)-n_KL),])-t(beta_mean)) %*% beta_precision),
+          -(c(t(beta[seq(nrow(beta)-n_KL),,drop=F])-t(beta_mean)) %*% beta_precision),
           -c(t(beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat))
         ), 
         nrow(beta)
@@ -231,25 +213,15 @@ beta_prior_ll_derivative = function(beta, n_KL, beta_mean, beta_precision, log_s
   )
 }
 
-#beta_prior_ll_derivative_ = function(beta, n_KL, beta_mean, beta_precision, log_scale)
-#{
-#  mean_mat = rbind(beta_mean, matrix(0, n_KL, ncol(beta_mean)))
-#  scale_mat = Bidart::expmat(-log_scale)
-#  if(n_KL>0) precision = Matrix::bdiag(append(list(beta_precision),lapply(1:n_KL, function(i)scale_mat)) )
-#  if(n_KL==0) precision = beta_precision
-#  - t(matrix(c(t(beta)-t(mean_mat)) %*% precision, ncol = nrow(precision)))
-#}
-
 
 #beta = matrix(rnorm(10))
 #n_KL = 5
-#beta_mean = matrix(1, 5, 1)
+#beta_mean = matrix(rnorm(5), 5, 1)
 #beta_precision = diag(exp(rnorm(5)), 5, 5)
 #log_scale = rnorm(1)
 #
 #beta_prior_ll(beta = beta, n_KL = 5, beta_mean = beta_mean, beta_precision = beta_precision, log_scale = log_scale)
-#beta_ = beta; beta_[10]=beta_[10]+.0001
-#beta_prior_ll_derivative(beta = beta, n_KL = 5, beta_mean = beta_mean, beta_precision = beta_precision, log_scale = log_scale)
+#beta_ = beta; beta_[1]=beta_[1]+.0001
 #beta_prior_ll_derivative(beta = beta, n_KL = 5, beta_mean = beta_mean, beta_precision = beta_precision, log_scale = log_scale)
 #10000*
 #  (

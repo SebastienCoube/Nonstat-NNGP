@@ -1,17 +1,17 @@
-#' @export
-plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
-{
-  if(ncol(log_range) ==3)matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
-  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)exp(x) * diag(1/sqrt(ncol(locs)), ncol(locs)))
-  if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
-  for(i in seq(nrow(locs)))
-  {
-    ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
-    ell[,1] = ell[,1]+locs[i, 1]
-    ell[,2] = ell[,2]+locs[i, 2]
-    lines(ell)
-  }
-}
+# #' @export
+#plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
+#{
+#  if(ncol(log_range) ==3)matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
+#  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)exp(x) * diag(1/sqrt(ncol(locs)), ncol(locs)))
+#  if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
+#  for(i in seq(nrow(locs)))
+#  {
+#    ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
+#    ell[,1] = ell[,1]+locs[i, 1]
+#    ell[,2] = ell[,2]+locs[i, 2]
+#    lines(ell)
+#  }
+#}
 
 #' @export
 get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*99)+1]
@@ -188,13 +188,14 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
   }
   if(dim(log_scale_arrays[[1]])[1]==6)
   {
-    marginal_logvars = lapply(log_scale_arrays, function(x)
-      apply(x[,,kept_iterations], 2, function(x) diag(
-        rbind(c(1/sqrt(2), 1/sqrt(2), 0), c(1/sqrt(2), -1/sqrt(2), 0), c(0, 0, 1)) %*%
-          Bidart::symmat(x) %*%
-          cbind(c(1/sqrt(2), 1/sqrt(2), 0), c(1/sqrt(2), -1/sqrt(2), 0), c(0, 0, 1)) 
-        ))
-    )
+    log_scale = sapply(log_scale_arrays, function(x)x[,,kept_iterations])
+    #marginal_logvars = lapply(log_scale_arrays, function(x)
+    #  apply(x[,,kept_iterations], 2, function(x) diag(
+    #    rbind(c(1/sqrt(2), 1/sqrt(2), 0), c(1/sqrt(2), -1/sqrt(2), 0), c(0, 0, 1)) %*%
+    #      Bidart::symmat(x) %*%
+    #      cbind(c(1/sqrt(2), 1/sqrt(2), 0), c(1/sqrt(2), -1/sqrt(2), 0), c(0, 0, 1)) 
+    #    ))
+    #)
     plot(iterations[kept_iterations], iterations[kept_iterations], 
          type = "n", xlab = "iteration", ylab = "log scale", main = paste( varname, "split by component"), 
          ylim = c(min(unlist(marginal_logvars)), max(unlist(marginal_logvars))))
@@ -223,7 +224,7 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
 #' @export
 plot_beta = function(beta_arrays, iterations, starting_proportion = .5, varname, var_names = NULL)
 {
-  if(dim(beta_arrays[[1]])[2]==3)beta_arrays = lapply(beta_arrays, function(x)array_multiply_2(x, matrix(c(1/sqrt(2), 1/sqrt(2), 0, 1/sqrt(2), -1/sqrt(2), 0, 0, 0, 1), 3)))
+  #if(dim(beta_arrays[[1]])[2]==3)beta_arrays = lapply(beta_arrays, function(x)array_multiply_2(x, matrix(c(1/sqrt(2), 1/sqrt(2), 0, 1/sqrt(2), -1/sqrt(2), 0, 0, 0, 1), 3)))
   kept_iterations = which(iterations>starting_proportion*iterations[length(iterations)])
   for(i in seq(dim(beta_arrays[[1]])[2]))
   {

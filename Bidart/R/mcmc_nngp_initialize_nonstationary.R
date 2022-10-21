@@ -305,8 +305,7 @@ mcmc_nngp_initialize_nonstationary =
     if(is.null(range_log_scale_prior)&range_KL)
       {
       message("range_log_scale_prior was automatically set to an uniform on (-8, 4)")
-      range_log_scale_prior = c(-8, 4)
-      hierarchical_model$range_log_scale_prior = as.matrix(range_log_scale_prior) %x%rep(1, 1+2*length(grep("anisotropic", covfun)))
+      hierarchical_model$range_log_scale_prior = c(-8, 4)
       }
     
     # OLS to get residual variance to make a guess 
@@ -360,18 +359,24 @@ mcmc_nngp_initialize_nonstationary =
       #########
       
       # mean log-range (only parameter in the case of stationary model)
-      if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic"                     )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
-      if(covfun %in% c("exponential_sphere"                        , "matern_sphere"                        )) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
-      if(covfun %in% c("nonstationary_exponential_isotropic"       , "nonstationary_matern_isotropic"       )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1         )                                                                                                                    , nrow = 1)
-      if(covfun %in% c("nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic_sphere")) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1         )                                                                                                            , nrow = 1)
-      if(covfun %in% c("exponential_anisotropic2D"                 , "matern_anisotropic2D"                 )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
-      if(covfun == "nonstationary_exponential_anisotropic")                                                    states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),                       rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
-      if(covfun == "nonstationary_exponential_anisotropic_sphere")                                             states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 2         ), rep(1, ncol(locs)-2), rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                     , nrow = 1)
+      if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic"                     )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), nrow = 1)
+      if(covfun %in% c("exponential_sphere"                        , "matern_sphere"                        )) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1), nrow = 1)
+      if(covfun %in% c("nonstationary_exponential_isotropic"       , "nonstationary_matern_isotropic"       )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), nrow = 1)
+      if(covfun %in% c("nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic_sphere")) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1), nrow = 1)
+      if(covfun %in% c("exponential_anisotropic2D"                 , "matern_anisotropic2D"                 )) states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), ncol(locs)),  rep(0, ncol(locs)*(ncol(locs)+1)/2-ncol(locs)))                                             , nrow = 1)
+      if(covfun == "nonstationary_exponential_anisotropic")                                                    states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), rep(0, 2)) , nrow = 1)
+      if(covfun == "nonstationary_exponential_anisotropic_sphere")                                             states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1), rep(0, 2)) , nrow = 1)
+      if(covfun == "nonstationary_matern_anisotropic")                                                         states[[i]]$params$range_beta = matrix(c(sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), rep(0, 2)) , nrow = 1)
+      if(covfun == "nonstationary_matern_anisotropic_sphere")                                                  states[[i]]$params$range_beta = matrix(c(sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000), c(1, 2)   ]))/6000)-log(seq(50, 500, 1)), 1), rep(0, 2)) , nrow = 1)
       # initiate null regressors for other covariates                                                                                                                                          
       states[[i]]$params$range_beta = rbind(states[[i]]$params$range_beta, matrix(0, ncol(covariates$range_X$X_locs)+hierarchical_model$KL$n_KL*range_KL-1, length(states[[i]]$params$range_beta)))
       if(range_KL)row.names(states[[i]]$params$range_beta) = c(colnames(covariates$range_X$X_locs), paste("KL", seq(hierarchical_model$KL$n_KL), sep = "_"))
       if(!range_KL)row.names(states[[i]]$params$range_beta) = c(colnames(covariates$range_X$X_locs))
-      if(range_KL)states[[i]]$params$range_log_scale = runif(1 + 2*length(grep("aniso", covfun)), hierarchical_model$range_log_scale_prior[1,], hierarchical_model$range_log_scale_prior[2,])
+      if(range_KL)
+      {
+        states[[i]]$params$range_log_scale = diag(x = runif(1 + 2*length(grep("aniso", covfun)), hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2]), nrow = 1 + 2*length(grep("aniso", covfun)))
+        states[[i]]$params$range_log_scale = states[[i]]$params$range_log_scale[!lower.tri(states[[i]]$params$range_log_scale)]
+      }
       states[[i]]$momenta$range_beta_ancillary = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
       states[[i]]$momenta$range_beta_sufficient = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
         
