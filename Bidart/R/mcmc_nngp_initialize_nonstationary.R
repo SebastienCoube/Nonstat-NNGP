@@ -374,8 +374,8 @@ mcmc_nngp_initialize_nonstationary =
       if(!range_KL)row.names(states[[i]]$params$range_beta) = c(colnames(covariates$range_X$X_locs))
       if(range_KL)
       {
-        states[[i]]$params$range_log_scale = diag(x = runif(1 + 2*length(grep("aniso", covfun)), hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2]), nrow = 1 + 2*length(grep("aniso", covfun)))
-        states[[i]]$params$range_log_scale = states[[i]]$params$range_log_scale[!lower.tri(states[[i]]$params$range_log_scale)]
+        if(length(grep("aniso", covfun))==0) states[[i]]$params$range_log_scale =   runif(1, hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2])
+        if(length(grep("aniso", covfun))==1) states[[i]]$params$range_log_scale = c(runif(3, hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2]), rep(0,3))
       }
       states[[i]]$momenta$range_beta_ancillary = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
       states[[i]]$momenta$range_beta_sufficient = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))

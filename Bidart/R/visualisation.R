@@ -14,12 +14,10 @@
 #}
 
 #' @export
-get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*99)+1]
+get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*90)+1]
 plot_pointillist_painting = function(locs, field, cex = 1, main = NULL)
 {
-  par(bg = "lightgrey")
   plot(locs, col = get_colors(field), main = main, pch = 15, cex = cex, xlab  ="", ylab = "")
-  par(bg = "white")
 }
 
 #' @export
@@ -196,6 +194,11 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
     #      cbind(c(1/sqrt(2), 1/sqrt(2), 0), c(1/sqrt(2), -1/sqrt(2), 0), c(0, 0, 1)) 
     #    ))
     #)
+    marginal_logvars = lapply(log_scale_arrays, function(x)
+      apply(x[,,kept_iterations], 2, function(x) diag(
+          Bidart::symmat(x)
+          )
+    ))
     plot(iterations[kept_iterations], iterations[kept_iterations], 
          type = "n", xlab = "iteration", ylab = "log scale", main = paste( varname, "split by component"), 
          ylim = c(min(unlist(marginal_logvars)), max(unlist(marginal_logvars))))

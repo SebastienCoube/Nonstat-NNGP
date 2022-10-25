@@ -9,11 +9,10 @@ derivative_sandwiches = function(
   M = matrix(0, length(left_vector), length(derivatives))
   for( i in seq(length(derivatives)))M[,i] = Bidart::derivative_sandwich(derivatives[[i]], left_vector, right_vector, NNarray)
   # changing basis between det/aniso and canonical
-  if(ncol(M)==3) M = M 
-  #%*% t(matrix(
-  #  c(1/sqrt(2), 1/sqrt(2), 0, 
-  #    1/sqrt(2),-1/sqrt(2), 0,
-  #    0, 0, 1), 3))
+  if(ncol(M)==3) M = M %*% t(matrix(
+    c(1/sqrt(2), 1/sqrt(2), 0, 
+      1/sqrt(2),-1/sqrt(2), 0,
+      0, 0, 1), 3))
   M
 }
 
@@ -22,6 +21,10 @@ log_determinant_derivatives = function(sparse_chol_and_grad, NNarray)
 {
   M = matrix(0, nrow(NNarray), length(sparse_chol_and_grad[[2]]))
   for( i in seq(length(sparse_chol_and_grad[[2]])))M[,i] = Bidart::log_determinant_derivative(derivative = sparse_chol_and_grad[[2]][[i]], compressed_sparse_chol = sparse_chol_and_grad[[1]], NNarray = NNarray)
+  if(ncol(M)==3) M = M %*% matrix(
+    c(1/sqrt(2), 1/sqrt(2), 0, 
+      1/sqrt(2),-1/sqrt(2), 0,
+      0, 0, 1), 3)
   M
 }
 
@@ -79,7 +82,7 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   if(covfun_name=="exponential_isotropic") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_isotropic", locs = locs, NNarray = NNarray)))
   if(covfun_name=="exponential_sphere")    return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_sphere", locs = locs, NNarray = NNarray)))
   if(covfun_name=="exponential_spacetime") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "exponential_spacetime", locs = locs, NNarray = NNarray)))
-  if(covfun_name=="exponential_anisotropic") return(Bidart::nonstat_vecchia_Linv(log_range = matrix(1, nrow(locs), 1)%*%(range_beta*2), covfun_name = "nonstationary_exponential_anisotropic", sphere = F, locs = locs, NNarray = NNarray, compute_derivative = T, nu =1))
+  if(covfun_name=="exponential_anisotropic") return(nonstat_vecchia_Linv(log_range = matrix(1, nrow(locs), 1)%*%(range_beta*2), covfun_name = "nonstationary_exponential_anisotropic", sphere = F, locs = locs, NNarray = NNarray, compute_derivative = T, nu =1))
   
   # matern stat
   if(covfun_name=="matern_isotropic") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_isotropic", locs = locs, NNarray = NNarray)))
@@ -87,10 +90,10 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   if(covfun_name=="matern_spacetime") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_spacetime", locs = locs, NNarray = NNarray)))
   
   
-  #if(ncol(range_beta)==3)range_beta = range_beta %*% matrix(
-  #  c(1/sqrt(2), 1/sqrt(2), 0, 
-  #    1/sqrt(2),-1/sqrt(2), 0,
-  #    0, 0, 1), 3)
+  if(ncol(range_beta)==3)range_beta = range_beta %*% matrix(
+    c(1/sqrt(2), 1/sqrt(2), 0, 
+      1/sqrt(2),-1/sqrt(2), 0,
+      0, 0, 1), 3)
   log_range = as.matrix(
     Bidart::X_KL_mult_right(
       X = range_X, 
@@ -187,30 +190,50 @@ beta_prior_ll = function(beta, n_KL, beta_mean, beta_precision, log_scale)
 }
 
 
+# #' @export
+#beta_prior_ll_derivative = function(beta, n_KL, beta_mean, beta_precision, log_scale)
+#{
+#  if(n_KL>0) 
+#  {
+#    scale_mat = Bidart::expmat(-log_scale)
+#    return(
+#      matrix(
+#        c(
+#          -(c(t(beta[seq(nrow(beta)-n_KL),,drop=F])-t(beta_mean)) %*% beta_precision),
+#          -c(t(beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat))
+#        ), 
+#        nrow(beta)
+#      )
+#    )
+#  }
+#  return(
+#    matrix(
+#      c(
+#        -(c(t(beta[seq(nrow(beta)-n_KL),])-t(beta_mean)) %*% beta_precision)
+#      ), 
+#      nrow(beta)
+#    )
+#  )
+#}
+
 #' @export
 beta_prior_ll_derivative = function(beta, n_KL, beta_mean, beta_precision, log_scale)
 {
+  
+  res = matrix(
+    c(
+      -(c(t(beta[seq(nrow(beta)-n_KL),, drop = F])-t(beta_mean)) %*% beta_precision)
+    ), 
+    nrow(beta)-n_KL
+  )
   if(n_KL>0) 
   {
     scale_mat = Bidart::expmat(-log_scale)
-    return(
-      matrix(
-        c(
-          -(c(t(beta[seq(nrow(beta)-n_KL),,drop=F])-t(beta_mean)) %*% beta_precision),
-          -c(t(beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat))
-        ), 
-        nrow(beta)
-      )
+    res = rbind(res, 
+                -beta[-seq(nrow(beta)-n_KL),,drop = F] %*% scale_mat
     )
   }
-  return(
-    matrix(
-      c(
-        -(c(t(beta[seq(nrow(beta)-n_KL),])-t(beta_mean)) %*% beta_precision)
-      ), 
-      nrow(beta)
-    )
-  )
+  res
 }
 
 
