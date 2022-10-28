@@ -227,59 +227,58 @@ mcmc_nngp_update_Gaussian = function(data,
 #                        log_scale = state$params$range_log_scale) # normal prior
 #)
 #d1/d2
-#
-#       Rcpp::sourceCpp("Bidart/src/vecchia_nonstat.cpp")
-###       source("Bidart/R/Useful_stuff.R")
-### # recomputing current sparse chol
-### state$params$range_beta[] = rnorm(length(state$params$range_beta[]))
-### state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = 
-###   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
-###                       range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
-###                       locs = data$locs, 
-###                       range_X = data$covariates$range_X$X_locs, 
-###                       nu = hierarchical_model$nu, 
-###                       KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
-###                       compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
-###   )
-### state$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-### 
-### # compute gradient using derivative of sparse chol
-### d1 = X_KL_crossprod(
-###   X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
-###   Y = # Jacobian of range field wrt range_beta
-###     (
-###       # natural gradient of obs likelihood wrt range field
-###       derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
-###                                     left_vector = as.vector(
-###                                       Matrix::solve(
-###                                         Matrix::t(state$sparse_chol_and_stuff$sparse_chol), 
-###                                         - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
-###                                                       ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
-###                                         * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
-###                                       )), 
-###                                     right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
-###                                     NNarray = vecchia_approx$NNarray  
-###       )))
-### # compute gradient using finite diff
-### new_range_beta = state$params$range_beta
-### new_range_beta[1,1] = new_range_beta[1,1] + .0001
-### new_compressed_sparse_chol_and_grad = 
-###   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
-###                               range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
-###                               locs = data$locs, 
-###                               range_X = data$covariates$range_X$X_locs, 
-###                               nu = hierarchical_model$nu, 
-###                               KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
-###                               compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
-###   )
-### new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-### new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
-### d2 = 10000 * (
-###   + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-###   - 
-###     + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-### )
-### d1/d2
+      idx = cbind(1, 1)
+       source("Bidart/R/Useful_stuff.R")
+ # recomputing current sparse chol
+ state$params$range_beta[] = rnorm(length(state$params$range_beta[]))
+ state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = 
+   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                       range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
+                       locs = data$locs, 
+                       range_X = data$covariates$range_X$X_locs, 
+                       nu = hierarchical_model$nu, 
+                       KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+                       compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+   )
+ state$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+ 
+ # compute gradient using derivative of sparse chol
+ d1 = X_KL_crossprod(
+   X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+   Y = # Jacobian of range field wrt range_beta
+     (
+       # natural gradient of obs likelihood wrt range field
+       derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+                                     left_vector = as.vector(
+                                       Matrix::solve(
+                                         Matrix::t(state$sparse_chol_and_stuff$sparse_chol), 
+                                         - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
+                                                       ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
+                                         * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
+                                       )), 
+                                     right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+                                     NNarray = vecchia_approx$NNarray  
+       )))
+ # compute gradient using finite diff
+ new_range_beta = state$params$range_beta
+ new_range_beta[idx] = new_range_beta[idx] + .0001
+ new_compressed_sparse_chol_and_grad = 
+   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                               range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+                               locs = data$locs, 
+                               range_X = data$covariates$range_X$X_locs, 
+                               nu = hierarchical_model$nu, 
+                               KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+                               compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+   )
+ new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+ new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
+ d2 = 10000 * (
+   + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+   - 
+     + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+ )
+ (d1/d2)
 
       # Make a full step for the position
       q = q + exp(state$transition_kernels$range_beta_ancillary) * p
@@ -581,54 +580,175 @@ mcmc_nngp_update_Gaussian = function(data,
     if(hierarchical_model$range_KL){
       # ancillary-sufficient ####
       
-##      new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(.5 * state$transition_kernels$range_log_scale_sufficient))
-##      old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
-##      new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
-##      new_range_beta = state$params$range_beta
-##      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
-##        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(new_range_log_scale))
-##      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun,  
-##                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
-##                                                                        locs = data$locs, range_X = data$covariates$range_X$X_locs, 
-##                                                                        KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, 
-##                                                                        nu = hierarchical_model$nu, locs_idx = vecchia_approx$hctam_scol_1, compute_derivative = T)
-##      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-##      if(
-##        (
-##          + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
-##          - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
-##          - .5* sum((new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
-##          + sum(log(new_compressed_sparse_chol_and_grad[[1]][,1]))
-##          > log(runif(1))
-##        )
-##      )
-##      {
-##        if(        
-##          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
-##          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))
-##        )
-##        {
-##          state$params$range_log_scale = new_range_log_scale
-##          state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
-##          state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
-##          state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
-##        }
-##        acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] + 1
-##      }
-##      # updating MALA kernel
-##      if(iter_start + iter < 1000)
-##      {
-##        if(iter %/% 50 ==iter / 50)
-##        {
-##          if(mean(acceptance_records$range_log_scale_sufficient)>.41  & state$transition_kernels$range_log_scale_sufficient< (0))state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient + rnorm(1, .4, .05)
-##          if(mean(acceptance_records$range_log_scale_sufficient)<.11)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
-##          acceptance_records$range_log_scale_sufficient =  0*acceptance_records$range_log_scale_sufficient
-##        }
-##      }
+#      new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(.5 * state$transition_kernels$range_log_scale_sufficient))
+#      old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
+#      new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
+#      new_range_beta = state$params$range_beta
+#      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
+#        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(new_range_log_scale))
+#      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun,  
+#                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+#                                                                        locs = data$locs, range_X = data$covariates$range_X$X_locs, 
+#                                                                        KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, 
+#                                                                        nu = hierarchical_model$nu, locs_idx = vecchia_approx$hctam_scol_1, compute_derivative = T)
+#      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+#      if(
+#        (
+#          + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
+#          - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
+#          - .5* sum((new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
+#          + sum(log(new_compressed_sparse_chol_and_grad[[1]][,1]))
+#          > log(runif(1))
+#        )
+#      )
+#      {
+#        if(        
+#          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
+#          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))
+#        )
+#        {
+#          print("turlututu")
+#          state$params$range_log_scale = new_range_log_scale
+#          state$params$range_beta = new_range_beta
+#          state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
+#          state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
+#          state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
+#        }
+#        acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] + 1
+#      }
+#      # updating MALA kernel
+#      if(iter_start + iter < 1000)
+#      {
+#        if(iter %/% 50 ==iter / 50)
+#        {
+#          if(mean(acceptance_records$range_log_scale_sufficient)>.41  & state$transition_kernels$range_log_scale_sufficient< (0))state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient + rnorm(1, .4, .05)
+#          if(mean(acceptance_records$range_log_scale_sufficient)<.11)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
+#          acceptance_records$range_log_scale_sufficient =  0*acceptance_records$range_log_scale_sufficient
+#        }
+#      }
+      
+      q = state$params$range_log_scale
+      current_U =
+        (
+          + .5* sum((state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
+          - sum(log(state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][,1]))
+        )
+      
+      # MALA whitened
+      state$momenta$range_log_scale_sufficient = sqrt(.9) * state$momenta$range_log_scale_sufficient + sqrt(.1)*rnorm(length(q))
+      p = state$momenta$range_log_scale_sufficient
+      # Make a half step for momentum at the beginning
+      d_beta_d_scale = 
+        Bidart::derivative_field_wrt_scale(
+          state$params$range_beta[-seq(data$covariates$range_X$n_regressors),,drop = F], 
+          state$params$range_log_scale
+        )
+      # derivative of potential wrt range beta
+      d_potential_d_beta = as.matrix(
+        + Bidart::X_KL_crossprod(
+          X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+          Y = # Jacobian of range field wrt range_beta
+            (# natural gradient of obs likelihood wrt range field
+              Bidart::derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+                                            left_vector = as.vector(state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))), # left vector = whitened latent field
+                                            right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+                                            NNarray = vecchia_approx$NNarray  
+              )
+              - Bidart::log_determinant_derivatives(sparse_chol_and_grad = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad, NNarray = vecchia_approx$NNarray)# derivative of determinant
+            ))[-seq(data$covariates$range_X$n_regressors),,drop = F]
+      )
+      p = p - exp(state$transition_kernels$range_log_scale_sufficient) *
+        (
+          apply(d_beta_d_scale * array(rep(d_potential_d_beta, length(p)), dim = c(dim(d_potential_d_beta), length(p))), 3, sum)
+        )/2
+      
+      # Make a full step for the position
+      q = q + exp(state$transition_kernels$range_log_scale_sufficient) * p
+      new_range_beta = state$params$range_beta
+      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
+        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(q))
+      
+      new_compressed_sparse_chol_and_grad =
+        Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                                    range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+                                    locs = data$locs, 
+                                    range_X = data$covariates$range_X$X_locs, 
+                                    nu = hierarchical_model$nu, 
+                                    KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+                                    compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+        )
+      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+      # Make a half step for momentum at the end.
+      # Make a half step for momentum at the beginning
+      d_beta_d_scale = 
+        Bidart::derivative_field_wrt_scale(
+          new_range_beta[-seq(data$covariates$range_X$n_regressors),,drop = F], 
+          q
+        )
+      # derivative of potential wrt range beta
+      d_potential_d_beta = as.matrix(
+        + Bidart::X_KL_crossprod(
+          X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+          Y = # Jacobian of range field wrt range_beta
+            (# natural gradient of obs likelihood wrt range field
+              Bidart::derivative_sandwiches(derivatives = new_compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+                                            left_vector = as.vector(new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))), # left vector = whitened latent field
+                                            right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+                                            NNarray = vecchia_approx$NNarray  
+              )
+              - Bidart::log_determinant_derivatives(sparse_chol_and_grad = new_compressed_sparse_chol_and_grad, NNarray = vecchia_approx$NNarray)# derivative of determinant
+            ))[-seq(data$covariates$range_X$n_regressors),,drop = F]
+      )
+      p = p - exp(state$transition_kernels$range_log_scale_sufficient) *
+        (
+          apply(d_beta_d_scale * array(rep(d_potential_d_beta, length(p)), dim = c(dim(d_potential_d_beta), length(p))), 3, sum)
+        )/2
+      # Evaluate potential and kinetic energies at start and end of trajectory
+      current_K = sum (state$momenta$range_log_scale_sufficient ^2) / 2
+      proposed_U =
+        (
+          + .5* sum((new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale)))^2)
+          - sum(log(new_compressed_sparse_chol_and_grad[[1]][,1]))
+        )
+      proposed_K = sum(p^2) / 2
+      if(!is.nan(current_U-proposed_U+current_K- proposed_K))
+      {
+        if (log(runif(1)) < current_U-proposed_U + current_K- proposed_K)
+        {
+          acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_sufficient[iter - 50*(iter %/% 50) ] + 1
+          new_eigen = eigen(Bidart::expmat(q))$values
+          if(
+            all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
+            all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2])))
+          {
+            print("turlututu!")
+            state$momenta$range_log_scale_sufficient = p
+            
+            state$params$range_beta = new_range_beta
+            state$params$range_log_scale[] = q
+            
+            state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
+            state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
+            state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
+          }
+        }
+      }
+      # updating MALA kernel
+      if(iter_start + iter < 1000)
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if(mean(acceptance_records$range_log_scale_sufficient)>.81  & state$transition_kernels$range_log_scale_sufficient< (0))state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_sufficient)<.51)state$transition_kernels$range_log_scale_sufficient = state$transition_kernels$range_log_scale_sufficient - rnorm(1, .4, .05)
+          acceptance_records$range_log_scale_sufficient =  0*acceptance_records$range_log_scale_sufficient
+        }
+      }
+      
+      
       # sufficient - sufficient ####
       for(i in seq(5))
       {
-        new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, .05)
+        new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(seq(-6, 0, .5))[i])
         old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
         new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
         if(
@@ -651,78 +771,208 @@ mcmc_nngp_update_Gaussian = function(data,
           state$params$range_log_scale = new_range_log_scale
         }
       }
-##      # ancillary - ancillary ####
-##      new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(.5 * state$transition_kernels$range_log_scale_ancillary))
-##      old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
-##      new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
-##      new_range_beta = state$params$range_beta
-##      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
-##        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(new_range_log_scale))
-##      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun,  
-##                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
-##                                                                        locs = data$locs, range_X = data$covariates$range_X$X_locs, 
-##                                                                        KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, 
-##                                                                        nu = hierarchical_model$nu, locs_idx = vecchia_approx$hctam_scol_1, compute_derivative = T)
-##      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-##      new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
-##      if(
-##        ( 
-##          - .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-##          + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-##          > log(runif(1))
-##        )
-##      )
-##      {
-##        if(
-##          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
-##          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))
-##        )
-##        {
-##          state$params$range_log_scale = new_range_log_scale
-##          state$params$field = new_field
-##          state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
-##          state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
-##          state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
-##        }
-##        acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] + 1
-##      }
-##      # updating MALA kernel
-##      if(iter_start + iter < 1000)
-##      {
-##        if(iter %/% 50 ==iter / 50)
-##        {
-##          if((mean(acceptance_records$range_log_scale_ancillary)>.41) & state$transition_kernels$range_log_scale_ancillary< (0))state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary + rnorm(1, .4, .05)
-##          if(mean(acceptance_records$range_log_scale_ancillary)<.11)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
-##          acceptance_records$range_log_scale_ancillary =  0*acceptance_records$range_log_scale_ancillary
-##        }
-##      }
-####      
-####      # sufficient - sufficient ######
-####      for(i in seq(5))
-####      {
-####        new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, .05)
-####        old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
-####        new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
-####        if(
-####          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
-####          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))&
-####          (
-####            + Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
-####                                    beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
-####                                    beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
-####                                    log_scale = new_range_log_scale)
-####            - Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
-####                                    beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
-####                                    beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
-####                                    log_scale = state$params$range_log_scale) 
-####            > log(runif(1))
-####          )
-####          
-####        )
-####        {
-####          state$params$range_log_scale = new_range_log_scale
-####        }
-####      }
+      # ancillary - ancillary ####
+#      new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(.5 * state$transition_kernels$range_log_scale_ancillary))
+#      old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
+#      new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
+#      new_range_beta = state$params$range_beta
+#      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
+#        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(new_range_log_scale))
+#      new_compressed_sparse_chol_and_grad = Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun,  
+#                                                                        range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+#                                                                        locs = data$locs, range_X = data$covariates$range_X$X_locs, 
+#                                                                        KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, 
+#                                                                        nu = hierarchical_model$nu, locs_idx = vecchia_approx$hctam_scol_1, compute_derivative = T)
+#      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+#      new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
+#      if(
+#        ( 
+#          - .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+#          + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+#          > log(runif(1))
+#        )
+#      )
+#      {
+#        if(
+#          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
+#          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))
+#        )
+#        {
+#          print("prout")
+#          state$params$range_log_scale = new_range_log_scale
+#          state$params$range_beta = new_range_beta
+#          state$params$field = new_field
+#          state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
+#          state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
+#          state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
+#        }
+#        acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] + 1
+#      }
+#      # updating MALA kernel
+#      if(iter_start + iter < 1000)
+#      {
+#        if(iter %/% 50 ==iter / 50)
+#        {
+#          if((mean(acceptance_records$range_log_scale_ancillary)>.41) & state$transition_kernels$range_log_scale_ancillary< (0))state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary + rnorm(1, .4, .05)
+#          if(mean(acceptance_records$range_log_scale_ancillary)<.11)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
+#          acceptance_records$range_log_scale_ancillary =  0*acceptance_records$range_log_scale_ancillary
+#        }
+#      }
+      
+      
+      q = state$params$range_log_scale
+      current_U =
+        (
+          + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+        )
+      # MALA whitened
+      state$momenta$range_log_scale_ancillary = sqrt(.9) * state$momenta$range_log_scale_ancillary + sqrt(.1)*rnorm(length(q))
+      p = state$momenta$range_log_scale_ancillary
+      # Make a half step for momentum at the beginning
+      d_beta_d_scale = 
+        Bidart::derivative_field_wrt_scale(
+          state$params$range_beta[-seq(data$covariates$range_X$n_regressors),,drop = F], 
+          state$params$range_log_scale
+        )
+      # derivative of potential wrt range beta
+      d_potential_d_beta = Bidart::X_KL_crossprod(
+        X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+        Y = # Jacobian of range field wrt range_beta
+          (
+            # natural gradient of obs likelihood wrt range field
+            Bidart::derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+                                          left_vector = as.vector(
+                                            Matrix::solve(
+                                              Matrix::t(state$sparse_chol_and_stuff$sparse_chol), 
+                                              - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
+                                                            ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
+                                              * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
+                                            )), 
+                                          right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+                                          NNarray = vecchia_approx$NNarray  
+            )
+          ))[-seq(data$covariates$range_X$n_regressors),,drop = F]
+      p = p - exp(state$transition_kernels$range_log_scale_ancillary) *
+        (
+          apply(d_beta_d_scale * array(rep(d_potential_d_beta, length(p)), dim = c(dim(d_potential_d_beta), length(p))), 3, sum)
+        )/2
+      
+      (proposed_U - current_U)/(exp(state$transition_kernels$range_log_scale_ancillary) * p)
+      # Make a full step for the position
+      q = q + exp(state$transition_kernels$range_log_scale_ancillary) * p
+      new_range_beta = state$params$range_beta
+      new_range_beta[-seq(data$covariates$range_X$n_regressors),] = new_range_beta[-seq(data$covariates$range_X$n_regressors),] %*% 
+        solve(chol(Bidart::expmat(state$params$range_log_scale))) %*% chol(Bidart::expmat(q))
+      
+      new_compressed_sparse_chol_and_grad =
+        Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+                                    range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+                                    locs = data$locs, 
+                                    range_X = data$covariates$range_X$X_locs, 
+                                    nu = hierarchical_model$nu, 
+                                    KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+                                    compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+        )
+      new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+      new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
+      # Make a half step for momentum at the end.
+      # Make a half step for momentum at the beginning
+      d_beta_d_scale = 
+        Bidart::derivative_field_wrt_scale(
+          new_range_beta[-seq(data$covariates$range_X$n_regressors),,drop = F], 
+          q
+        )
+      # derivative of potential wrt range beta
+      d_potential_d_beta = Bidart::X_KL_crossprod(
+        X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+        Y = # Jacobian of range field wrt range_beta
+          (
+            # natural gradient of obs likelihood wrt range field
+            Bidart::derivative_sandwiches(derivatives = new_compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+                                          left_vector = as.vector(
+                                            Matrix::solve(
+                                              Matrix::t(new_sparse_chol), 
+                                              - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
+                                                            ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
+                                              * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
+                                            )), 
+                                          right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+                                          NNarray = vecchia_approx$NNarray  
+            )
+          )
+      )[-seq(data$covariates$range_X$n_regressors),,drop = F]
+      p = p - exp(state$transition_kernels$range_log_scale_ancillary) *
+        (
+          apply(d_beta_d_scale * array(rep(d_potential_d_beta, length(p)), dim = c(dim(d_potential_d_beta), length(p))), 3, sum)
+        )/2
+      # Evaluate potential and kinetic energies at start and end of trajectory
+      current_K = sum (state$momenta$range_log_scale_ancillary ^2) / 2
+      proposed_U =
+        (
+          + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+        )
+      proposed_K = sum(p^2) / 2
+      if(!is.nan(current_U-proposed_U+current_K- proposed_K))
+      {
+        if (log(runif(1)) < current_U-proposed_U + current_K- proposed_K)
+        {
+          acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] = acceptance_records$range_log_scale_ancillary[iter - 50*(iter %/% 50) ] + 1
+          
+          new_eigen = eigen(Bidart::expmat(q))$values
+          if(
+            all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
+            all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2])))
+          {
+            print("prout!")
+            state$momenta$range_log_scale_ancillary = p
+            
+            state$params$range_beta[] = new_range_beta
+            state$params$range_log_scale[] = q
+            state$params$field = new_field
+            
+            state$sparse_chol_and_stuff$sparse_chol= new_sparse_chol
+            state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = new_compressed_sparse_chol_and_grad
+            state$sparse_chol_and_stuff$precision_diag = as.vector((state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA]^2)%*%Matrix::sparseMatrix(i = seq(length(vecchia_approx$sparse_chol_column_idx)), j = vecchia_approx$sparse_chol_column_idx, x = rep(1, length(vecchia_approx$sparse_chol_row_idx))))
+          }
+        }
+      }
+      # updating MALA kernel
+      if(iter_start + iter < 1000)
+      {
+        if(iter %/% 50 ==iter / 50)
+        {
+          if((mean(acceptance_records$range_log_scale_ancillary)>.81) & state$transition_kernels$range_log_scale_ancillary< (0))state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary + rnorm(1, .4, .05)
+          if(mean(acceptance_records$range_log_scale_ancillary)<.51)state$transition_kernels$range_log_scale_ancillary = state$transition_kernels$range_log_scale_ancillary - rnorm(1, .4, .05)
+          acceptance_records$range_log_scale_ancillary =  0*acceptance_records$range_log_scale_ancillary
+        }
+      }
+      
+      # sufficient - sufficient ######
+      for(i in seq(5))
+      {
+        new_range_log_scale = state$params$range_log_scale + rnorm(length(state$params$range_log_scale), 0, exp(seq(-6, 0, .5))[i])
+        old_eigen = eigen(Bidart::expmat(state$params$range_log_scale))$values
+        new_eigen = eigen(Bidart::expmat(new_range_log_scale))$values
+        if(
+          all(min(new_eigen)>exp(hierarchical_model$range_log_scale_prior[1]))&
+          all(max(new_eigen)<exp(hierarchical_model$range_log_scale_prior[2]))&
+          (
+            + Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
+                                    beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
+                                    beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
+                                    log_scale = new_range_log_scale)
+            - Bidart::beta_prior_ll(beta = state$params$range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
+                                    beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
+                                    beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
+                                    log_scale = state$params$range_log_scale) 
+            > log(runif(1))
+          )
+          
+        )
+        {
+          state$params$range_log_scale = new_range_log_scale
+        }
+      }
       
     }
     #########

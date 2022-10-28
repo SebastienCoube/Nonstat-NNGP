@@ -292,20 +292,20 @@ mcmc_nngp_initialize_nonstationary =
     
     if(is.null(noise_log_scale_prior)&noise_KL)
       {
-      message("noise_log_scale_prior was automatically set to an uniform on (-8, 4)")
-      noise_log_scale_prior = c(-8, 4)
+      message("noise_log_scale_prior was automatically set to an uniform on (-6, 4)")
+      noise_log_scale_prior = c(-6, 4)
       hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
       }
     if(is.null(scale_log_scale_prior)&scale_KL)
       {
-      message("scale_log_scale_prior was automatically set to an uniform on (-8, 4)")
-      scale_log_scale_prior = c(-8, 4)
+      message("scale_log_scale_prior was automatically set to an uniform on (-6, 4)")
+      scale_log_scale_prior = c(-6, 4)
       hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
       }
     if(is.null(range_log_scale_prior)&range_KL)
       {
-      message("range_log_scale_prior was automatically set to an uniform on (-8, 4)")
-      hierarchical_model$range_log_scale_prior = c(-8, 4)
+      message("range_log_scale_prior was automatically set to an uniform on (-6, 4)")
+      hierarchical_model$range_log_scale_prior = c(-6, 4)
       }
     
     # OLS to get residual variance to make a guess 
@@ -376,6 +376,8 @@ mcmc_nngp_initialize_nonstationary =
       {
         if(length(grep("aniso", covfun))==0) states[[i]]$params$range_log_scale =   runif(1, hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2])
         if(length(grep("aniso", covfun))==1) states[[i]]$params$range_log_scale = c(runif(3, hierarchical_model$range_log_scale_prior[1], hierarchical_model$range_log_scale_prior[2]), rep(0,3))
+        states[[i]]$momenta$range_log_scale_ancillary  = rnorm(length(states[[i]]$params$range_log_scale))
+        states[[i]]$momenta$range_log_scale_sufficient = rnorm(length(states[[i]]$params$range_log_scale))
       }
       states[[i]]$momenta$range_beta_ancillary = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
       states[[i]]$momenta$range_beta_sufficient = matrix(rnorm(length(states[[i]]$params$range_beta)), nrow(states[[i]]$params$range_beta))
@@ -401,8 +403,8 @@ mcmc_nngp_initialize_nonstationary =
       states[[i]]$transition_kernels$scale_log_scale_sufficient = -4
       states[[i]]$transition_kernels$scale_log_scale_ancillary =  -4
       # noise variance
-      states[[i]]$transition_kernels$noise_beta_mala = -2
-      states[[i]]$transition_kernels$noise_log_scale = -2
+      states[[i]]$transition_kernels$noise_beta_mala = -4
+      states[[i]]$transition_kernels$noise_log_scale = -4
       
       ###################################
       # Linear regression coefficients  #

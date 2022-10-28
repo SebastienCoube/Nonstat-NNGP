@@ -10,8 +10,8 @@ derivative_sandwiches = function(
   for( i in seq(length(derivatives)))M[,i] = Bidart::derivative_sandwich(derivatives[[i]], left_vector, right_vector, NNarray)
   # changing basis between det/aniso and canonical
   if(ncol(M)==3) M = M %*% t(matrix(
-    c(1/sqrt(2), 1/sqrt(2), 0, 
-      1/sqrt(2),-1/sqrt(2), 0,
+    c(1, 1, 0, 
+      1,-1, 0,
       0, 0, 1), 3))
   M
 }
@@ -22,8 +22,8 @@ log_determinant_derivatives = function(sparse_chol_and_grad, NNarray)
   M = matrix(0, nrow(NNarray), length(sparse_chol_and_grad[[2]]))
   for( i in seq(length(sparse_chol_and_grad[[2]])))M[,i] = Bidart::log_determinant_derivative(derivative = sparse_chol_and_grad[[2]][[i]], compressed_sparse_chol = sparse_chol_and_grad[[1]], NNarray = NNarray)
   if(ncol(M)==3) M = M %*% matrix(
-    c(1/sqrt(2), 1/sqrt(2), 0, 
-      1/sqrt(2),-1/sqrt(2), 0,
+    c(1, 1, 0, 
+      1,-1, 0,
       0, 0, 1), 3)
   M
 }
@@ -91,8 +91,8 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   
   
   if(ncol(range_beta)==3)range_beta = range_beta %*% matrix(
-    c(1/sqrt(2), 1/sqrt(2), 0, 
-      1/sqrt(2),-1/sqrt(2), 0,
+    c(1, 1, 0, 
+      1,-1, 0,
       0, 0, 1), 3)
   log_range = as.matrix(
     Bidart::X_KL_mult_right(
@@ -293,3 +293,32 @@ X_KL_crossprod = function(X, KL = NULL, use_KL = F,  Y, locs_idx = NULL)
   res
 }
 
+
+#' @export
+derivative_chol_expmat = function(coords)
+{
+  dimres = 1
+  if(length(coords)==6)dimres = 3
+  res = array(data = 0, dim = c(dimres, dimres, length(coords)))
+  chol_expmat = chol(Bidart::expmat(coords))
+  for(i in seq(length(coords)))
+  {
+    coords_ = coords
+    coords_[i] = coords_[i] + 0.00001
+    res[,,i] = 100000 * (chol(Bidart::expmat(coords_)) - chol_expmat)
+  }
+  res
+}
+
+#' @export
+derivative_field_wrt_scale = function(field, coords)
+{
+  d_chol_expmat = derivative_chol_expmat(coords)
+  white_field = field %*% solve(chol(Bidart::expmat(coords)))
+  res = array(0, dim = c(dim(field), length(coords)))
+  for(i in seq(length(coords)))
+  {
+    res[,,i] = white_field %*% d_chol_expmat[,,i]
+  }
+  res
+}
