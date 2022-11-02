@@ -227,58 +227,58 @@ mcmc_nngp_update_Gaussian = function(data,
 #                        log_scale = state$params$range_log_scale) # normal prior
 #)
 #d1/d2
-      idx = cbind(1, 1)
-       source("Bidart/R/Useful_stuff.R")
- # recomputing current sparse chol
- state$params$range_beta[] = rnorm(length(state$params$range_beta[]))
- state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = 
-   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
-                       range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
-                       locs = data$locs, 
-                       range_X = data$covariates$range_X$X_locs, 
-                       nu = hierarchical_model$nu, 
-                       KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
-                       compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
-   )
- state$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
- 
- # compute gradient using derivative of sparse chol
- d1 = X_KL_crossprod(
-   X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
-   Y = # Jacobian of range field wrt range_beta
-     (
-       # natural gradient of obs likelihood wrt range field
-       derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
-                                     left_vector = as.vector(
-                                       Matrix::solve(
-                                         Matrix::t(state$sparse_chol_and_stuff$sparse_chol), 
-                                         - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
-                                                       ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
-                                         * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
-                                       )), 
-                                     right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
-                                     NNarray = vecchia_approx$NNarray  
-       )))
- # compute gradient using finite diff
- new_range_beta = state$params$range_beta
- new_range_beta[idx] = new_range_beta[idx] + .0001
- new_compressed_sparse_chol_and_grad = 
-   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
-                               range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
-                               locs = data$locs, 
-                               range_X = data$covariates$range_X$X_locs, 
-                               nu = hierarchical_model$nu, 
-                               KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
-                               compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
-   )
- new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
- new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
- d2 = 10000 * (
-   + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
-   - 
-     + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
- )
- (d1/d2)
+#      idx = cbind(2, 3)
+#       source("Bidart/R/Useful_stuff.R")
+# # recomputing current sparse chol
+# state$params$range_beta[] = rnorm(length(state$params$range_beta[]))
+# state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad = 
+#   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+#                       range_beta = state$params$range_beta, NNarray = vecchia_approx$NNarray, 
+#                       locs = data$locs, 
+#                       range_X = data$covariates$range_X$X_locs, 
+#                       nu = hierarchical_model$nu, 
+#                       KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+#                       compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+#   )
+# state$sparse_chol_and_stuff$sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+# 
+# # compute gradient using derivative of sparse chol
+# d1 = X_KL_crossprod(
+#   X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
+#   Y = # Jacobian of range field wrt range_beta
+#     (
+#       # natural gradient of obs likelihood wrt range field
+#       derivative_sandwiches(derivatives = state$sparse_chol_and_stuff$compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
+#                                     left_vector = as.vector(
+#                                       Matrix::solve(
+#                                         Matrix::t(state$sparse_chol_and_stuff$sparse_chol), 
+#                                         - as.vector(vecchia_approx$locs_match_matrix %*%  # gradient of  Gaussian observations ll wrt latent field
+#                                                       ((state$params$field[vecchia_approx$locs_match] - state$sparse_chol_and_stuff$lm_residuals) / state$sparse_chol_and_stuff$noise))
+#                                         * sqrt(state$sparse_chol_and_stuff$scale) # part of sparse chol
+#                                       )), 
+#                                     right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
+#                                     NNarray = vecchia_approx$NNarray  
+#       )))
+# # compute gradient using finite diff
+# new_range_beta = state$params$range_beta
+# new_range_beta[idx] = new_range_beta[idx] + .0001
+# new_compressed_sparse_chol_and_grad = 
+#   compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
+#                               range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
+#                               locs = data$locs, 
+#                               range_X = data$covariates$range_X$X_locs, 
+#                               nu = hierarchical_model$nu, 
+#                               KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL,
+#                               compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
+#   )
+# new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
+# new_field = sqrt(state$sparse_chol_and_stuff$scale) * as.vector(Matrix::solve(new_sparse_chol, state$sparse_chol_and_stuff$sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))))
+# d2 = 10000 * (
+#   + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  new_field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+#   - 
+#     + .5 * sum((state$sparse_chol_and_stuff$lm_residuals -  state$params$field[vecchia_approx$locs_match])^2/state$sparse_chol_and_stuff$noise) # observation ll
+# )
+# (d1/d2)
 
       # Make a full step for the position
       q = q + exp(state$transition_kernels$range_beta_ancillary) * p
@@ -1639,6 +1639,8 @@ mcmc_nngp_update_Gaussian = function(data,
                                        - additional_mean[selected_locs]))) # Gaussian observations 
       state$params$field [selected_locs] = as.vector(as.vector(cond_mean) +  Matrix::t(chol_Q_AA_sub_list[[idx]]$P) %*% Matrix::solve(Matrix::t(chol_Q_AA_sub_list[[idx]]$L), rnorm(length(selected_locs))) )
     }
+    
+    
     
     #######################
     # Storing the samples #

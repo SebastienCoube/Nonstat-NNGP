@@ -47,9 +47,9 @@ beta = c(1, .01,  -.01)
 #beta_noise = c(0, rnorm(ncol(KL_noise)))
 beta_noise = c(0, rep(0, ncol(KL_noise)))
 beta_range = cbind(c(-1, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))))
-beta_range[1,1]=-2
+beta_range[1,1]=-1
 
-beta_range = beta_range %*% diag(c(1, 0, 0))
+#beta_range = beta_range %*% diag(c(1, 0, 0))
 #beta_range = matrix(c(-2, .1, .1, 0, .2, -.2, 0, 0, 0), 3)
 
 
@@ -62,7 +62,7 @@ NNarray = GpGp::find_ordered_nn(locs, 10)
 
 
 latent_field = GpGp::fast_Gp_sim_Linv(
-  Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta =  beta_range, NNarray = NNarray, locs = locs, range_X = matrix(1, nrow(locs)), KL = KL_, use_KL = T, compute_derivative = T, nu = 1.5)[[1]], 
+  Bidart::compute_sparse_chol(covfun_name = "nonstationary_matern_anisotropic", range_beta =  beta_range, NNarray = NNarray, locs = locs, range_X = matrix(1, nrow(locs)), KL = KL_, use_KL = T, compute_derivative = T, nu = 1.5)[[1]], 
   NNarray, z = rnorm(n_locs) )
 #latent_field = GpGp::fast_Gp_sim_Linv(
 #  Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta =  beta_range, NNarray = NNarray, locs = locs, range_X = cbind(1, locs), KL = KL_noise, use_KL = F, compute_derivative = T, nu = 1.5)[[1]], 
@@ -87,7 +87,7 @@ mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   X = X, observed_field = as.vector(observed_field), 
   m = 10, 
-  reordering = "maxmin", covfun = "nonstationary_matern_anisotropic", nu = 1.5,
+  reordering = "maxmin", covfun = "nonstationary_exponential_anisotropic", nu = 1.5,
   noise_X = NULL, noise_KL = F,
   scale_X = NULL, scale_KL = F, 
   range_X = NULL, range_KL = T, 
