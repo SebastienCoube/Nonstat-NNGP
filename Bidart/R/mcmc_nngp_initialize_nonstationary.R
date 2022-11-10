@@ -70,7 +70,6 @@ mcmc_nngp_initialize_nonstationary =
            scale_X = NULL, scale_beta_mean = NULL, scale_beta_precision = NULL, scale_KL = F, scale_log_scale_prior = NULL, 
            range_X = NULL, range_beta_mean = NULL, range_beta_precision = NULL, range_KL = F, range_log_scale_prior = NULL, 
            KL = NULL, 
-           log_NNGP_matern_covfun = NULL, log_NNGP_nu = NULL, # covariance function for the hyperpriors
            n_chains = 3,  # number of MCMC chains
            seed = 1
   )
@@ -90,7 +89,7 @@ mcmc_nngp_initialize_nonstationary =
     if(!reordering[1] %in% c("maxmin", "random", "coord", "dist_to_point", "middleout"))stop("reordering should be chosen among : maxmin, random, coord, dist_to_point, middleout")
     allowed_covfuns = c("exponential_isotropic", "exponential_sphere", 
                         "exponential_anisotropic2D", 
-      "matern_isotropic",      "matern_sphere",      
+      "matern_isotropic",      "matern_sphere", "matern15_isotropic",       
       "matern_anisotropic2D", 
       "nonstationary_exponential_isotropic", "nonstationary_exponential_isotropic_sphere", 
       "nonstationary_matern_isotropic",      "nonstationary_matern_isotropic_sphere", 
@@ -110,13 +109,13 @@ mcmc_nngp_initialize_nonstationary =
     
     if((is.null(KL)) & (noise_KL | range_KL | scale_KL))stop("either noise_KL, range_KL, or scale_KL is TRUE, while nothing was provided for KL")
     
-    if(is.matrix(noise_beta_mean))stop("noise_beta_mean should be a matrix or nothing")
-    if(is.matrix(scale_beta_mean))stop("scale_beta_mean should be a matrix or nothing")
-    if(is.matrix(range_beta_mean))stop("range_beta_mean should be a matrix or nothing")
+    if(!is.null(noise_beta_mean))if(!is.matrix(noise_beta_mean))stop("noise_beta_mean should be a matrix or nothing")
+    if(!is.null(scale_beta_mean))if(!is.matrix(scale_beta_mean))stop("scale_beta_mean should be a matrix or nothing")
+    if(!is.null(range_beta_mean))if(!is.matrix(range_beta_mean))stop("range_beta_mean should be a matrix or nothing")
     
-    if(is.matrix(noise_beta_precision))stop("noise_beta_precision should be a matrix or nothing")
-    if(is.matrix(scale_beta_precision))stop("scale_beta_precision should be a matrix or nothing")
-    if(is.matrix(range_beta_precision))stop("range_beta_precision should be a matrix or nothing")
+    if(!is.null(noise_beta_precision))if(!is.matrix(noise_beta_precision))stop("noise_beta_precision should be a matrix or nothing")
+    if(!is.null(scale_beta_precision))if(!is.matrix(scale_beta_precision))stop("scale_beta_precision should be a matrix or nothing")
+    if(!is.null(range_beta_precision))if(!is.matrix(range_beta_precision))stop("range_beta_precision should be a matrix or nothing")
     #length of observations
     if(
       !all(unique(c(
@@ -292,20 +291,20 @@ mcmc_nngp_initialize_nonstationary =
     
     if(is.null(noise_log_scale_prior)&noise_KL)
       {
-      message("noise_log_scale_prior was automatically set to an uniform on (-6, 4)")
-      noise_log_scale_prior = c(-6, 4)
+      message("noise_log_scale_prior was automatically set to an uniform on (-6, 2)")
+      noise_log_scale_prior = c(-6, 2)
       hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
       }
     if(is.null(scale_log_scale_prior)&scale_KL)
       {
-      message("scale_log_scale_prior was automatically set to an uniform on (-6, 4)")
-      scale_log_scale_prior = c(-6, 4)
+      message("scale_log_scale_prior was automatically set to an uniform on (-6, 2)")
+      scale_log_scale_prior = c(-6, 2)
       hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
       }
     if(is.null(range_log_scale_prior)&range_KL)
       {
-      message("range_log_scale_prior was automatically set to an uniform on (-6, 4)")
-      hierarchical_model$range_log_scale_prior = c(-6, 4)
+      message("range_log_scale_prior was automatically set to an uniform on (-6, 2)")
+      hierarchical_model$range_log_scale_prior = c(-6, 2)
       }
     
     # OLS to get residual variance to make a guess 
@@ -359,7 +358,7 @@ mcmc_nngp_initialize_nonstationary =
       #########
       
       # mean log-range (only parameter in the case of stationary model)
-      if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic"                     )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), nrow = 1)
+      if(covfun %in% c("exponential_isotropic"                     , "matern_isotropic","matern15_isotropic")) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), nrow = 1)
       if(covfun %in% c("exponential_sphere"                        , "matern_sphere"                        )) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1), nrow = 1)
       if(covfun %in% c("nonstationary_exponential_isotropic"       , "nonstationary_matern_isotropic"       )) states[[i]]$params$range_beta = matrix(  sample(log(max(       dist(locs[sample(seq(vecchia_approx$n_locs)        , 1000),           ]))     )-log(seq(50, 500, 1)), 1), nrow = 1)
       if(covfun %in% c("nonstationary_exponential_isotropic_sphere", "nonstationary_matern_isotropic_sphere")) states[[i]]$params$range_beta = matrix(  sample(log(max(fields::rdist.earth(locs[sample(seq(vecchia_approx$n_locs), 1000),           ]))/6000)-log(seq(50, 500, 1)), 1), nrow = 1)
@@ -402,6 +401,8 @@ mcmc_nngp_initialize_nonstationary =
       states[[i]]$transition_kernels$scale_beta_ancillary_mala  = -4
       states[[i]]$transition_kernels$scale_log_scale_sufficient = -4
       states[[i]]$transition_kernels$scale_log_scale_ancillary =  -4
+      # range and scale 
+      states[[i]]$transition_kernels$range_scale_blocked_KHR =  -4
       # noise variance
       states[[i]]$transition_kernels$noise_beta_mala = -4
       states[[i]]$transition_kernels$noise_log_scale = -4

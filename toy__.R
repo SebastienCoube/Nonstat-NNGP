@@ -94,11 +94,11 @@ hierarchical_model = mcmc_nngp_list$hierarchical_model
 data = mcmc_nngp_list$data
 vecchia_approx = mcmc_nngp_list$vecchia_approx
 
-#source("Bidart/R/mcmc_nngp_update_nonstationary_Gaussian.R")
-#mcmc_nngp_update_Gaussian(data = data, hierarchical_model = hierarchical_model, vecchia_approx = vecchia_approx, state = state, n_iterations_update = 100)
+source("Bidart/R/mcmc_nngp_update_nonstationary_Gaussian.R")
+mcmc_nngp_update_Gaussian(data = data, hierarchical_model = hierarchical_model, vecchia_approx = vecchia_approx, state = state, n_iterations_update = 100)
 
 
-mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, seed = 2)
+mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, seed = 2)
 
 
 predicted_locs = seq(0, 10, .005);predicted_locs = cbind(predicted_locs, rnorm(length(predicted_locs), 0, .00001))

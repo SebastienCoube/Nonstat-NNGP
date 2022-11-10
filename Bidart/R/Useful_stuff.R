@@ -86,6 +86,7 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
   
   # matern stat
   if(covfun_name=="matern_isotropic") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_isotropic", locs = locs, NNarray = NNarray)))
+  if(covfun_name=="matern15_isotropic") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), 0), covfun_name = "matern15_isotropic", locs = locs, NNarray = NNarray)))
   if(covfun_name=="matern_sphere")    return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_sphere", locs = locs, NNarray = NNarray)))
   if(covfun_name=="matern_spacetime") return(list(GpGp::vecchia_Linv(c(1, exp(range_beta), nu, 0), covfun_name = "matern_spacetime", locs = locs, NNarray = NNarray)))
   

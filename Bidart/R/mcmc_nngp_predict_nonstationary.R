@@ -94,7 +94,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                 x = 
                                   Bidart::compute_sparse_chol(
                                     covfun_name = mcmc_nngp_list$hierarchical_model$covfun, 
-                                    range_beta = chain$range_beta[,,i_start + i_predict, drop = F], 
+                                    range_beta = matrix(chain$range_beta[,,i_start + i_predict], nrow =dim(chain$range_beta)[1]), 
                                     NNarray = NNarray, locs = locs, 
                                     KL = KL_, use_KL = mcmc_nngp_list$hierarchical_model$range_KL, 
                                     range_X = X_range, 
@@ -110,7 +110,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                                   X = X_range, 
                                   KL = KL_, use_KL = mcmc_nngp_list$hierarchical_model$range_KL, 
                                   locs_idx = c(mcmc_nngp_list$vecchia_approx$hctam_scol_1, mcmc_nngp_list$vecchia_approx$n_obs+hctam_scol_1), 
-                                  Y = chain$range_beta[,,i_start + i_predict, drop = F]
+                                  Y = matrix(chain$range_beta[,,i_start + i_predict], nrow =dim(chain$range_beta)[1])
                                 )[-seq(mcmc_nngp_list$vecchia_approx$n_locs),]
                               )
                             scale_field = Bidart::variance_field(

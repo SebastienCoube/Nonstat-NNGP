@@ -141,8 +141,8 @@ for(nonstat_scale in TF)
     noise_X = NULL
     range_X = NULL 
     if(nonstat_noise)noise_X = as.data.frame(train_data_set$train_X)                             
-    #if(nonstat_scale)scale_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
-    #if(nonstat_range)range_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
+    if(nonstat_scale)scale_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
+    if(nonstat_range)range_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
     covfun_name = "matern_sphere"
     if(nonstat_range)covfun_name = "nonstationary_matern_isotropic_sphere"
     mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
@@ -157,12 +157,12 @@ for(nonstat_scale in TF)
       noise_X = noise_X, noise_KL = nonstat_noise,  
       range_X = range_X, range_KL = nonstat_range, 
       KL = train_data_set$train_KL_decomposition, 
-      n_chains = 3,  # number of MCMC chains
+      n_chains = 2,  # number of MCMC chains
       seed = 1
     )
     for(i in seq(30))
     { 
-      mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
+      mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, debug_outfile = NULL)
     }
     #mcmc_nngp_update_Gaussian(mcmc_nngp_list$data, mcmc_nngp_list$hierarchical_model, mcmc_nngp_list$vecchia_approx, mcmc_nngp_list$states$chain_1, 100)
     saveRDS(mcmc_nngp_list, paste("Heavy_metals_comparison/run_noise", nonstat_noise, "scale", nonstat_scale, "range", nonstat_range, ".RDS", sep = "_"))

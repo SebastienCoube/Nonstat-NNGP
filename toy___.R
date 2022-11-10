@@ -47,7 +47,7 @@ beta = c(1, .01,  -.01)
 #beta_noise = c(0, rnorm(ncol(KL_noise)))
 beta_noise = c(0, rep(0, ncol(KL_noise)))
 beta_range = cbind(c(-1, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))))
-beta_range[1,1]=-1
+beta_range[1,1]=-1.6
 
 #beta_range = beta_range %*% diag(c(1, 0, 0))
 #beta_range = matrix(c(-2, .1, .1, 0, .2, -.2, 0, 0, 0), 3)
@@ -101,9 +101,19 @@ hierarchical_model = mcmc_nngp_list$hierarchical_model
 data = mcmc_nngp_list$data
 vecchia_approx = mcmc_nngp_list$vecchia_approx
 
-mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, seed = 2)
+mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, seed = 2)
 
 
- #source("Bidart/R/mcmc_nngp_update_nonstationary_Gaussian.R")
- #mcmc_nngp_update_Gaussian(data = data, hierarchical_model = hierarchical_model, vecchia_approx = vecchia_approx, state = state, n_iterations_update = 100)
- #
+#mcmc_nngp_list = readRDS("run_aniso.RDS")
+#predicted_locs = as.matrix(expand.grid(seq(-1, 11, .1), seq(-1, 11, .1)))
+#pred = Bidart::predict_latent_field(mcmc_nngp_list, predicted_locs)  
+
+Bidart::plot_pointillist_painting(predicted_locs, pred$summaries$field[1,])
+
+
+
+
+#source("Bidart/R/mcmc_nngp_update_nonstationary_Gaussian.R")
+#
+#mcmc_nngp_update_Gaussian(data = data, hierarchical_model = hierarchical_model, vecchia_approx = vecchia_approx, state = state, n_iterations_update = 100)
+#

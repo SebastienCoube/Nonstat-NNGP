@@ -1201,22 +1201,24 @@ Rcpp::List nonstat_vecchia_Linv(
               
               arma::mat hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               arma::mat mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
+              mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
               sigma11 (j1-1, j2-1) = 
                 pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,j2) -1, 0), .25) * 
                 pow(arma::det(hybrid_range), -.5) * 
-                exp(-pow(mahala_dist(0, 0), .5));
+                exp(-mahala_dist(0,0)) * (1+mahala_dist(0,0));
               sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
             }
             arma::mat locdiff = locsub.row(0) - locsub.row(j1);
             // sigma 12
             arma::mat hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,0) -1)*.5 ;
             arma::mat mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             sigma12 (j1-1) =                         
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,0) -1, 1), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
-              exp(-pow(mahala_dist(0, 0), .5));
+              exp(-mahala_dist(0,0)) * (1+mahala_dist(0,0));
             
           }
           // solving sigma11
