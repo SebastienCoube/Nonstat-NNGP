@@ -1,9 +1,10 @@
 
 
-install.packages("/home/user/s/scoube/Bidart_1.0.tar.gz", lib = "/home/user/s/scoube/R_packages/")
+#install.packages("/home/user/s/scoube/Bidart_1.0.tar.gz", lib = "/home/user/s/scoube/R_packages/")
 #install.packages("abind",  "https://cloud.r-project.org", lib = "/home/user/s/scoube/R_packages/")
 #install.packages("expm",  "https://cloud.r-project.org", lib = "/home/user/s/scoube/R_packages/")
-install.packages("GpGp",  "https://cloud.r-project.org", lib = "/home/user/s/scoube/R_packages/")
+#install.packages("GpGp",  "https://cloud.r-project.org", lib = "/home/user/s/scoube/R_packages/")
+#install.packages("irlba",  "https://cloud.r-project.org", lib = "/home/user/s/scoube/R_packages/")
 
 
 
@@ -12,6 +13,7 @@ library(GpGp, lib.loc = "/home/user/s/scoube/R_packages/")
 library(FNN, lib.loc = "/home/user/s/scoube/R_packages/")
 library(Bidart, lib.loc = "/home/user/s/scoube/R_packages/")
 library(abind, lib.loc = "/home/user/s/scoube/R_packages/")
+library(irlba, lib.loc = "/home/user/s/scoube/R_packages/")
 library(parallel)
 library(Matrix)
 
@@ -46,9 +48,9 @@ for(tatato in seq(nrow(inputs)))
   locs = 5 * matrix(runif(24000), ncol = 2)
   locs = locs[GpGp::order_maxmin(locs),]
   
-  KL = get_KL_basis(locs = locs, covparms = c(1, .5, 1, 0), covfun_name = "matern_isotropic", n_KL = 30)
+  KL = get_KL_basis(locs = locs, covparms = c(1, .5, 1.5, 0), covfun_name = "matern_isotropic", n_KL = 30)
   
-  range_beta = matrix(c(log(.5), (inputs$data_scale[i] == "nonstat") * .5 * rnorm(30)))
+  range_beta = matrix(c(log(.05), (inputs$data_scale[i] == "nonstat") * .5 * rnorm(30)))
   scale_beta = matrix(c(log(1 ), (inputs$data_noise[i] == "nonstat")  * .5 * rnorm(30)))
   noise_beta = matrix(c(log(1), (inputs$data_range[i] == "nonstat")   * .5 * rnorm(30)))
   
@@ -67,10 +69,10 @@ for(tatato in seq(nrow(inputs)))
     (sqrt(variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field)[observation_idx] +  
     (sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))))[observation_idx]* rnorm(n_obs) 
     
-    plot_pointillist_painting(locs, (sqrt( variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field))
-    plot_pointillist_painting(locs,  scaled_latent_field)
-    plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx]* rnorm(n_obs) )
-    plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx])
+    ##plot_pointillist_painting(locs, (sqrt( variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field))
+    ##plot_pointillist_painting(locs,  scaled_latent_field)
+    ##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx]* rnorm(n_obs) )
+    ##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx])
     
     
   # storing inputs
@@ -105,11 +107,11 @@ for(tatato in seq(nrow(inputs)))
     range_KL = T
     covfun = "nonstationary_matern_isotropic"
   }
-  KL = get_KL_basis(locs = observed_locs, covparms = c(1, .5, 1, 0), covfun_name = "matern_isotropic", n_KL = 30)
+  KL_ = get_KL_basis(locs = observed_locs, covparms = c(1, .5, 1, 0), covfun_name = "matern_isotropic", n_KL = 30)
   
   
   # initializing the model
-  mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
+  res$run = mcmc_nngp_initialize_nonstationary (
     observed_locs = observed_locs, #spatial locations
     observed_field = c(observed_field), # Response variable
     X = NULL, # Covariates per observation
@@ -119,17 +121,16 @@ for(tatato in seq(nrow(inputs)))
     noise_X = NULL, noise_KL = noise_KL, 
     scale_X = NULL, scale_KL = scale_KL,
     range_X = NULL, range_KL = range_KL,
-    KL = KL, nu = 1.5, 
+    KL = KL_, nu = 1.5, 
     n_chains = 2,  # number of MCMC chains
     seed = 2
   )
   
   # running the model
   print(inputs[i,])
-  res$run = mcmc_nngp_list
   for(j in seq(30))
   {
-    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 3, debug_outfile = NULL)
+    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 2, debug_outfile = NULL)
   }
   
   # analysis of performance
@@ -141,7 +142,7 @@ for(tatato in seq(nrow(inputs)))
     if(!is.null(estimated_field) & is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_intercept))^2))
     if(is.null(estimated_field) & is.null(true_field))return(mean(((estimated_intercept) -  (true_intercept))^2))
   }
-  true_field = (.5 * variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))) * scaled_latent_field)[observation_idx] 
+  true_field = (.5 * variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))) * scaled_latent_field)
   # estimation
   res$estimation = estimate_parameters(mcmc_nngp_list = res$run)
   res$performance$smooth_field_mse = param_field_mse(estimated_field = res$estimation$summaries$field[1,,], true_field = true_field[observation_idx][res$run$vecchia_approx$hctam_scol_1], estimated_intercept = res$estimation$summaries$beta[1,,], true_intercept = 0)

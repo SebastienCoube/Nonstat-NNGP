@@ -801,7 +801,9 @@ Rcpp::List nonstat_vecchia_Linv(
     grad(0) = grad1 ;
   }
   
-  //case of isotropic range parameters
+  
+  
+  //case of anisotropic range parameters
   if((covfun_name == "nonstationary_matern_anisotropic")&(nu == 1.5))
   {
     if(log_range.n_cols==3)
@@ -911,21 +913,20 @@ Rcpp::List nonstat_vecchia_Linv(
               arma::mat hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               
               arma::mat mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-              mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+              mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
               sigma11 (j1-1, j2-1) = 
                 pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,j2) -1, 0), .25) * 
                 pow(arma::det(hybrid_range), -.5) * 
                 exp(-mahala_dist(0, 0)) * (1+ mahala_dist(0,0));
               sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
-              if(j1==j2){sigma11 (j2-1, j1-1) = 1.0005 ; }
               
               //the derivative of sigma11 is a symmetric cross matrix with non-null coefficients only on one row and column. Instead of computing the cross matrix, just one column is computed. The columns are stacked in a matrix. 
               // first derivative
               hybrid_range = d1range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               
               mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-              mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+              mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
               d1sigma11 (j1-1, j2-1) = 
                 pow(arma::det(d1range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 1) * determinants(NNarray(i,j2) -1, 1), .25) * 
@@ -934,7 +935,7 @@ Rcpp::List nonstat_vecchia_Linv(
               // second derivative
               hybrid_range = d2range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-              mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+              mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
               d2sigma11 (j1-1, j2-1) = 
                 pow(arma::det(d2range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 2) * determinants(NNarray(i,j2) -1, 2), .25) * 
@@ -943,7 +944,7 @@ Rcpp::List nonstat_vecchia_Linv(
               // third derivative
               hybrid_range = d3range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,j2) -1)*.5 ;
               mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-              mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+              mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
               d3sigma11 (j1-1, j2-1) = 
                 pow(arma::det(d3range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 3) * determinants(NNarray(i,j2) -1, 3), .25) * 
@@ -955,7 +956,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // sigma 12
             arma::mat hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,0) -1)*.5 ;
             arma::mat mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             sigma12 (j1-1) =                         
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,0) -1, 1), .25) * 
@@ -966,7 +967,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // first coordinate of log matrix range 
             hybrid_range = d1range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d1sigma12_parents (j1-1) =                         
               pow(arma::det(d1range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -974,7 +975,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // second coordinate of log matrix range 
             hybrid_range = d2range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d2sigma12_parents (j1-1) =                         
               pow(arma::det(d2range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -982,7 +983,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // third coordinate of log matrix range 
             hybrid_range = d3range_matrices.slice(NNarray(i,j1) - 1)*.5 + range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d3sigma12_parents (j1-1) =                         
               pow(arma::det(d3range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -992,7 +993,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // first coordinate of log matrix range 
             hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + d1range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d1sigma12_child (j1-1) =                         
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(d1range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -1000,7 +1001,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // second coordinate of log matrix range 
             hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + d2range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d2sigma12_child (j1-1) =                         
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(d2range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -1008,7 +1009,7 @@ Rcpp::List nonstat_vecchia_Linv(
             // third coordinate of log matrix range 
             hybrid_range = range_matrices.slice(NNarray(i,j1) - 1)*.5 + d3range_matrices.slice(NNarray(i,0) -1)*.5 ;
             mahala_dist = locdiff * arma::inv(hybrid_range) * locdiff.t();
-            mahala_dist(0,0)=pow(mahala_dist(0,0), .5);
+            mahala_dist(0, 0) = pow(mahala_dist(0, 0), .5);
             d3sigma12_child (j1-1) =                         
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(d3range_matrices.slice(NNarray(i,0) -1)), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
@@ -1206,8 +1207,9 @@ Rcpp::List nonstat_vecchia_Linv(
                 pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,j2) -1)), .25) * 
                 //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,j2) -1, 0), .25) * 
                 pow(arma::det(hybrid_range), -.5) * 
-                exp(-mahala_dist(0,0)) * (1+mahala_dist(0,0));
+                exp(-mahala_dist(0, 0)) * (1+ mahala_dist(0,0));
               sigma11 (j2-1, j1-1) = sigma11 (j1-1, j2-1) ; 
+              if(j1==j2){sigma11 (j2-1, j1-1) = 1.0001;}
             }
             arma::mat locdiff = locsub.row(0) - locsub.row(j1);
             // sigma 12
@@ -1218,7 +1220,7 @@ Rcpp::List nonstat_vecchia_Linv(
               pow(arma::det(range_matrices.slice(NNarray(i,j1) - 1)) * arma::det(range_matrices.slice(NNarray(i,0) -1)), .25) * 
               //pow(determinants(NNarray(i,j1) - 1, 0) * determinants(NNarray(i,0) -1, 1), .25) * 
               pow(arma::det(hybrid_range), -.5) * 
-              exp(-mahala_dist(0,0)) * (1+mahala_dist(0,0));
+              exp(-mahala_dist(0, 0)) * (1+ mahala_dist(0,0));
             
           }
           // solving sigma11

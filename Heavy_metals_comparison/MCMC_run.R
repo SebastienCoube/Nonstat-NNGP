@@ -101,12 +101,12 @@ if(length(grep("validation_train.RDS", list.files("Heavy_metals_comparison/")))=
   train_field = field [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_))))  ]
   train_X     = X     [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_)))), ]
   # get KL basis
-  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 20, covparms =  c(1, 4, 1.5, .001))
+  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 20, covparms =  c(1, 3, 1.5, .001))
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,1])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,2])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,10])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,20])
-  plot(train_KL_decomposition$KL_decomposition$d^2)
+  plot(train_KL_decomposition$KL_decomposition$d^2, ylim = c(0, max(train_KL_decomposition$KL_decomposition$d^2)))
   abline(h=0)
   # save
   saveRDS(list(train_locs = train_locs, train_field = train_field, train_X = train_X, train_KL_decomposition = train_KL_decomposition), "Heavy_metals_comparison/validation_train.RDS")

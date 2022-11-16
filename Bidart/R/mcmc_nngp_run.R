@@ -3,6 +3,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
                          burn_in = .5, seed = 1, # MCMC parameters
                          n_cores = NULL, thinning = .1,
                          plot_diags = T, 
+                         big_range = F, 
                          plot_PSRF_fields = F, debug_outfile = NULL
                          )
 {
@@ -11,7 +12,8 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
   # Default parameters following model # 
   ######################################
   # number of cores
-  if(is.null(n_cores)) n_cores = min(length(mcmc_nngp_list$states), parallel::detectCores()-1)
+  n_cores = min(c(n_cores, length(mcmc_nngp_list$states), parallel::detectCores()-1))
+  gc()
   #################
   # Sanity checks #
   #################
@@ -21,13 +23,12 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
   # iterations and thinning
   if(!is.numeric(thinning))stop("thinning is a proportion and must be between 0 and 1")
   if((thinning<0)|(thinning>1))stop("thinning is a proportion and must be between 0 and 1")
-  gc()
   cl = parallel::makeCluster(n_cores, outfile = debug_outfile)
   mcmc_nngp_list_ = mcmc_nngp_list[-match(c("records", "states"), names(mcmc_nngp_list))]
   parallel::clusterExport(cl = cl, varlist = c("mcmc_nngp_list_", "mcmc_nngp_update_Gaussian", "seed"), envir = environment())
   rm(mcmc_nngp_list_);gc()
   #parallel::clusterEvalQ(cl = cl, expr = "library(Matrix);library(GpGp);library(Bidart);library(expm);library(MfUSampler)")
-  #parallel::clusterEvalQ(cl = cl, expr = "library(Matrix, lib.loc = '/home/user/s/scoube/R_packages/');library(GpGp, lib.loc = '/home/user/s/scoube/R_packages/');library(Bidart, lib.loc = '/home/user/s/scoube/R_packages/');library(expm, lib.loc = '/home/user/s/scoube/R_packages/');library(MfUSampler, lib.loc = '/home/user/s/scoube/R_packages/')")
+  #parallel::clusterEvalQ(cl = cl, expr = "library(irlba, lib.loc = '/home/user/s/scoube/R_packages/');library(Matrix, lib.loc = '/home/user/s/scoube/R_packages/');library(GpGp, lib.loc = '/home/user/s/scoube/R_packages/');library(Bidart, lib.loc = '/home/user/s/scoube/R_packages/');library(expm, lib.loc = '/home/user/s/scoube/R_packages/');library(MfUSampler, lib.loc = '/home/user/s/scoube/R_packages/')")
   iter_start = mcmc_nngp_list$iterations$checkpoints[nrow(mcmc_nngp_list$iterations$checkpoints), 1]
   # mcmc_sampling
   samples = 
@@ -39,6 +40,7 @@ mcmc_nngp_run_nonstationary = function(mcmc_nngp_list,
       vecchia_approx = mcmc_nngp_list_$vecchia_approx, 
       state = mcmc_nngp_list$states[[i]], 
       n_iterations_update = 100, thinning = thinning, 
+      big_range = big_range, 
       iter_start = iter_start, 
       seed = seed + iter_start + i
       )

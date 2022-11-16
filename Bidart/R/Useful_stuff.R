@@ -123,9 +123,8 @@ compute_sparse_chol = function(covfun_name = covfun, range_beta, NNarray, locs, 
 }
 
 #' @export
-get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, seed = 1, m = 5, get_basis = F)
+get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covparms, n_PP = 500, n_KL = 50, m = 5, get_basis = F)
 {
-  set.seed(seed)
   locs_ = locs[!duplicated(locs),]
   reordering = GpGp::order_maxmin(locs_, lonlat = lonlat)
   locs_ = locs_[reordering,]
@@ -144,9 +143,8 @@ get_KL_basis = function(locs, lonlat = F, covfun_name = "matern_isotropic", covp
 }
 
 #' @export
-predict_KL_basis = function(predicted_locs, KL_basis, seed = 1)
+predict_KL_basis = function(predicted_locs, KL_basis)
 {
-  set.seed(seed)
   locs_ = predicted_locs[!duplicated(predicted_locs),]
   #reordering = GpGp::order_maxmin(locs_, lonlat = KL_basis$lonlat)
   #locs_ = locs_[reordering,]

@@ -45,8 +45,8 @@ KL_range = as.data.frame(KL_$basis %*% diag(KL_$KL_decomposition$d))
 # regression coeffs
 beta = c(1, .01,  -.01)
 #beta_noise = c(0, rnorm(ncol(KL_noise)))
-beta_noise = c(0, rep(0, ncol(KL_noise)))
-beta_range = cbind(c(-1, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))))
+beta_noise = c(-1, rep(0, ncol(KL_noise)))
+beta_range = cbind(c(-2, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))), c(0, rnorm(ncol(KL_range))))
 beta_range[1,1]=-1.6
 
 #beta_range = beta_range %*% diag(c(1, 0, 0))
@@ -87,7 +87,7 @@ mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
   observed_locs = observed_locs, #spatial locations
   X = X, observed_field = as.vector(observed_field), 
   m = 10, 
-  reordering = "maxmin", covfun = "nonstationary_exponential_anisotropic", nu = 1.5,
+  reordering = "maxmin", covfun = "nonstationary_matern_anisotropic", nu = 1.5,
   noise_X = NULL, noise_KL = F,
   scale_X = NULL, scale_KL = F, 
   range_X = NULL, range_KL = T, 
@@ -101,7 +101,7 @@ hierarchical_model = mcmc_nngp_list$hierarchical_model
 data = mcmc_nngp_list$data
 vecchia_approx = mcmc_nngp_list$vecchia_approx
 
-mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 1000, n_cycles = 1, seed = 2)
+mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, seed = 2)
 
 
 #mcmc_nngp_list = readRDS("run_aniso.RDS")
@@ -116,4 +116,29 @@ Bidart::plot_pointillist_painting(predicted_locs, pred$summaries$field[1,])
 #source("Bidart/R/mcmc_nngp_update_nonstationary_Gaussian.R")
 #
 #mcmc_nngp_update_Gaussian(data = data, hierarchical_model = hierarchical_model, vecchia_approx = vecchia_approx, state = state, n_iterations_update = 100)
-#
+
+
+Bidart::plot_pointillist_painting(locs, log_range[,1])
+Bidart::plot_pointillist_painting(locs, 
+as.matrix(cbind(1, KL_range)) %*% mcmc_nngp_list$states$chain_2$params$range_beta[,1])
+Bidart::plot_pointillist_painting(locs, log_range[,2])
+Bidart::plot_pointillist_painting(locs, 
+as.matrix(cbind(1, KL_range)) %*% mcmc_nngp_list$states$chain_2$params$range_beta[,2])
+Bidart::plot_pointillist_painting(locs, log_range[,3])
+Bidart::plot_pointillist_painting(locs, 
+as.matrix(cbind(1, KL_range)) %*% mcmc_nngp_list$states$chain_2$params$range_beta[,3])
+
+
+
+
+params_est = estimate_parameters(mcmc_nngp_list)
+
+plot_pointillist_painting(locs, cbind(1, KL_$basis) %*% beta_range[,1])
+plot_pointillist_painting(observed_locs, cbind(1, KL$basis) %*% params_est$summaries$range_beta[1,,1])
+
+plot_pointillist_painting(locs, cbind(1, KL_$basis) %*% beta_range[,2])
+plot_pointillist_painting(observed_locs, cbind(1, KL$basis) %*% params_est$summaries$range_beta[1,,2])
+
+plot_pointillist_painting(locs, cbind(1, KL_$basis) %*% beta_range[,3])
+plot_pointillist_painting(observed_locs, cbind(1, KL$basis) %*% params_est$summaries$range_beta[1,,3])
+
