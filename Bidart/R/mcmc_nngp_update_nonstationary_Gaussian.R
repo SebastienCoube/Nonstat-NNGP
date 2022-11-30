@@ -7,6 +7,7 @@ mcmc_nngp_update_Gaussian = function(data,
                                      n_iterations_update = 400, thinning = .1, iter_start = 0, seed = 1# practical settings
 )
 {
+  
   #################
   # Sanity checks #
   #################
@@ -468,12 +469,9 @@ mcmc_nngp_update_Gaussian = function(data,
       ##       )
       ##       d1/d2
       
-      nsteps = 1
-      for(i in seq(nsteps))
-      {
         # Make a full step for the position
         q = q + exp(state$transition_kernels$range_beta_sufficient) * p
-        new_range_beta = solve(data$covariates$range_X$chol_crossprod_X_locs, q )
+        new_range_beta = solve(data$covariates$range_X$chol_crossprod_X_locs, q)
         new_compressed_sparse_chol_and_grad =
           Bidart::compute_sparse_chol(covfun_name = hierarchical_model$covfun, 
                                       range_beta = new_range_beta, NNarray = vecchia_approx$NNarray, 
@@ -484,31 +482,6 @@ mcmc_nngp_update_Gaussian = function(data,
                                       compute_derivative = T, locs_idx = vecchia_approx$hctam_scol_1
           )
         new_sparse_chol = Matrix::sparseMatrix(i = vecchia_approx$sparse_chol_row_idx, j = vecchia_approx$sparse_chol_column_idx, x = new_compressed_sparse_chol_and_grad[[1]][vecchia_approx$NNarray_non_NA], triangular = T)
-        # Make a full step for momentum
-        if(i!= nsteps)
-        {
-          p = p - exp(state$transition_kernels$range_beta_sufficient) *
-            as.matrix(
-              solve(t(data$covariates$range$chol_crossprod_X_locs), # solving by prior sparse chol because of whitening
-                    - Bidart::beta_prior_ll_derivative
-                    (beta = new_range_beta, n_KL = hierarchical_model$KL$n_KL*hierarchical_model$range_KL, 
-                      beta_mean = hierarchical_model$beta_priors$range_beta_mean, 
-                      beta_precision =  hierarchical_model$beta_priors$range_beta_precision, 
-                      log_scale = state$params$range_log_scale) # normal prior
-                    # normal prior derivative                
-                    + Bidart::X_KL_crossprod(
-                      X = data$covariates$range_X$X_locs, KL = hierarchical_model$KL, use_KL = hierarchical_model$range_KL, locs_idx = vecchia_approx$hctam_scol_1,
-                      Y = # Jacobian of range field wrt range_beta
-                        (# natural gradient of obs likelihood wrt range field
-                          Bidart::derivative_sandwiches(derivatives = new_compressed_sparse_chol_and_grad[[2]], # derivative of the (unscaled) NNGP factor
-                                                        left_vector = as.vector(new_sparse_chol %*% (state$params$field/sqrt(state$sparse_chol_and_stuff$scale))), # left vector = whitened latent field
-                                                        right_vector = state$params$field/sqrt(state$sparse_chol_and_stuff$scale), # scaled latent field, the scaling actually belongs to the derivative since the derivative must be scaled
-                                                        NNarray = vecchia_approx$NNarray  
-                          )
-                          - Bidart::log_determinant_derivatives(sparse_chol_and_grad = new_compressed_sparse_chol_and_grad, NNarray = vecchia_approx$NNarray)# derivative of determinant
-                        ))))
-        }
-      }
       # Make a half step for momentum at the end.
       p = p - exp(state$transition_kernels$range_beta_sufficient) *
         as.matrix(
@@ -1036,7 +1009,7 @@ mcmc_nngp_update_Gaussian = function(data,
     ###      - (squared_residuals/state$sparse_chol_and_stuff$noise)/2 # exponential part of normal likelihood
     ###    ))[1]
     ###)
-    nsteps = 8 + rbinom(1, 1, .5)
+    nsteps = 1#8 + rbinom(1, 1, .5)
     for(i in seq(nsteps))
     {
       # Make a full step for the position
@@ -1132,27 +1105,27 @@ mcmc_nngp_update_Gaussian = function(data,
       new_noise_beta[-seq(data$covariates$noise_X$n_regressors)] = new_noise_beta[-seq(data$covariates$noise_X$n_regressors)] *
         exp((new_noise_log_scale - state$params$noise_log_scale)/2)
       new_noise =Bidart::variance_field(beta = new_noise_beta, KL = hierarchical_model$KL, use_KL = hierarchical_model$noise_KL, X = data$covariates$noise_X$X)
-      if(
-        (
-          -.5* sum(log(new_noise)) 
-          -.5*sum(squared_residuals/new_noise)
-          +.5* sum(log(state$sparse_chol_and_stuff$noise)) 
-          +.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise)
-          > log(runif(1)
-          )
-        )
+      ll_ratio = (
+        -.5* sum(log(new_noise)) 
+        -.5*sum(squared_residuals/new_noise)
+        +.5* sum(log(state$sparse_chol_and_stuff$noise)) 
+        +.5*sum(squared_residuals/state$sparse_chol_and_stuff$noise)
       )
+      if(!is.nan(ll_ratio))
       {
-        if(
-          (new_noise_log_scale > hierarchical_model$noise_log_scale_prior[1])&
-          (new_noise_log_scale < hierarchical_model$noise_log_scale_prior[2])
-        )
+        if(ll_ratio > log(runif(1)))
         {
-          state$params$noise_log_scale = new_noise_log_scale
-          state$params$noise_beta = new_noise_beta 
-          state$sparse_chol_and_stuff$noise = new_noise
+          if(
+            (new_noise_log_scale > hierarchical_model$noise_log_scale_prior[1])&
+            (new_noise_log_scale < hierarchical_model$noise_log_scale_prior[2])
+          )
+          {
+            state$params$noise_log_scale = new_noise_log_scale
+            state$params$noise_beta = new_noise_beta 
+            state$sparse_chol_and_stuff$noise = new_noise
+          }
+          acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ] = acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ]+1
         }
-        acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ] = acceptance_records$noise_log_scale[iter - 50*(iter %/% 50) ]+1
       }
       if(iter_start + iter < 1000)
       {
@@ -1231,7 +1204,7 @@ mcmc_nngp_update_Gaussian = function(data,
                                             -.5 * sqrt(1/state$sparse_chol_and_stuff$scale) * as.vector(Matrix::crossprod(sparse_chol_diag_field, sparse_chol_diag_field %*% sqrt(1/state$sparse_chol_and_stuff$scale)))# natural derivative
                                           ))
         ))/ 2
-    n_hmc_steps = 8 + rbinom(1, 1, .5)
+    n_hmc_steps = 1#8 + rbinom(1, 1, .5)
     for(i in seq(n_hmc_steps))
     {
       # Make a full step for the position
@@ -1341,7 +1314,7 @@ mcmc_nngp_update_Gaussian = function(data,
                                                            state$sparse_chol_and_stuff$noise)
                                             )))
         ))/ 2
-    n_hmc_steps = 8 + rbinom(1, 1, .5)
+    n_hmc_steps = 1#8 + rbinom(1, 1, .5)
     for(i in seq(n_hmc_steps))
     {
       # Make a full step for the position

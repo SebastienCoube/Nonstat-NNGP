@@ -23,7 +23,7 @@ train_data_set = readRDS("Heavy_metals_comparison/validation_train.RDS")
 # DIC #
 #######
 
-DICs = parallel::mclapply(runs, Bidart::DIC, mc.cores = length(runs), burn_in = .4)
+DICs = parallel::mclapply(runs, Bidart::DIC, mc.cores = length(runs), burn_in = .33)
 
 ##################################
 # Smoothing (observed locations) #
@@ -31,7 +31,7 @@ DICs = parallel::mclapply(runs, Bidart::DIC, mc.cores = length(runs), burn_in = 
 
 # estimate the parameters (in particular the latent field at the observed locations)
 params_estimation = parallel::mclapply(runs, Bidart::estimate_parameters, 
-                                       get_samples = T, burn_in = .4,# MCMC samples returned by the function
+                                       get_samples = T, burn_in = .33,# MCMC samples returned by the function
                                        mc.cores = 4)
 gc()
 # predict the fixed effects at observed locations
@@ -39,7 +39,7 @@ fixed_effects_smooth = parallel::mclapply(runs,
                                           function(x)Bidart::predict_fixed_effects(
                                             mcmc_nngp_list = x, # MCMC samples
                                             X_pred = x$data$covariates$X$arg, # covariates used for prediction, here observe covariates
-                                            burn_in = .4
+                                            burn_in = .33
                                             ), 
                                           mc.cores = 4)
 gc()
@@ -51,7 +51,7 @@ noise_smooth = lapply(
     mcmc_nngp_list = x, 
     X_noise_pred = x$data$covariates$noise_X$arg, 
     predicted_locs = x$data$observed_locs,
-    burn_in = .4
+    burn_in = .33
     )
 )
 gc()
@@ -86,7 +86,7 @@ latent_field_preds = lapply(seq(length(runs)),
                                 mcmc_nngp_list = x, predicted_locs = test_data_set$test_locs, n_cores = 8, 
                                 X_range_pred = X_range_pred,
                                 X_scale_pred = X_scale_pred,
-                                burn_in = .4
+                                burn_in = .33
                                 )
                             })
 
@@ -97,7 +97,7 @@ fixed_effects_pred = parallel::mclapply(runs,
                                         function(x)Bidart::predict_fixed_effects(
                                           mcmc_nngp_list = x, 
                                           X_pred = test_data_set$test_X, 
-                                          burn_in = .4
+                                          burn_in = .33
                                             ),  mc.cores = length(runs))
 gc()
 
@@ -112,7 +112,7 @@ noise_pred = lapply(runs,
                                   mcmc_nngp_list = x, # MCMC samples
                                   predicted_locs = test_data_set$test_locs,
                                   X_noise_pred = X_noise_pred, # covariates used for prediction, here observed covariates
-                                  burn_in = .4
+                                  burn_in = .33
                                   )
                                 })
 gc()
@@ -128,55 +128,16 @@ pred_log_score = parallel::mcmapply(FUN = Bidart::log_score_Gaussian,
 gc()
 
 lapply(pred_log_score, function(x)x$total)
+barplot(sapply(pred_log_score, function(x)x$total))
+
 
 saveRDS(
 cbind(
-#model = rep(c("stat", "full", "hetero"), each = 2),
-#smoothness = rep(c(".5", "1.5"), 3),
+model = c("NRS", "NR", "NS", "N", "RS", "R", "S", "stat"),
 pred = round(sapply(pred_log_score, function(x)x$total)), 
 smooth = round(sapply(smooth_log_score, function(x)x$total)), 
-DIC = round(unlist(DICs))
+DIC = round(unlist(DICs)),
+time= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 2])))
 ), "Heavy_metals_comparison/NNGP_comparison.RDS"
 )
-
-
-
-
-tests_result = matrix(
-  c(
-    run_full_pred_log_score$total,
-    run_hetero_pred_log_score$total,
-    run_stat_pred_log_score$total,
-    run_full_smooth_log_score$total,
-    run_hetero_smooth_log_score$total,
-    run_stat_smooth_log_score$total,
-    Bidart::DIC(run_full_validation),
-    Bidart::DIC(run_hetero_validation),
-    Bidart::DIC(run_stat_validation)
-  ), 3
-)
-
-
-row.names(tests_result) = c("range + noise", "noise",  "stationary")
-colnames(tests_result) = c("pred. log score", "smooth. log score", "DIC")
-
-
-
-### # re run with only nr and stat in order to see which model wins and where
-### 
-### 
-### run_full_pred_log_score = pred_log_score[[2]]
-### run_full_smooth_log_score = smooth_log_score[[2]]
-### run_stat_pred_log_score = pred_log_score[[1]]
-### run_stat_smooth_log_score = smooth_log_score[[1]]
-### 
-### smooth_win = (run_full_smooth_log_score$per_obs>run_stat_smooth_log_score$per_obs)
-### smooth_noise = scale(noise_smooth[[2]]$summaries$total_linear_effects[1,,])
-### smooth_range = scale(as.matrix(cbind(1, runs[[2]]$data$covariates$range_X$arg)) %*% params_estimation[[2]]$summaries$range_beta[1,,])
-### summary(glm(smooth_win~smooth_noise+smooth_range, family = "binomial"))
-### 
-### pred_win =  (run_full_pred_log_score$per_obs>run_stat_pred_log_score$per_obs)
-### pred_noise = scale(noise_pred[[2]]$summaries$total_linear_effects[1,,])
-### pred_range = scale(latent_field_preds[[2]]$summaries$log_range[1,])
-### summary(glm(pred_win~pred_noise+pred_range, family = "binomial"))
 

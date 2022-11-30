@@ -42,39 +42,48 @@ for(tatato in seq(nrow(inputs)))
 {
   i = seq(nrow(inputs)) [sapply(sapply(seq(nrow(inputs)), function(i)paste("res", i, "started.RDS", sep = "")), function(x)!x%in%list.files())][1]
   saveRDS("tatato", paste("res", i, "started.RDS", sep = ""))
+  print(inputs[i,])
   
   set.seed(inputs$seed[i])
   # locations and latent fields
   locs = 5 * matrix(runif(24000), ncol = 2)
   locs = locs[GpGp::order_maxmin(locs),]
   
-  KL = get_KL_basis(locs = locs, covparms = c(1, .5, 1.5, 0), covfun_name = "matern_isotropic", n_KL = 30)
+  n_KL = 25
+  KL_covfun = "matern_isotropic"
+  KL_covparms = c(1, .5, 1.5, 0.001)
+  KL = get_KL_basis(locs = locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
+  #plot(KL$KL_decomposition$d^2, ylim= c(0,KL$KL_decomposition$d[1]^2));abline(h=0)
+  #Bidart::plot_pointillist_painting(locs, KL$basis[,1])
   
-  range_beta = matrix(c(log(.05), (inputs$data_scale[i] == "nonstat") * .5 * rnorm(30)))
-  scale_beta = matrix(c(log(1 ), (inputs$data_noise[i] == "nonstat")  * .5 * rnorm(30)))
-  noise_beta = matrix(c(log(1), (inputs$data_range[i] == "nonstat")   * .5 * rnorm(30)))
+  
+  range_beta = matrix(c(log(.1), (inputs$data_range[i] == "nonstat")        * 1 *  rnorm(n_KL)))
+  #Bidart::plot_pointillist_painting(locs, cbind(1, KL$basis)%*%range_beta)
+  scale_beta = matrix(c(log(10 ),(inputs$data_scale[i] == "nonstat")        * 1 *  rnorm(n_KL)))
+  #Bidart::plot_pointillist_painting(locs, cbind(1, KL$basis)%*%scale_beta)
+  noise_beta = matrix(c(log(10), (inputs$data_noise[i] == "nonstat")        * 1 *  rnorm(n_KL)))
+  #Bidart::plot_pointillist_painting(locs, cbind(1, KL$basis)%*%noise_beta)
   
   # observing observations, with duplicates
   n_obs = 20000
   observation_idx = c(sample(10000, 10000 , replace =F), sample(10000, n_obs - 10000 , replace =T))
   observed_locs = locs[observation_idx,]
-  
+
   # computing sparse chol
+  field_covfun = "nonstationary_exponential_isotropic"
   NNarray = GpGp::find_ordered_nn(locs, 10)
-  sparse_chol = compute_sparse_chol(covfun_name = "nonstationary_matern_isotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, range_X = matrix(rep(1, nrow(locs))), KL = KL, use_KL = T, nu = 1.5)
+  sparse_chol = compute_sparse_chol(covfun_name = field_covfun, range_beta = range_beta, locs = locs, NNarray = NNarray, range_X = matrix(rep(1, nrow(locs))), KL = KL, use_KL = T, nu = 1.5)
   
   # latent field
   scaled_latent_field = GpGp::fast_Gp_sim_Linv(Linv = sparse_chol[[1]], NNarray = NNarray)
-  observed_field = 
-    (sqrt(variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field)[observation_idx] +  
-    (sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))))[observation_idx]* rnorm(n_obs) 
-    
-    ##plot_pointillist_painting(locs, (sqrt( variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field))
-    ##plot_pointillist_painting(locs,  scaled_latent_field)
-    ##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx]* rnorm(n_obs) )
-    ##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx])
-    
-    
+  #Bidart::plot_pointillist_painting(locs, scaled_latent_field)
+  true_field = (sqrt(variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field)
+  #Bidart::plot_pointillist_painting(locs, true_field)
+  noise = (sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))))[observation_idx]* rnorm(n_obs) 
+  #Bidart::plot_pointillist_painting(observed_locs, noise)
+  observed_field = true_field[observation_idx]  + noise
+  #Bidart::plot_pointillist_painting(observed_locs, observed_field)
+  
   # storing inputs
   res = list()
   res$inputs = list()
@@ -86,11 +95,12 @@ for(tatato in seq(nrow(inputs)))
   res$inputs$sparse_chol         = sparse_chol[[1]]
   res$inputs$scaled_latent_field = scaled_latent_field
   res$inputs$observed_field      = observed_field
+  res$inputs$true_field          = true_field
+  res$inputs$noise               = noise
   res$inputs$locs                = locs
   res$inputs$observation_idx     = observation_idx
   
   # model settings
-  covfun = "matern15_isotropic"
   noise_KL = F
   scale_KL = F
   range_KL = F
@@ -105,9 +115,8 @@ for(tatato in seq(nrow(inputs)))
   if(inputs$model_range[i] == "nonstat") 
   {
     range_KL = T
-    covfun = "nonstationary_matern_isotropic"
   }
-  KL_ = get_KL_basis(locs = observed_locs, covparms = c(1, .5, 1, 0), covfun_name = "matern_isotropic", n_KL = 30)
+  KL_ = get_KL_basis(locs = observed_locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
   
   
   # initializing the model
@@ -117,32 +126,33 @@ for(tatato in seq(nrow(inputs)))
     X = NULL, # Covariates per observation
     m = 10, #number of Nearest Neighbors
     reordering = c("maxmin"), #Reordering
-    covfun = covfun, 
-    noise_X = NULL, noise_KL = noise_KL, 
-    scale_X = NULL, scale_KL = scale_KL,
-    range_X = NULL, range_KL = range_KL,
-    KL = KL_, nu = 1.5, 
+    covfun = field_covfun, 
+    noise_X = NULL, noise_KL = noise_KL, noise_log_scale_prior = c(-8, 3),
+    scale_X = NULL, scale_KL = scale_KL, scale_log_scale_prior = c(-8, 3),
+    range_X = NULL, range_KL = range_KL, range_log_scale_prior = c(-8, 3),
+    
+    KL = KL_, 
     n_chains = 2,  # number of MCMC chains
     seed = 2
   )
   
+  
+  ##state = res$run$states$chain_2
+  ##hierarchical_model = res$run$hierarchical_model
+  ##data = res$run$data
+  ##vecchia_approx = res$run$vecchia_approx
+  
   # running the model
-  print(inputs[i,])
-  for(j in seq(30))
+  for(j in seq(20))
   {
-    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 2, debug_outfile = NULL)
+    print(i)
+    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 2, debug_outfile = NULL, big_range = T)
   }
   
   # analysis of performance
   res$performance = list()
-  param_field_mse = function(estimated_field, true_field, estimated_intercept, true_intercept)
-  {
-    if(!is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_field + true_intercept))^2))
-    if(is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_intercept) -  (true_field + true_intercept))^2))
-    if(!is.null(estimated_field) & is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_intercept))^2))
-    if(is.null(estimated_field) & is.null(true_field))return(mean(((estimated_intercept) -  (true_intercept))^2))
-  }
-  true_field = (.5 * variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))) * scaled_latent_field)
+  param_field_mse = function(estimated_field, true_field, estimated_intercept, true_intercept) mean(((estimated_field + estimated_intercept) -  (true_field + true_intercept))^2)
+  #Bidart::plot_pointillist_painting(observed_locs, observed_field)
   # estimation
   res$estimation = estimate_parameters(mcmc_nngp_list = res$run)
   res$performance$smooth_field_mse = param_field_mse(estimated_field = res$estimation$summaries$field[1,,], true_field = true_field[observation_idx][res$run$vecchia_approx$hctam_scol_1], estimated_intercept = res$estimation$summaries$beta[1,,], true_intercept = 0)
@@ -151,7 +161,7 @@ for(tatato in seq(nrow(inputs)))
   res$performance$pred_field_mse = mean(((res$pred$summaries$field[1,] + res$estimation$summaries$beta[1,,]) -  true_field[10001:12000])^2)
   # DIC
   res$performance$DIC = DIC(res$run)
-  if(inputs$seed[i]>2)res$run = NULL
+  if(inputs$seed[i]>2)res$run = NULL;res$pred = NULL
   
   saveRDS(res, paste("res", i, "complete.RDS", sep = ""))
 }

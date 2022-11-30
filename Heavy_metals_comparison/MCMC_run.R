@@ -101,12 +101,15 @@ if(length(grep("validation_train.RDS", list.files("Heavy_metals_comparison/")))=
   train_field = field [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_))))  ]
   train_X     = X     [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_)))), ]
   # get KL basis
-  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 20, covparms =  c(1, 3, 1.5, .001))
+  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 50, covparms =  c(1, 1.5, 1.5, .001))
+  plot(train_KL_decomposition$KL_decomposition$d^2, ylim = c(0, train_KL_decomposition$KL_decomposition$d[1]^2))
+  abline(h=0)
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,1])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,2])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,10])
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,20])
-  plot(train_KL_decomposition$KL_decomposition$d^2, ylim = c(0, max(train_KL_decomposition$KL_decomposition$d^2)))
+  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,50])
+  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis%*%rnorm(50))
   abline(h=0)
   # save
   saveRDS(list(train_locs = train_locs, train_field = train_field, train_X = train_X, train_KL_decomposition = train_KL_decomposition), "Heavy_metals_comparison/validation_train.RDS")
@@ -143,15 +146,13 @@ for(nonstat_scale in TF)
     if(nonstat_noise)noise_X = as.data.frame(train_data_set$train_X)                             
     if(nonstat_scale)scale_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
     if(nonstat_range)range_X = as.data.frame(train_data_set$train_X[, c("gcarb", "globedem", "twi")])                             
-    covfun_name = "matern_sphere"
-    if(nonstat_range)covfun_name = "nonstationary_matern_isotropic_sphere"
     mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
       observed_locs  = train_data_set$train_locs, #spatial locations
       observed_field = train_data_set$train_field, # Response variable
       X = train_data_set$train_X, # Covariates per observation
       m = 10, #number of Nearest Neighbors
       reordering = c("maxmin"), #Reordering
-      covfun = covfun_name, 
+      covfun = "nonstationary_matern_isotropic_sphere", 
       nu = 1.5, # Matérn smoothness of the covariance model
       scale_X = scale_X, scale_KL = nonstat_scale,
       noise_X = noise_X, noise_KL = nonstat_noise,  
@@ -160,7 +161,7 @@ for(nonstat_scale in TF)
       n_chains = 2,  # number of MCMC chains
       seed = 1
     )
-    for(i in seq(30))
+    for(i in seq(20))
     { 
       mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, debug_outfile = NULL)
     }

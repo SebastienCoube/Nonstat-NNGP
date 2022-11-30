@@ -1,0 +1,143 @@
+
+library(Bidart)
+i=1
+
+model_range = c("stat", "nonstat")
+model_scale = c("stat", "nonstat")
+model_noise = c("stat", "nonstat")
+data_range  = c("stat", "nonstat")
+data_scale  = c("stat", "nonstat")
+data_noise  = c("stat", "nonstat")
+
+seed = seq(1, 30)
+
+inputs  = expand.grid(
+  "model_range" = model_range,
+  "model_scale" = model_scale,
+  "model_noise" = model_noise,
+  "data_range" = data_range ,
+  "data_scale" = data_scale ,
+  "data_noise" = data_noise ,
+  "seed" = seed
+)
+
+
+
+set.seed(inputs$seed[i])
+# locations and latent fields
+locs = 5 * matrix(runif(24000), ncol = 2)
+locs = locs[GpGp::order_maxmin(locs),]
+
+KL = get_KL_basis(locs = locs, covparms = c(1, 2, 1.5, 0.001), covfun_name = "exponential_isotropic", n_KL = 30)
+
+range_beta = matrix(c(log(.1), (inputs$data_range[i] == "nonstat") * 1 *  rnorm(30)))
+scale_beta = matrix(c(log(10 ), (inputs$data_scale[i] == "nonstat") * .5 *  rnorm(30)))
+noise_beta = matrix(c(log(5),   (inputs$data_noise[i] == "nonstat") * .5 *  rnorm(30)))
+
+# observing observations, with duplicates
+n_obs = 20000
+observation_idx = c(sample(10000, 10000 , replace =F), sample(10000, n_obs - 10000 , replace =T))
+observed_locs = locs[observation_idx,]
+
+# computing sparse chol
+NNarray = GpGp::find_ordered_nn(locs, 10)
+sparse_chol = compute_sparse_chol(covfun_name = "nonstationary_exponential_isotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, range_X = matrix(rep(1, nrow(locs))), KL = KL, use_KL = T, nu = 1.5)
+
+# latent field
+scaled_latent_field = GpGp::fast_Gp_sim_Linv(Linv = sparse_chol[[1]], NNarray = NNarray)
+observed_field = 
+  (sqrt(variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field)[observation_idx] +  
+  (sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))))[observation_idx]* rnorm(n_obs) 
+
+##plot_pointillist_painting(locs, (sqrt( variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs))))) * scaled_latent_field))
+##plot_pointillist_painting(locs,  scaled_latent_field)
+##plot_pointillist_painting(locs, (sqrt( variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))))
+##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx]* rnorm(n_obs) )
+##plot_pointillist_painting(observed_locs,  sqrt(variance_field(beta = noise_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))))[observation_idx])
+
+
+# storing inputs
+res = list()
+res$inputs = list()
+res$inputs$inputs = inputs[i,]
+res$inputs$scale_beta  = scale_beta
+res$inputs$noise_beta  = noise_beta
+res$inputs$range_beta  = range_beta
+res$KL = KL
+res$inputs$sparse_chol         = sparse_chol[[1]]
+res$inputs$scaled_latent_field = scaled_latent_field
+res$inputs$observed_field      = observed_field
+res$inputs$locs                = locs
+res$inputs$observation_idx     = observation_idx
+
+# model settings
+noise_KL = F
+scale_KL = F
+range_KL = F
+covfun = "nonstationary_exponential_isotropic"
+if(inputs$model_noise[i] == "nonstat") 
+{
+  noise_KL =T
+}
+if(inputs$model_scale[i] == "nonstat")
+{
+  scale_KL=T
+}
+if(inputs$model_range[i] == "nonstat") 
+{
+  range_KL = T
+}
+KL_ = get_KL_basis(locs = observed_locs, covparms = c(1, 2, 1.5, .001), covfun_name = "exponential_isotropic", n_KL = 30)
+
+
+# initializing the model
+res$run = mcmc_nngp_initialize_nonstationary (
+  observed_locs = observed_locs, #spatial locations
+  observed_field = c(observed_field), # Response variable
+  X = NULL, # Covariates per observation
+  m = 10, #number of Nearest Neighbors
+  reordering = c("maxmin"), #Reordering
+  covfun = covfun, 
+  noise_X = NULL, noise_KL = noise_KL, noise_log_scale_prior = c(-8, 3),
+  scale_X = NULL, scale_KL = scale_KL, scale_log_scale_prior = c(-8, 3),
+  range_X = NULL, range_KL = range_KL, range_log_scale_prior = c(-8, 3),
+  
+  KL = KL_, 
+  n_chains = 2,  # number of MCMC chains
+  seed = 2
+)
+
+
+state = res$run$states$chain_2
+hierarchical_model = res$run$hierarchical_model
+data = res$run$data
+vecchia_approx = res$run$vecchia_approx
+
+# running the model
+print(inputs[i,])
+for(j in seq(30))
+{
+  res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 2, debug_outfile = NULL, big_range = T)
+}
+
+# analysis of performance
+res$performance = list()
+param_field_mse = function(estimated_field, true_field, estimated_intercept, true_intercept)
+{
+  if(!is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_field + true_intercept))^2))
+  if(is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_intercept) -  (true_field + true_intercept))^2))
+  if(!is.null(estimated_field) & is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_intercept))^2))
+  if(is.null(estimated_field) & is.null(true_field))return(mean(((estimated_intercept) -  (true_intercept))^2))
+}
+true_field = (.5 * variance_field(beta = scale_beta, KL = KL, use_KL = T, X = matrix(rep(1, nrow(locs)))) * scaled_latent_field)
+# estimation
+res$estimation = estimate_parameters(mcmc_nngp_list = res$run)
+res$performance$smooth_field_mse = param_field_mse(estimated_field = res$estimation$summaries$field[1,,], true_field = true_field[observation_idx][res$run$vecchia_approx$hctam_scol_1], estimated_intercept = res$estimation$summaries$beta[1,,], true_intercept = 0)
+# prediction
+res$pred = predict_latent_field(mcmc_nngp_list = res$run, predicted_locs = locs[10001:12000,], n_cores = 3)
+res$performance$pred_field_mse = mean(((res$pred$summaries$field[1,] + res$estimation$summaries$beta[1,,]) -  true_field[10001:12000])^2)
+# DIC
+res$performance$DIC = DIC(res$run)
+if(inputs$seed[i]>2)res$run = NULL
+
+

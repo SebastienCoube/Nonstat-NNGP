@@ -134,7 +134,7 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
   }
   if((prod(dim(PSRF$PSRF)[c(1, 2)]))>9)
   {
-    plot(PSRF$iterations, PSRF$PSRF_quantiles[1,], ylim = c(1, max(PSRF$PSRF_quantiles[1,])), main = paste("Quantiles of PSRF of", varname), type = "l", xlab = "iterations", ylab = "PSRF quantiles")
+    plot(PSRF$iterations, PSRF$PSRF_quantiles[1,], ylim = c(1, max(PSRF$PSRF_quantiles[1,])), main = paste("Quantiles of PSRF of", varname), type = "l", xlab = "iterations", ylab = "PSRF quantiles",  log="y")
     lines(PSRF$iterations, PSRF$PSRF_quantiles[2,], col = 2)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[3,], col = 3)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[4,], col = 4)

@@ -1,11 +1,22 @@
 
 # checking diags for first runs
-i = 56
-res = readRDS(paste("Experiments_wrong_modeling/locally_iso/res", i, "complete.RDS", sep = ""))
-Bidart::diagnostic_plots(res$run)
+i =
+  # 8 # stat 
+  # 16 # nonstat range
+  # 24 # nonstat scale 
+  #32 # nonstat range +scale
+  #40 # nonstat noise
+  #56 # nonstat scale + noise
+  #64 # nonstat full
+  16
+res = readRDS(paste("Experiments_wrong_modeling/locally_iso/experiment_wrong_modelling/res", i, "complete.RDS", sep = ""))
+Bidart::diagnostic_plots(res$run, starting_proportion = .05)
+res$inputs$inputs
 
 
-where_results_are = "Experiments_wrong_modeling/locally_iso/"
+
+
+where_results_are = "Experiments_wrong_modeling/locally_iso/experiment_wrong_modelling/"
 
 inputs = NULL
 diags = NULL
