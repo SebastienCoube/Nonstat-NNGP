@@ -134,7 +134,15 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
   }
   if((prod(dim(PSRF$PSRF)[c(1, 2)]))>9)
   {
+    
     plot(PSRF$iterations, PSRF$PSRF_quantiles[1,], ylim = c(1, max(PSRF$PSRF_quantiles[1,])), main = paste("Quantiles of PSRF of", varname), type = "l", xlab = "iterations", ylab = "PSRF quantiles",  log="y")
+    for(i in seq(1, dim(PSRF$PSRF)[1]))
+    {
+      for(j in seq(1, dim(PSRF$PSRF)[2]))
+      {
+        lines(PSRF$iterations, PSRF$PSRF[i,j,], col = scales::alpha("lightgray", .4), )
+      }
+    }
     lines(PSRF$iterations, PSRF$PSRF_quantiles[2,], col = 2)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[3,], col = 3)
     lines(PSRF$iterations, PSRF$PSRF_quantiles[4,], col = 4)
@@ -142,7 +150,7 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
   }
   if(prod(dim(PSRF$PSRF)[c(1, 2)])<10)
   {
-    plot(PSRF$iterations, PSRF$iterations, type = "n", ylim = c(1, max(PSRF$PSRF)), main = paste("PSRF of each component of", varname), xlab = "iterations", ylab = "PSRF")
+    plot(PSRF$iterations, PSRF$iterations, type = "n", ylim = c(1, max(PSRF$PSRF)), main = paste("PSRF of each component of", varname), xlab = "iterations", ylab = "PSRF",  log="y")
     for(i in seq(1, dim(PSRF$PSRF)[1]))
     {
       for(j in seq(1, dim(PSRF$PSRF)[2]))
@@ -155,7 +163,7 @@ plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
     if(is.null(individual_varnames)) labs = paste("component", seq(prod(dim(PSRF$PSRF)[c(1, 2)])))
     legend(bg = "white", "topleft", legend = labs, fill = seq(length(labs)))
   }
-  abline(h = 1.2, lty = "longdash")
+  #abline(h = 1.2, lty = "longdash")
   abline(h = 1)
 }
 #arrays =                   list(

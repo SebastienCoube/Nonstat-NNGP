@@ -7,12 +7,9 @@
   # KL decomposition #
   ####################
 
-#locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs
-#KL_decomposition = Bidart::get_KL_basis(locs, m = 5, n_PP = 500, n_KL = 100, covparms = c(1, 5, 2.5, .0005))
-#plot(KL_decomposition$KL_decomposition$d^2)
-#plot(c(0, cumsum(KL_decomposition$KL_decomposition$d^2)))
-#KL_decomposition = Bidart::get_KL_basis(locs, m = 5, n_PP = 500, n_KL = 15, covparms =  c(1, 5, 2.5, .0005))
-#saveRDS(KL_decomposition, "Heavy_metals_comparison/KL_decomposition.RDS")
+locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs
+KL_decomposition = Bidart::get_KL_basis(locs, m = 5, n_PP = 500, n_KL = 20, covparms =  c(1, 3, 1.5, .001))
+saveRDS(KL_decomposition, "Heavy_metals_comparison/KL_decomposition.RDS")
 
   #######
   # run #
@@ -22,7 +19,7 @@
 remove(mcmc_nngp_list) ; gc()
 
 X = readRDS("Heavy_metals_comparison/processed_data.RDS")$X_locs
-
+X$MAJOR1 = NULL ; X$glwd31 = NULL ; X$minotype = NULL
 
 mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   observed_locs = readRDS("Heavy_metals_comparison/processed_data.RDS")$observed_locs, #spatial locations
@@ -30,22 +27,22 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   X = X, # Covariates per observation
   m = 10, #number of Nearest Neighbors
   reordering = c("maxmin"), #Reordering
-  covfun = "matern_sphere", nu = 1.5,  # covariance model
+  covfun = "nonstationary_matern_isotropic_sphere", nu = 1.5,  # covariance model
   noise_X = NULL, # range for latent field of parameters, if NULL no latent field
   scale_X = NULL, # range for latent field of parameters, if NULL no latent field
   range_X = NULL, # range for latent field of parameters, if NULL no latent field
-  n_chains = 3,  # number of MCMC chains
+  n_chains = 2,  # number of MCMC chains
   seed = 2
 )
 
 remove(X)
-for(i in seq(40))
+for(i in seq(15))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, debug_outfile = NULL)
 }
 saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_stat")
 
-# noise + range + scale nonstat
+# noise + scale nonstat
 gc()
 
 X = readRDS("Heavy_metals_comparison/processed_data.RDS")$X_locs
@@ -62,18 +59,18 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
   covfun = "nonstationary_matern_isotropic_sphere", nu = 1.5, # covariance model
   noise_X = X,                                   noise_KL = T,  
   scale_X = X[, c("gcarb", "globedem", "twi")],  scale_KL = T, 
-  range_X = X[, c("gcarb", "globedem", "twi")],  range_KL = T,  
+  range_X = NULL,  range_KL = F,  
   KL = KL_decomposition,
-  n_chains = 3,  # number of MCMC chains
+  n_chains = 2,  # number of MCMC chains
   seed = 2
 )
 
 remove(X)
-for(i in seq(40))
+for(i in seq(10))
 { 
-  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, debug_outfile = NULL)
 }
-saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_nsr")
+saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_ns")
 
 
 
@@ -96,21 +93,21 @@ if(length(grep("validation_train.RDS", list.files("Heavy_metals_comparison/")))=
   
   # shuffle locs and select 50000 train locs
   set.seed(1234)
+  covparms =  c(1, 3, 1.5, .001)
   locs_ = unique(locs);locs_ = locs_[GpGp::order_maxmin(locs_),];locs_ = locs_[seq(50000),]
   train_locs = locs_  [na.omit(match(split(locs, row(locs)), split(locs_, row(locs_)))),]
   train_field = field [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_))))  ]
   train_X     = X     [!is.na(match(split(locs, row(locs)), split(locs_, row(locs_)))), ]
   # get KL basis
-  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 50, covparms =  c(1, 1.5, 1.5, .001))
+  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 50, covparms = covparms)
   plot(train_KL_decomposition$KL_decomposition$d^2, ylim = c(0, train_KL_decomposition$KL_decomposition$d[1]^2))
   abline(h=0)
   Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,1])
-  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,2])
-  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,10])
-  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,20])
-  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis[,50])
-  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis%*%rnorm(50))
-  abline(h=0)
+  w_star = rnorm(ncol(train_KL_decomposition$basis))
+  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis%*%diag(train_KL_decomposition$KL_decomposition$d)%*%w_star)
+  w_star[-seq(20)]=0
+  Bidart::plot_pointillist_painting(train_locs, train_KL_decomposition$basis%*%diag(train_KL_decomposition$KL_decomposition$d)%*%w_star)
+  train_KL_decomposition = Bidart::get_KL_basis(train_locs, m = 10, n_PP = 500, n_KL = 20, covparms =  covparms)
   # save
   saveRDS(list(train_locs = train_locs, train_field = train_field, train_X = train_X, train_KL_decomposition = train_KL_decomposition), "Heavy_metals_comparison/validation_train.RDS")
   # get test data set
@@ -172,4 +169,17 @@ for(nonstat_scale in TF)
 }
 }
 
+# more iterations for rebel models
+mcmc_nngp_list = readRDS("Heavy_metals_comparison/run_noise_TRUE_scale_TRUE_range_TRUE_.RDS")
+for(i in seq(10))
+{ 
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, debug_outfile = NULL)
+}
+saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_noise_TRUE_scale_TRUE_range_TRUE_.RDS")
 
+mcmc_nngp_list = readRDS("Heavy_metals_comparison/run_noise_TRUE_scale_FALSE_range_TRUE_.RDS")
+for(i in seq(10))
+{ 
+  mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary(mcmc_nngp_list, n_cores = 3, debug_outfile = NULL)
+}
+saveRDS(mcmc_nngp_list, "Heavy_metals_comparison/run_noise_TRUE_scale_FALSE_range_TRUE_.RDS")

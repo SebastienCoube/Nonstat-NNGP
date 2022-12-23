@@ -130,14 +130,16 @@ gc()
 lapply(pred_log_score, function(x)x$total)
 barplot(sapply(pred_log_score, function(x)x$total))
 
-
-saveRDS(
-cbind(
-model = c("NRS", "NR", "NS", "N", "RS", "R", "S", "stat"),
-pred = round(sapply(pred_log_score, function(x)x$total)), 
-smooth = round(sapply(smooth_log_score, function(x)x$total)), 
-DIC = round(unlist(DICs)),
-time= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 2])))
-), "Heavy_metals_comparison/NNGP_comparison.RDS"
+res = cbind(
+  model = c("NRS", "NR", "NS", "N", "RS", "R", "S", "stat"),
+  pred = round(sapply(pred_log_score, function(x)x$total)/length(test_data_set$test_obs), 3), 
+  smooth = round(sapply(smooth_log_score, function(x)x$total)/runs[[1]]$vecchia_approx$n_obs, 3), 
+  DIC = round(unlist(DICs)),
+  time= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 2]))),
+  n.iter= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 1])))
 )
-
+res
+saveRDS(
+res, "Heavy_metals_comparison/NNGP_comparison.RDS"
+)
+xtable::xtable(res)

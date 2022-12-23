@@ -1,7 +1,11 @@
+install.packages("/home/user/s/scoube/Bidart_1.0.tar.gz", lib = "/home/user/s/scoube/R_packages/")
+
+
 library(GpGp, lib.loc = "/home/user/s/scoube/R_packages/")
 library(FNN, lib.loc = "/home/user/s/scoube/R_packages/")
 library(Bidart, lib.loc = "/home/user/s/scoube/R_packages/")
 library(abind, lib.loc = "/home/user/s/scoube/R_packages/")
+library(irlba, lib.loc = "/home/user/s/scoube/R_packages/")
 library(parallel)
 library(Matrix)
 
@@ -27,17 +31,14 @@ for(tatato in seq(nrow(inputs)))
   # locations and latent fields
   locs = 5 * matrix(runif(24000), ncol = 2)
   locs = locs[GpGp::order_maxmin(locs),]
-  latent_field_range = cbind(
-    GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs),
-    GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs),
-    GpGp::fast_Gp_sim(c(.5, .5, 1, 0), locs = locs))
+  if(inputs$data_range[i]=="stat")             range_beta  = cbind(c(log(.1), rep(0, 25)), c(0, rep(0, 25)), c(0, rep(0,25))) 
+  if(inputs$data_range[i]=="nonstat_circular") range_beta  = cbind(c(log(.1), rnorm(25)),  c(0, rep(0, 25)), c(0, rep(0,25)))
+  if(inputs$data_range[i]=="nonstat_elliptic") range_beta  = cbind(c(log(.1), rnorm(25)),  c(0, rnorm(25)),  c(0, rnorm(25)))
   
-  if(inputs$data_range[i]=="stat")latent_field_range = latent_field_range %*% matrix(0, 3, 3)
-  if(inputs$data_range[i]=="nonstat_circular")latent_field_range = latent_field_range %*% matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0), 3)
-  if(inputs$data_range[i]=="nonstat_elliptic")latent_field_range = latent_field_range %*% diag(3)
-  
-  
-  range_beta = c(log(.1), log(.1), 0)
+  n_KL = 25
+  KL_covfun = "matern_isotropic"
+  KL_covparms = c(1, .5, 1.5, 0.001)
+  KL = get_KL_basis(locs = locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
   
   # observing observations, with duplicates
   n_obs = 20000
@@ -46,37 +47,36 @@ for(tatato in seq(nrow(inputs)))
   
   # computing sparse chol
   NNarray = GpGp::find_ordered_nn(locs, 5)
-  sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, range_field =  latent_field_range, range_X = matrix(rep(1, nrow(locs))))
+  sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, KL = KL, use_KL = T, range_X = matrix(rep(1, nrow(locs))))
   
   # latent field
   scaled_latent_field = GpGp::fast_Gp_sim_Linv(Linv = sparse_chol[[1]], NNarray = NNarray)
-  observed_field = as.vector(scaled_latent_field[observation_idx] + rnorm(n_obs)) * exp(.5 * log(.5))
+  #plot_pointillist_painting(locs, scaled_latent_field, cex = .5)
+  observed_field = as.vector(scaled_latent_field[observation_idx] * sqrt(10)) + rnorm(n_obs) * sqrt(10)
+  
   
   # storing inputs
   res = list()
   res$inputs = list()
   res$inputs$inputs = inputs[i,]
-  res$inputs$latent_field_range  = latent_field_range
   res$inputs$sparse_chol         = sparse_chol[[1]]
-  res$inputs$scaled_latent_field = scaled_latent_field
   res$inputs$observed_field      = observed_field
   res$inputs$locs                = locs
   res$inputs$observation_idx     = observation_idx
   
   # model settings
-  covfun = "exponential_isotropic"
-  range_range = NULL
+  covfun = "nonstationary_exponential_isotropic"
+  range_KL = F
   if(inputs$model_range[i] == "nonstat_circular") 
   {
-    range_range = .5
-    covfun = "nonstationary_exponential_isotropic"
+    range_KL = T
   }
-  
   if(inputs$model_range[i] == "nonstat_elliptic") 
   {
-    range_range = .5
+    range_KL = T
     covfun = "nonstationary_exponential_anisotropic"
   }
+  KL_ = get_KL_basis(locs = observed_locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
   
   # initializing the model
   mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
@@ -85,14 +85,11 @@ for(tatato in seq(nrow(inputs)))
     X = NULL, # Covariates per observation
     m = 5, #number of Nearest Neighbors
     reordering = c("maxmin"), #Reordering
-    covfun = covfun, response_model = "Gaussian", # covariance model and response model
-    noise_X = NULL, noise_range = NULL, # range for latent field of parameters, if NULL no latent field
-    scale_X = NULL, scale_range = NULL, # range for latent field of parameters, if NULL no latent field
-    range_X = NULL, range_range = range_range, # range for latent field of parameters, if NULL no latent field
-    log_NNGP_matern_covfun = "matern_isotropic", # covariance function for the hyperpriors
-    log_NNGP_nu = 1, # covariance function for the hyperpriors
-    n_chains = 3,  # number of MCMC chains
-    seed = 2
+    covfun = covfun, 
+    range_X = NULL, 
+    range_KL = range_KL, KL = KL_, range_log_scale_prior = c(-8, 3),
+    n_chains = 2,  # number of MCMC chains
+    seed = 1
   )
   
   # running the model
@@ -100,7 +97,7 @@ for(tatato in seq(nrow(inputs)))
   res$run = mcmc_nngp_list
   for(j in seq(60))
   {
-    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 3, n_iterations_update = 100, n_cycles = 1, debug_outfile = NULL)
+    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 3, debug_outfile = NULL, big_range = T)
   }
   
   # analysis of performance

@@ -294,19 +294,19 @@ mcmc_nngp_initialize_nonstationary =
       message("noise_log_scale_prior was automatically set to an uniform on (-6, 2)")
       noise_log_scale_prior = c(-6, 2)
       }
-    hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
+    if(!is.null(noise_log_scale_prior))hierarchical_model$noise_log_scale_prior = matrix(noise_log_scale_prior)
     if(is.null(scale_log_scale_prior)&scale_KL)
       {
       message("scale_log_scale_prior was automatically set to an uniform on (-6, 2)")
       scale_log_scale_prior = c(-6, 2)
       }
-    hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
+    if(!is.null(scale_log_scale_prior))hierarchical_model$scale_log_scale_prior = matrix(scale_log_scale_prior)
     if(is.null(range_log_scale_prior)&range_KL)
       {
       message("range_log_scale_prior was automatically set to an uniform on (-6, 2)")
       hierarchical_model$range_log_scale_prior = c(-6, 2)
       }
-    hierarchical_model$range_log_scale_prior = matrix(range_log_scale_prior)
+    if(!is.null(range_log_scale_prior))hierarchical_model$range_log_scale_prior = matrix(range_log_scale_prior)
     
     # OLS to get residual variance to make a guess 
     naive_ols =  lm(observed_field~covariates$X$X-1)

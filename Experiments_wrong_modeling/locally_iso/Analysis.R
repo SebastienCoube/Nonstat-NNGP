@@ -11,6 +11,7 @@ i =
   16
 res = readRDS(paste("Experiments_wrong_modeling/locally_iso/experiment_wrong_modelling/res", i, "complete.RDS", sep = ""))
 Bidart::diagnostic_plots(res$run, starting_proportion = .05)
+Bidart::diagnostic_plots(res$run, starting_proportion = .5)
 res$inputs$inputs
 
 
@@ -115,7 +116,7 @@ dev.off()
 
 # range and scale log scales
 
-where_results_are = "Experiments_wrong_modeling/locally_iso/"
+where_results_are = "Experiments_wrong_modeling/locally_iso/experiment_wrong_modelling/"
 
 log_scales = NULL
 
@@ -136,11 +137,13 @@ data_names = c(expression(symbol("\306")), expression(alpha), expression(sigma^2
   
 pdf("Experiments_wrong_modeling/locally_iso/alpha.pdf")
 boxplot(log_scales[,1]~log_scales[,3] + log_scales[,4], #main = expression(paste("log scale of ", alpha)), 
-        xlab = "data type", ylab = "log-NNGP log variance estimate", names =data_names)
+        xlab = "Model used to generate the data", ylab = expression(paste("estimate of  ", gamma, "_", alpha)), names =data_names)
 dev.off()
 pdf("Experiments_wrong_modeling/locally_iso/sigma.pdf")
 boxplot(log_scales[,2]~log_scales[,3] + log_scales[,4], #main = expression(paste("log scale of ", sigma^2)), 
-        xlab = "data type", ylab = "log-NNGP log variance estimate", names =data_names)
+        xlab = "Model used to generate the data", names =data_names, 
+        ylab = expression(paste("estimate of  ", gamma, "_", sigma))
+        )
 dev.off()
 
 
