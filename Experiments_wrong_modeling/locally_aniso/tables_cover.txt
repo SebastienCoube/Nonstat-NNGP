@@ -1,0 +1,147 @@
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 1 & \\color{blue} 0.91 & \\color{blue} 0.91 \\ 
+  &\\alpha&\\color{gray} 0.68 & \\color{green} 0.93 & \\color{blue} 0.93 \\ 
+  &\\emptyset&\\color{gray} 0 & \\color{gray} 0.2 & \\color{green} 0.88 \\ 
+\end{array}$$
+\label{tab:range1_aniso_cover}
+\subcaption{range1 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.92 & \\color{blue} 0.96 & \\color{blue} 0.98 \\ 
+  &\\alpha&\\color{gray} 1 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 1 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range2_aniso_cover}
+\subcaption{range2 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.92 & \\color{blue} 0.96 & \\color{blue} 0.98 \\ 
+  &\\alpha&\\color{gray} 1 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 1 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range3_aniso_cover}
+\subcaption{range3 cover}
+\end{minipage}
+
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.94 & \\color{blue} 0.96 & \\color{blue} 0.89 \\ 
+  &\\alpha&\\color{gray} 0.92 & \\color{green} 0.93 & \\color{blue} 0.9 \\ 
+  &\\emptyset&\\color{gray} 0.65 & \\color{gray} 0.67 & \\color{green} 0.95 \\ 
+\end{array}$$
+\label{tab:scale_aniso_cover}
+\subcaption{scale cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.98 & \\color{blue} 0.96 & \\color{blue} 0.89 \\ 
+  &\\alpha&\\color{gray} 0.95 & \\color{green} 0.93 & \\color{blue} 0.93 \\ 
+  &\\emptyset&\\color{gray} 0.6 & \\color{gray} 0.7 & \\color{green} 0.9 \\ 
+\end{array}$$
+\label{tab:noise_aniso_cover}
+\subcaption{noise cover}
+\end{minipage}
+
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.86 & \\color{blue} 0.89 & \\color{blue} 0 \\ 
+  &\\alpha&\\color{gray} 0.85 & \\color{green} 0.92 & \\color{blue} 0 \\ 
+  &\\emptyset&\\color{gray} 0 & \\color{gray} 0 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var1_aniso_cover}
+\subcaption{range_var1 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.92 & \\color{blue} 1 & \\color{blue} 1 \\ 
+  &\\alpha&\\color{gray} 1 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 1 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var2_aniso_cover}
+\subcaption{range_var2 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.9 & \\color{blue} 0.94 & \\color{blue} 0.98 \\ 
+  &\\alpha&\\color{gray} 1 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 1 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var3_aniso_cover}
+\subcaption{range_var3 cover}
+\end{minipage}
+
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.71 & \\color{blue} 0 & \\color{blue} 0 \\ 
+  &\\alpha&\\color{gray} 0 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 0 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var4_aniso_cover}
+\subcaption{range_var4 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.9 & \\color{blue} 1 & \\color{blue} 1 \\ 
+  &\\alpha&\\color{gray} 1 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 1 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var5_aniso_cover}
+\subcaption{range_var5 cover}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+ 
+$$\begin{array}{lllll}
+  & & \multicolumn{3}{c}{\text{Type of data}}  \\ 
+  &&A & \\alpha & \\emptyset \\ 
+  \multirow{3}{*}{\rotatebox{90}{Model}}
+ &&A & \\color{green} 0.67 & \\color{blue} 0 & \\color{blue} 0 \\ 
+  &\\alpha&\\color{gray} 0 & \\color{green} 1 & \\color{blue} 1 \\ 
+  &\\emptyset&\\color{gray} 0 & \\color{gray} 1 & \\color{green} 1 \\ 
+\end{array}$$
+\label{tab:range_var6_aniso_cover}
+\subcaption{range_var6 cover}
+\end{minipage}
+

@@ -1,0 +1,95 @@
+SLASHbegin{minipage}{.5SLASHtextwidth}
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 11:52:48 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & 1 & 2 & 3 & 4 \\ 
+  \hline
+1 &   & A & alpha & emptyset \\ 
+  2 & A & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0 ** \\ 
+  3 & alpha & color\{gray\} 0.01 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  4 & emptyset & color\{gray\} 0.03 *** & color\{gray\} 0.02 *** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+SLASHsubcaption{smooth_field_mse cover}
+SLASHlabel{tab:smooth_field_mse_aniso_cover}
+SLASHend{minipage}
+SLASHbegin{minipage}{.5SLASHtextwidth}
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 11:52:48 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & 1 & 2 & 3 & 4 \\ 
+  \hline
+1 &   & A & alpha & emptyset \\ 
+  2 & A & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0 * \\ 
+  3 & alpha & color\{gray\} 0.04 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  4 & emptyset & color\{gray\} 0.06 *** & color\{gray\} 0.02 *** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+SLASHsubcaption{pred_field_mse cover}
+SLASHlabel{tab:pred_field_mse_aniso_cover}
+SLASHend{minipage}
+SLASHbegin{minipage}{.5SLASHtextwidth}
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 11:52:48 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & 1 & 2 & 3 & 4 \\ 
+  \hline
+1 &   & A & alpha & emptyset \\ 
+  2 & A & color\{green\} 0  & color\{blue\} 2  & color\{blue\} -16 ** \\ 
+  3 & alpha & color\{gray\} 218 *** & color\{green\} 0  & color\{blue\} -14 ** \\ 
+  4 & emptyset & color\{gray\} 612 *** & color\{gray\} 354 *** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+SLASHsubcaption{DIC cover}
+SLASHlabel{tab:DIC_aniso_cover}
+SLASHend{minipage}
+SLASHbegin{minipage}{.5SLASHtextwidth}
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 11:52:48 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & 1 & 2 & 3 & 4 \\ 
+  \hline
+1 &   & A & alpha & emptyset \\ 
+  2 & A & color\{green\} 0  & color\{blue\} 0.02  & color\{blue\} 0 ** \\ 
+  3 & alpha & color\{gray\} 0.5 *** & color\{green\} 0  & color\{blue\} 0 * \\ 
+  4 & emptyset & color\{gray\} 0.85 *** & color\{gray\} 0.66 *** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+SLASHsubcaption{log_range_det_mse cover}
+SLASHlabel{tab:log_range_det_mse_aniso_cover}
+SLASHend{minipage}
+SLASHbegin{minipage}{.5SLASHtextwidth}
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 11:52:48 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & 1 & 2 & 3 & 4 \\ 
+  \hline
+1 &   & A & alpha & emptyset \\ 
+  2 & A & color\{green\} 0  & color\{blue\} 0 *** & color\{blue\} 0 *** \\ 
+  3 & alpha & color\{gray\} 0.69 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  4 & emptyset & color\{gray\} 0.69 *** & color\{gray\} 0  & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+SLASHsubcaption{log_range_aniso_mse cover}
+SLASHlabel{tab:log_range_aniso_mse_aniso_cover}
+SLASHend{minipage}
