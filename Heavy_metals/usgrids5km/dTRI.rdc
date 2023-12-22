@@ -1,0 +1,36 @@
+file format : Arc/Info ASCII Grid
+file title  : dTRI.asc
+last update : 12.07.2009
+producer    : T. Hengl
+lineage     : Kernel density was derived in spatstat using North American Pollutant Releases and Transfers  point database (cca 35000 points), and using the bandwidth of 20 km. 
+data type   : byte
+file type   : ASCII
+columns     : 940
+rows        : 592
+meas. scale : numeric
+description : Density of pollutant releases
+proj4string : +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+ref. system : projected
+ref. units  : meters
+unit dist.  : 1
+min. X      : -2405000
+max. X      : 2295000
+min. Y      : 260000
+max. Y      : 3220000
+pos'n error : 1000
+resolution  : 5000
+min. value  : 0
+max. value  : 1
+display min : 0
+display max : 1
+value units : index
+value error : unspecified
+flag value  : -1
+flag def'n  : water bodies (sea/ocean)
+src. English: North American Pollutant Releases and Transfers / Toxics Release Inventory (TRI)
+src. URL    : http://www.cec.org/takingstock/
+src. scale  : 1:100,000
+src. refs   : CEC, 2005. North American Pollutant Releases and Transfers. Commission for Environmental Cooperation, 116 p.
+src. date   : 2008
+src. owner  : Commission for Environmental Cooperation
+legend cats : 0

@@ -1,0 +1,75 @@
+file format : Arc/Info ASCII Grid
+file title  : geomap.asc
+last update : 12.07.2009
+producer    : T. Hengl
+lineage     : Geologic Map of the United States (image) resampled to 5 km resolution.
+data type   : byte
+file type   : ASCII
+columns     : 940
+rows        : 592
+meas. scale : categorical
+description : Geologic Map of the United States
+proj4string : +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+ref. system : projected
+ref. units  : meters
+unit dist.  : 1
+min. X      : -2405000
+max. X      : 2295000
+min. Y      : 260000
+max. Y      : 3220000
+pos'n error : 1000
+resolution  : 5000
+min. value  : 1
+max. value  : 39
+display min : 1
+display max : 39
+value units : factor
+value error : unspecified
+flag value  : -1
+flag def'n  : water bodies (sea/ocean)
+src. English: Geologic Map of the United States
+src. URL    : http://www.ldeo.columbia.edu/users/menke/envdata/quality/map/
+src. scale  : 1000 m
+src. refs   : NA
+src. date   : 2003
+src. owner  : US Geological Survey
+legend cats : 39
+category   1: "R0G123B255"
+category   2: "R0G189B255"
+category   3: "R0G255B0"
+category   4: "R0G255B123"
+category   5: "R0G255B255"
+category   6: "R123G0B255"
+category   7: "R123G123B123"
+category   8: "R123G123B255"
+category   9: "R123G189B0"
+category  10: "R123G255B123"
+category  11: "R123G255B189"
+category  12: "R123G255B255"
+category  13: "R123G57B255"
+category  14: "R189G123B0"
+category  15: "R189G123B255"
+category  16: "R189G189B255"
+category  17: "R189G255B123"
+category  18: "R189G255B189"
+category  19: "R189G255B255"
+category  20: "R189G255B57"
+category  21: "R245G245B245"
+category  22: "R255G0B0"
+category  23: "R255G0B123"
+category  24: "R255G0B255"
+category  25: "R255G123B123"
+category  26: "R255G123B255"
+category  27: "R255G123B57"
+category  28: "R255G189B123"
+category  29: "R255G189B57"
+category  30: "R255G255B0"
+category  31: "R255G255B123"
+category  32: "R255G255B189"
+category  33: "R255G57B123"
+category  34: "R255G57B255"
+category  35: "R57G123B255"
+category  36: "R57G189B255"
+category  37: "R57G255B123"
+category  38: "R57G57B255"
+category  39: "R57G57B57"
