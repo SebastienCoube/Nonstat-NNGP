@@ -1,0 +1,144 @@
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0.01  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  2 &  sigma tau & color\{gray\} 0.01  & color\{green\} 0  & color\{brown\} 0.02  & color\{blue\} 0.01  & color\{brown\} 0.02 * & color\{blue\} 0  & color\{brown\} 0.02 ** & color\{blue\} 0  \\ 
+  3 & alpha  tau & color\{gray\} 0.02  & color\{brown\} 0.09 ** & color\{green\} 0  & color\{blue\} 0.01  & color\{brown\} 0.01  & color\{brown\} 0.08 *** & color\{blue\} 0  & color\{blue\} 0  \\ 
+  4 &   tau & color\{gray\} 0.13 ** & color\{gray\} 0.05 * & color\{gray\} 0.02  & color\{green\} 0  & color\{brown\} 0.13 *** & color\{brown\} 0.06 ** & color\{brown\} 0.03 ** & color\{blue\} 0  \\ 
+  5 & alpha sigma  & color\{gray\} 0.13 ** & color\{brown\} 0.14 *** & color\{brown\} 0.15 *** & color\{brown\} 0.14 *** & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  6 &  sigma  & color\{gray\} 0.14 ** & color\{gray\} 0.1 ** & color\{brown\} 0.11 ** & color\{brown\} 0.14 *** & color\{gray\} 0.02  & color\{green\} 0  & color\{brown\} 0.03 ** & color\{blue\} 0  \\ 
+  7 & alpha   & color\{gray\} 0.12 ** & color\{brown\} 0.2 *** & color\{gray\} 0.14 *** & color\{brown\} 0.18 *** & color\{gray\} 0.01  & color\{brown\} 0.07 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  8 & emptyset & color\{gray\} 0.13 ** & color\{gray\} 0.07 ** & color\{gray\} 0.06 ** & color\{gray\} 0.04  & color\{gray\} 0.08 *** & color\{gray\} 0.03 ** & color\{gray\} 0.03 ** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{Latent field smoothing.}
+\label{tab:wrong_modeling_iso_smooth}
+}
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} -0.01  & color\{blue\} 0.01  & color\{blue\} 0.01  & color\{blue\} -0.06  & color\{blue\} 0.01  & color\{blue\} 0.01  & color\{blue\} 0  \\ 
+  2 &  sigma tau & color\{gray\} 0.05  & color\{green\} 0  & color\{brown\} 0.04  & color\{blue\} 0.01  & color\{brown\} 0.08  & color\{blue\} -0.01  & color\{brown\} 0.02  & color\{blue\} 0  \\ 
+  3 & alpha  tau & color\{gray\} 0.03  & color\{brown\} 0.08 * & color\{green\} 0  & color\{blue\} 0.01  & color\{brown\} -0.1  & color\{brown\} 0.06  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  4 &   tau & color\{gray\} 0.02  & color\{gray\} 0.01  & color\{gray\} 0.01  & color\{green\} 0  & color\{brown\} -0.03  & color\{brown\} 0.06  & color\{brown\} 0.04  & color\{blue\} 0  \\ 
+  5 & alpha sigma  & color\{gray\} 0.04  & color\{brown\} 0.04  & color\{brown\} 0.06 ** & color\{brown\} 0.06 *** & color\{green\} 0  & color\{blue\} -0.02  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  6 &  sigma  & color\{gray\} 0.09  & color\{gray\} 0.04  & color\{brown\} 0.08 ** & color\{brown\} 0.07 *** & color\{gray\} 0  & color\{green\} 0  & color\{brown\} 0.04 * & color\{blue\} 0  \\ 
+  7 & alpha   & color\{gray\} 0.05  & color\{brown\} 0.13 ** & color\{gray\} 0.06 ** & color\{brown\} 0.08 *** & color\{gray\} -0.05  & color\{brown\} 0.09 * & color\{green\} 0  & color\{blue\} 0  \\ 
+  8 & emptyset & color\{gray\} 0.18 ** & color\{gray\} 0.04  & color\{gray\} 0.04  & color\{gray\} 0.02 ** & color\{gray\} 0.05  & color\{gray\} 0.02  & color\{gray\} 0.02  & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{Latent field prediction.}
+\label{tab:wrong_modeling_iso_pred}
+}
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} -606  & color\{blue\} 186  & color\{blue\} 2634  & color\{blue\} -165  & color\{blue\} 18  & color\{blue\} 18  & color\{blue\} -12  \\ 
+  2 &  sigma tau & color\{gray\} -1916  & color\{green\} 0  & color\{brown\} -1090  & color\{blue\} 2038  & color\{brown\} 103  & color\{blue\} 5  & color\{brown\} 114  & color\{blue\} 3  \\ 
+  3 & alpha  tau & color\{gray\} -666  & color\{brown\} 1245  & color\{green\} 0  & color\{blue\} 2398  & color\{brown\} -59  & color\{brown\} 43  & color\{blue\} -5  & color\{blue\} -11  \\ 
+  4 &   tau & color\{gray\} 70  & color\{gray\} 159  & color\{gray\} -252  & color\{green\} 0  & color\{brown\} 1370 *** & color\{brown\} 961 *** & color\{brown\} 443 ** & color\{blue\} -31  \\ 
+  5 & alpha sigma  & color\{gray\} 3887 ** & color\{brown\} 5861 ** & color\{brown\} 5362 ** & color\{brown\} 6081 ** & color\{green\} 0  & color\{blue\} 23  & color\{blue\} 18  & color\{blue\} 10  \\ 
+  6 &  sigma  & color\{gray\} 4994 ** & color\{gray\} 5142 ** & color\{brown\} 4238 ** & color\{brown\} 8155 ** & color\{gray\} 15  & color\{green\} 0  & color\{brown\} 242 * & color\{blue\} 22  \\ 
+  7 & alpha   & color\{gray\} 3361 * & color\{brown\} 6344 ** & color\{gray\} 4417 ** & color\{brown\} 7264 ** & color\{gray\} -3  & color\{brown\} 211 * & color\{green\} 0  & color\{blue\} -9  \\ 
+  8 & emptyset & color\{gray\} 6684 ** & color\{gray\} 7183 ** & color\{gray\} 6532 ** & color\{gray\} 8250 ** & color\{gray\} 1185 *** & color\{gray\} 658 ** & color\{gray\} 472 ** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{DIC.}
+\label{tab:wrong_modeling_iso_DIC}
+}
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0.01  & color\{blue\} 0.01  & color\{blue\} 0.02  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  2 &  sigma tau & color\{gray\} 0.72 ** & color\{green\} 0  & color\{brown\} 0.8 ** & color\{blue\} 0  & color\{brown\} 0.74 ** & color\{blue\} 0  & color\{brown\} 0.83 *** & color\{blue\} 0  \\ 
+  3 & alpha  tau & color\{gray\} 3.15 *** & color\{brown\} 2.62 *** & color\{green\} 0  & color\{blue\} 0  & color\{brown\} 2.38 *** & color\{brown\} 2.92 *** & color\{blue\} 0  & color\{blue\} 0  \\ 
+  4 &   tau & color\{gray\} 0.78 ** & color\{gray\} 0.01  & color\{gray\} 0.82 ** & color\{green\} 0  & color\{brown\} 0.78 ** & color\{brown\} 0  & color\{brown\} 0.84 *** & color\{blue\} 0  \\ 
+  5 & alpha sigma  & color\{gray\} 0.68 ** & color\{brown\} 0.65 ** & color\{brown\} 0.78 ** & color\{brown\} 0.59 ** & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  6 &  sigma  & color\{gray\} 0.74 ** & color\{gray\} 0.01  & color\{brown\} 0.81 ** & color\{brown\} 0.02  & color\{gray\} 0.77 ** & color\{green\} 0  & color\{brown\} 0.83 *** & color\{blue\} 0  \\ 
+  7 & alpha   & color\{gray\} 4.49 *** & color\{brown\} 3.8 *** & color\{gray\} 2.04 *** & color\{brown\} 2.04 *** & color\{gray\} 2.86 *** & color\{brown\} 3.36 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  8 & emptyset & color\{gray\} 0.77 ** & color\{gray\} -0.01  & color\{gray\} 0.79 ** & color\{gray\} 0  & color\{gray\} 0.77 ** & color\{gray\} 0  & color\{gray\} 0.78 *** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{Log-range smoothing MSE.}
+\label{tab:wrong_modeling_iso_range}
+}
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0.01  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0 ** \\ 
+  2 &  sigma tau & color\{gray\} 0.17  & color\{green\} 0  & color\{brown\} 0.19 ** & color\{blue\} 0  & color\{brown\} 0.18  & color\{blue\} 0  & color\{brown\} 0.21 *** & color\{blue\} 0 ** \\ 
+  3 & alpha  tau & color\{gray\} 1.95 *** & color\{brown\} 1.79 *** & color\{green\} 0  & color\{blue\} 0  & color\{brown\} 1.48 *** & color\{brown\} 2.03 *** & color\{blue\} 0  & color\{blue\} 0  \\ 
+  4 &   tau & color\{gray\} 0.66 ** & color\{gray\} 0.88 *** & color\{gray\} 0.01  & color\{green\} 0  & color\{brown\} 0.68 ** & color\{brown\} 0.91 ** & color\{brown\} 0.01  & color\{blue\} 0  \\ 
+  5 & alpha sigma  & color\{gray\} 0.19  & color\{brown\} 0.15  & color\{brown\} 0.18 ** & color\{brown\} 0.14 * & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0 ** \\ 
+  6 &  sigma  & color\{gray\} 0.7 ** & color\{gray\} 0.43 ** & color\{brown\} 0.55 *** & color\{brown\} 0.51 *** & color\{gray\} 0.22  & color\{green\} 0  & color\{brown\} 0.2 *** & color\{blue\} 0 ** \\ 
+  7 & alpha   & color\{gray\} 2.16 *** & color\{brown\} 1.95 *** & color\{gray\} 0.35 ** & color\{brown\} 0.5 *** & color\{gray\} 1.88 *** & color\{brown\} 2.38 *** & color\{green\} 0  & color\{blue\} 0  \\ 
+  8 & emptyset & color\{gray\} 0.82 ** & color\{gray\} 0.92 *** & color\{gray\} 0.01  & color\{gray\} 0  & color\{gray\} 0.85 ** & color\{gray\} 0.88 ** & color\{gray\} 0.01  & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{Log-variance of the latent field smoothing MSE.}
+\label{tab:wrong_modeling_iso_scale}
+}
+{
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Mon Dec 18 10:40:04 2023
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlllllllll}
+  \hline
+ & V1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+  \hline
+ &   & alpha sigma tau &  sigma tau & alpha  tau &   tau & alpha sigma  &  sigma  & alpha   & emptyset \\ 
+  1 & alpha sigma tau & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0 ** & color\{blue\} 0 *** \\ 
+  2 &  sigma tau & color\{gray\} 0  & color\{green\} 0  & color\{brown\} 0  & color\{blue\} 0  & color\{brown\} 0  & color\{blue\} 0  & color\{brown\} 0 *** & color\{blue\} 0 *** \\ 
+  3 & alpha  tau & color\{gray\} 0  & color\{brown\} 0  & color\{green\} 0  & color\{blue\} 0  & color\{brown\} 0  & color\{brown\} 0  & color\{blue\} 0 ** & color\{blue\} 0 *** \\ 
+  4 &   tau & color\{gray\} 0.09  & color\{gray\} 0.02  & color\{gray\} 0.01  & color\{green\} 0  & color\{brown\} 0.08 *** & color\{brown\} 0.03 *** & color\{brown\} 0.01 *** & color\{blue\} 0 *** \\ 
+  5 & alpha sigma  & color\{gray\} 0.85 *** & color\{brown\} 0.79 *** & color\{brown\} 0.8 *** & color\{brown\} 0.83 *** & color\{green\} 0  & color\{blue\} 0  & color\{blue\} 0  & color\{blue\} 0  \\ 
+  6 &  sigma  & color\{gray\} 0.82 *** & color\{gray\} 0.81 *** & color\{brown\} 0.73 *** & color\{brown\} 0.84 *** & color\{gray\} 0  & color\{green\} 0  & color\{brown\} 0  & color\{blue\} 0  \\ 
+  7 & alpha   & color\{gray\} 0.85 *** & color\{brown\} 0.74 *** & color\{gray\} 0.84 *** & color\{brown\} 0.83 *** & color\{gray\} 0  & color\{brown\} 0  & color\{green\} 0  & color\{blue\} 0  \\ 
+  8 & emptyset & color\{gray\} 0.84 *** & color\{gray\} 0.88 *** & color\{gray\} 0.85 *** & color\{gray\} 0.88 *** & color\{gray\} 0  & color\{gray\} 0  & color\{gray\} 0 ** & color\{green\} 0  \\ 
+   \hline
+\end{tabular}
+\end{table}
+\caption{Log-variance of the noise smoothing MSE.}
+\label{tab:wrong_modeling_iso_noise}
+}
