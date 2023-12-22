@@ -1,12 +1,15 @@
 Package: Bidart
 Type: Package
-Title: What the package does (short line)
+Title: Hierarchical Nonstationary Nearest Neighbor Gaussian Process
 Version: 1.0
 Date: 2021-04-20
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-Imports: Rcpp (>= 1.0.7)
+Author: Seb Coube-Sisqueille
+Maintainer: Seb Coube-Sisqueille <scoube@univ-pau.fr>
+Description: 
+License:
+Imports: Rcpp (>= 1.0.7), abind, Matrix, GpGp, parallel, fields, expm,
+        ellipse
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
+NeedsCompilation: yes
+Packaged: 2023-12-07 08:15:31 UTC; scs

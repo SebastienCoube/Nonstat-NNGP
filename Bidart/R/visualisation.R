@@ -1,20 +1,69 @@
-# #' @export
-#plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
-#{
-#  if(ncol(log_range) ==3)matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
-#  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)exp(x) * diag(1/sqrt(ncol(locs)), ncol(locs)))
-#  if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
-#  for(i in seq(nrow(locs)))
-#  {
-#    ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
-#    ell[,1] = ell[,1]+locs[i, 1]
-#    ell[,2] = ell[,2]+locs[i, 2]
-#    lines(ell)
-#  }
-#}
+#' Allows to see if a Predictive Process has enough knots.  
+#' Plots two samples, one from a Predictive Process, and one from the Nearest Neighbor Gaussian Process the PP is obtained from. 
+#' If there are not enough knots, the PP should be over-smoothed with respect to the NNGP. 
+compare_PP_NNGP = function(PP){
+  # comparison between PP and NNGP
+#' @param PP a Predictive Process object
+  seed_vector =  rnorm(PP$n_PP + nrow(PP$unique_reordered_locs))
+  par(mfrow = c(1,2))
+  Bidart::plot_pointillist_painting( 
+    PP$unique_reordered_locs[PP$idx,], 
+    Bidart::X_PP_mult_right(PP = PP, use_PP = T, Y = seed_vector[seq(PP$n_PP)]), cex = .3, main ="NNGP into PP")
+  points(PP$knots, pch = 3, cex = .3)
+  Bidart::plot_pointillist_painting(rbind(PP$knots, PP$unique_reordered_locs), as.vector(Matrix::solve(PP$sparse_chol, seed_vector)), cex = .3, main = "NNGP")
+  par(mfrow = c(1,1))
+}
+
+
+#' Plots range ellipses for nonstationary covariance functions.
+#' @param locs ellipses centers
+#' @param log_range log_range at the ellipse centers, can hae 1 or 3 columns
+#' @param main main title
+#' @param add ad on existing plot ? cancels main
+#' @param shrink shrinks or inflates the ellipses
+plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
+{
+  if(ncol(log_range) ==3){
+    
+    log_range = log_range %*% matrix(
+      c(1/sqrt(2), 1/sqrt(2),  0, 
+        1/sqrt(2), -1/sqrt(2), 0,
+        0,       0,        1), 3)
+    matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
+  }
+  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)diag(exp(x/sqrt(2)), 2))
+  if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
+  for(i in seq(nrow(locs)))
+  {
+    ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
+    ell[,1] = ell[,1]+locs[i, 1]
+    ell[,2] = ell[,2]+locs[i, 2]
+    lines(ell)
+  }
+}
+
+## locs = as.matrix(expand.grid(seq(0, 1, .1), seq(0, 1, .1)))
+## log_range = locs[,1,drop=F]
+## plot_ellipses(locs, log_range, shrink = .01)
+## log_range = locs[,c(1,1,1)] %*% diag(c(1,0,0))
+## plot_ellipses(locs, log_range, shrink = .01)
+## log_range = locs[,c(1,1,2)]
+## plot_ellipses(locs, log_range, shrink = .01)
+
 
 #' @export
-get_colors = function(x)heat.colors(100)[round((x - min(x))/(max(x)-min(x))*90)+1]
+get_colors = function(x){
+  colors = rep(1, length(x))
+  colors[!is.na(x)] = heat.colors(100)[round((x[!is.na(x)] - min(x[!is.na(x)]))/(max(x[!is.na(x)])-min(x[!is.na(x)]))*90)+1]
+  colors
+}
+
+#' Plots a spatial variable like a pointillist painting
+#' using R base's points. Stupid, but handy. 
+#' @param locs spatial locations
+#' @param field interest variable
+#' @param main main title
+#' @param cex shrinks or inflates the points
 plot_pointillist_painting = function(locs, field, cex = 1, main = NULL)
 {
   plot(locs, col = get_colors(field), main = main, pch = 15, cex = cex, xlab  ="", ylab = "")
@@ -102,16 +151,13 @@ grb_diags_field = function(record_arrays, iterations, burn_in = .5, starting_pro
   within_mean = Reduce("+", mean_estimators)/length(mean_estimators)
   within_var = Reduce("+", var_estimators)/length(var_estimators)
   between_var = (Reduce("+", lapply(mean_estimators, function(x)x^2))/length(mean_estimators) - within_mean^2) * length(mean_estimators) / (length(mean_estimators)-1)
-  #PSRF =   (length(var_estimators) +1)/(length(var_estimators)) * array_multiply_3(x = between_var/within_var, M = Matrix::Diagonal(x = 1/n))
   PSRF =   (length(var_estimators) +1)/(length(var_estimators)) * array_multiply_3(x = between_var/within_var, M = Matrix::Diagonal(x = (n-1)/n))
   for(i in seq(dim(PSRF)[3]))
   {
     PSRF[,,i] = PSRF[,,i] + (n[i]+1)/n[i]
   }
   PSRF_quantiles  =apply(PSRF, 3, function(x)quantile(x, probs = c(1, .99, .9, .5), na.rm = T))
-  #PSRF_binned = array(cut(PSRF, breaks = c(-Inf, 1.1, 1.2, 1.5, +Inf)), dim(PSRF))
-  list("iterations" = iterations[diff_array[,2]], "mean" = mean_estimators, "var" = var_estimators,"PSRF" = PSRF, "PSRF_quantiles" = PSRF_quantiles#, "PSRF_binned" = PSRF_binned
-       )
+  list("iterations" = iterations[diff_array[,2]], "mean" = mean_estimators, "var" = var_estimators,"PSRF" = PSRF, "PSRF_quantiles" = PSRF_quantiles)
 }
 
 
@@ -127,43 +173,26 @@ grb_diags_field = function(record_arrays, iterations, burn_in = .5, starting_pro
 #' @export
 plot_PSRF = function(PSRF, individual_varnames = NULL, varname = "")
 {
-  if(any(is.infinite(PSRF$PSRF)))
+  if(any(is.infinite(PSRF$PSRF)) | any(is.na(PSRF$PSRF)))
   {
     plot(0, 0, type = "n", main = paste("PSRF of", varname, "not represented because of infinite GRB diags"), xlab = "iterations", ylab = "PSRF quantiles")
     return()
   }
-  if((prod(dim(PSRF$PSRF)[c(1, 2)]))>9)
+  
+  
+  plot(PSRF$iterations, PSRF$PSRF_quantiles[1,], ylim = c(1, max(PSRF$PSRF_quantiles[1,])), main = paste("Quantiles of PSRF of", varname), type = "l", xlab = "iterations", ylab = "PSRF quantiles",  log="y")
+  for(i in seq(1, dim(PSRF$PSRF)[1]))
   {
-    
-    plot(PSRF$iterations, PSRF$PSRF_quantiles[1,], ylim = c(1, max(PSRF$PSRF_quantiles[1,])), main = paste("Quantiles of PSRF of", varname), type = "l", xlab = "iterations", ylab = "PSRF quantiles",  log="y")
-    for(i in seq(1, dim(PSRF$PSRF)[1]))
+    for(j in seq(1, dim(PSRF$PSRF)[2]))
     {
-      for(j in seq(1, dim(PSRF$PSRF)[2]))
-      {
-        lines(PSRF$iterations, PSRF$PSRF[i,j,], col = scales::alpha("lightgray", .4), )
-      }
+      lines(PSRF$iterations, PSRF$PSRF[i,j,], col = scales::alpha("lightgray", .4), )
     }
-    lines(PSRF$iterations, PSRF$PSRF_quantiles[2,], col = 2)
-    lines(PSRF$iterations, PSRF$PSRF_quantiles[3,], col = 3)
-    lines(PSRF$iterations, PSRF$PSRF_quantiles[4,], col = 4)
-    legend(bg = "white", "topleft", legend = c("max", .99, .9, .5), fill = c(1, 2, 3, 4))
   }
-  if(prod(dim(PSRF$PSRF)[c(1, 2)])<10)
-  {
-    plot(PSRF$iterations, PSRF$iterations, type = "n", ylim = c(1, max(PSRF$PSRF)), main = paste("PSRF of each component of", varname), xlab = "iterations", ylab = "PSRF",  log="y")
-    for(i in seq(1, dim(PSRF$PSRF)[1]))
-    {
-      for(j in seq(1, dim(PSRF$PSRF)[2]))
-      {
-        lines(PSRF$iterations, PSRF$PSRF[i,j,], col = i+(j-1) * dim(PSRF$PSRF)[1])
-      }
-    }
-    if(dim(PSRF$PSRF)[2]>1 & !is.null(individual_varnames)) labs = paste(rep(individual_varnames, dim(PSRF$PSRF)[2]), rep(seq(dim(PSRF$PSRF)[2]), each = length(individual_varnames)))
-    if(dim(PSRF$PSRF)[2]==1 & !is.null(individual_varnames)) labs = individual_varnames
-    if(is.null(individual_varnames)) labs = paste("component", seq(prod(dim(PSRF$PSRF)[c(1, 2)])))
-    legend(bg = "white", "topleft", legend = labs, fill = seq(length(labs)))
-  }
-  #abline(h = 1.2, lty = "longdash")
+  lines(PSRF$iterations, PSRF$PSRF_quantiles[2,], col = 2)
+  lines(PSRF$iterations, PSRF$PSRF_quantiles[3,], col = 4)
+  lines(PSRF$iterations, PSRF$PSRF_quantiles[4,], col = 6)
+  legend(bg = "white", "topleft", legend = c("max", .99, .9, .5), fill = c(1,2,4,6))
+  
   abline(h = 1)
 }
 #arrays =                   list(
@@ -214,10 +243,10 @@ plot_log_scale = function(log_scale_arrays, iterations, starting_proportion = .5
     {
       for(j in seq(nrow(marginal_logvars[[i]])))
       {
-        lines(iterations[kept_iterations],marginal_logvars[[i]][j,], col = j)
+        lines(iterations[kept_iterations],marginal_logvars[[i]][j,], col = c(1,2,4)[j])
       }
     }
-    legend(bg = "white", "topleft", legend = c("Determinant", "Anisotropy", "Anisotropy"), fill = seq(3))
+    legend(bg = "white", "topleft", legend = c("Determinant", "Anisotropy", "Anisotropy"), fill = c(1,2,4))
   }
 }
 
@@ -251,21 +280,34 @@ plot_beta = function(beta_arrays, iterations, starting_proportion = .5, varname,
          )
     for(j in seq(dim(beta_arrays[[1]])[1]))
     {
-      for(x in beta_arrays)lines(iterations[kept_iterations], x[j, i, kept_iterations], col = j)
+      for(x in beta_arrays)lines(iterations[kept_iterations], x[j, i, kept_iterations], col = c(1,3,4,6,7,8)[(j)%%6])
     }
-    if(!is.null(var_names))legend(bg = "white", "topleft", legend = var_names, fill = seq(dim(beta_arrays[[1]])[1]))
+    if(!is.null(var_names))legend(bg = "white", "topleft", legend = var_names, fill = c(1,3,4,6,7,8)[(seq(dim(beta_arrays[[1]])[1]))%%6])
   }
 }
 
-beta_arrays = list(
-  array(rnorm(400), dim = c(2, 2, 100)),
-  array(rnorm(400), dim = c(2, 2, 100)),
-  array(rnorm(400), dim = c(2, 2, 100))
-)
+#beta_arrays = list(
+#  array(rnorm(400), dim = c(2, 2, 100)),
+#  array(rnorm(400), dim = c(2, 2, 100)),
+#  array(rnorm(400), dim = c(2, 2, 100))
+#)
 
-#plot_beta(beta_arrays, seq(100), starting_proportion = .5, varname = "tatato", var_names = c(1, 2))
+# beta_arrays = lapply(seq(3), function(i){
+#   res = array(data = 0, dim = c(10, 3, 100))
+#   res[,1,] = rnorm(length(res[,1,]))
+#   res
+# })
+#Bidart::plot_beta(beta_arrays, seq(100), starting_proportion = .5, varname = "tatato", var_names = c(1, 2))
+
+
+#' Represents the samples and the Gelman-Rubin-Brooks diagnostics.
+#' The proportion of iterations used for the plotting and the proportion of the burn-in are adjustable. They multiply. 
+#' Note that GRB curves are given in order to avoid spurious green lights. 
+#' @param mcmc_nngp_list a mcmc_nngp_list created using mcmc_nngp_isitialize and run using mcmc_nngp_run
+#' @param burn_in between 0.01 and .99, the proportion of samples discarded for the burn-in
+#' @param starting_proportion between 0.01 and .99, the proportion of iterations that is used
 #' @export
-diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, plot_PSRF_actual_parameters = F, burn_in = .5, starting_proportion = .5)
+diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, burn_in = .5, starting_proportion = .5)
 {
   records_names = names(mcmc_nngp_list$records$chain_1)
   if(!plot_PSRF_fields)records_names = records_names[-grep("field", records_names)]
@@ -276,13 +318,15 @@ diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, plot_PSRF_actu
   scale_names = records_names[grep("scale", records_names)]
   records_names = setdiff(records_names, scale_names)
   response_names = records_names
-  for(i in list(range_names, noise_names, scale_names, response_names))
-  {
-    par(mfrow = c(1, 1))
-    for(j in i)
+  if(length(mcmc_nngp_list$records)>1){
+    for(i in list(range_names, noise_names, scale_names, response_names))
     {
-      PSRF = grb_diags_field(record_arrays = lapply(mcmc_nngp_list$records, function(x)x[[j]]), iterations = mcmc_nngp_list$iterations$thinning, burn_in = burn_in, starting_proportion = starting_proportion)
-      plot_PSRF(PSRF = PSRF, varname = j, individual_varnames = row.names(mcmc_nngp_list$states$chain_1$params[[j]]))
+      par(mfrow = c(1, 1))
+      for(j in i)
+      {
+        PSRF = grb_diags_field(record_arrays = lapply(mcmc_nngp_list$records, function(x)x[[j]]), iterations = mcmc_nngp_list$iterations$thinning, burn_in = burn_in, starting_proportion = starting_proportion)
+        plot_PSRF(PSRF = PSRF, varname = j, individual_varnames = row.names(mcmc_nngp_list$states$chain_1$params[[j]]))
+      }
     }
   }
   for(i in list(range_names, noise_names, scale_names))
@@ -293,4 +337,32 @@ diagnostic_plots = function(mcmc_nngp_list, plot_PSRF_fields = F, plot_PSRF_actu
     if(length(grep("log_scale", i))>0)plot_log_scale(log_scale_arrays = lapply(mcmc_nngp_list$records, function(x)x[[i[grep("log_scale", i)]]]), iterations = mcmc_nngp_list$iterations$thinning, starting_proportion = starting_proportion, varname = i[grep("log_scale", i)])
     plot_beta(beta_arrays = lapply(mcmc_nngp_list$records, function(x)x[[i[grep("beta", i)]]]), iterations = mcmc_nngp_list$iterations$thinning, starting_proportion = starting_proportion, varname = i[grep("beta", i)], var_names = row.names(mcmc_nngp_list$states$chain_1$params[[i[grep("beta", i)]]]))
   }
+}
+
+#' Prints the Effective Sample Size of a MCMC run.
+#' The proportion of the burn-in is adjustable. 
+#' @param mcmc_nngp_list a mcmc_nngp_list created and run by the package
+#' @param burn_in between 0.01 and .99, the proportion of samples discarded for the burn-in
+#' @export
+ESS = function(mcmc_nngp_list, burn_in = .5){
+  iterations = mcmc_nngp_list$iterations
+  iter_start_idx = match(TRUE, iterations$thinning>(iterations$checkpoints[nrow(iterations$checkpoints), 1]*burn_in))
+  varnames = c("range_beta", "scale_beta", "noise_beta", "beta")
+  if("range_log_scale"%in%names(mcmc_nngp_list$records$chain_1))varnames = c(varnames, "range_log_scale")
+  if("noise_log_scale"%in%names(mcmc_nngp_list$records$chain_1))varnames = c(varnames, "noise_log_scale")
+  if("scale_log_scale"%in%names(mcmc_nngp_list$records$chain_1))varnames = c(varnames, "scale_log_scale")
+  ESSs = lapply(
+    varnames, 
+    function(name){
+      res = as.matrix(Reduce("+", 
+                   lapply(mcmc_nngp_list$records, 
+                   function(record)apply(record[[name]][,,-seq(iter_start_idx),drop=F], c(1,2), function(x)coda::effectiveSize(c(x)))
+                     )
+      ))
+      row.names(res) = row.names(mcmc_nngp_list$states$chain_1$params[[name]])
+      res
+    }
+  )
+  names(ESSs) = varnames
+  ESSs
 }

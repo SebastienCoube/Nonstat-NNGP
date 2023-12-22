@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcmc_nngp_predict_nonstationary.R
 \name{predict_latent_field}
 \alias{predict_latent_field}
-\title{# Actually predicts more than the latent field}
+\title{Predicts the latent field at unobserved locations}
 \usage{
 predict_latent_field(
   mcmc_nngp_list,
@@ -10,11 +10,26 @@ predict_latent_field(
   X_range_pred = NULL,
   X_scale_pred = NULL,
   burn_in = 0.5,
-  n_cores = 1,
-  predict_range = F,
-  predict_scale = F
+  num_threads_per_chain = 1,
+  lib.loc = NULL,
+  parallel = T
 )
 }
+\arguments{
+\item{mcmc_nngp_list}{A mcmc_nngp_list object generated using mcmc_nngp_initialize and ran using mcmc_nngp_run}
+
+\item{predicted_locs}{A set of predicted locations disjunct from the locations of mcmc_nngp_list}
+
+\item{X_range_pred}{Covariates for the range observed at predicted_locs}
+
+\item{X_scale_pred}{Covariates for the marginal variance observed at predicted_locs}
+
+\item{burn_in}{MCMC burn-in}
+
+\item{num_threads_per_chain}{Number of OMP threads for the predictions}
+
+\item{lib.loc}{Location of libraries if installed in manually specified folder}
+}
 \description{
-# Actually predicts more than the latent field
+Predicts the latent field at unobserved locations
 }

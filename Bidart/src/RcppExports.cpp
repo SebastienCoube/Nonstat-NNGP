@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // nonstat_vecchia_Linv
-Rcpp::List nonstat_vecchia_Linv(arma::mat log_range, std::string covfun_name, bool sphere, arma::mat locs, arma::mat NNarray, bool compute_derivative, double nu);
-RcppExport SEXP _Bidart_nonstat_vecchia_Linv(SEXP log_rangeSEXP, SEXP covfun_nameSEXP, SEXP sphereSEXP, SEXP locsSEXP, SEXP NNarraySEXP, SEXP compute_derivativeSEXP, SEXP nuSEXP) {
+Rcpp::List nonstat_vecchia_Linv(arma::mat log_range, std::string covfun_name, bool sphere, arma::mat locs, arma::mat NNarray, int num_threads, bool compute_derivative);
+RcppExport SEXP _Bidart_nonstat_vecchia_Linv(SEXP log_rangeSEXP, SEXP covfun_nameSEXP, SEXP sphereSEXP, SEXP locsSEXP, SEXP NNarraySEXP, SEXP num_threadsSEXP, SEXP compute_derivativeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,9 +22,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type sphere(sphereSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type NNarray(NNarraySEXP);
+    Rcpp::traits::input_parameter< int >::type num_threads(num_threadsSEXP);
     Rcpp::traits::input_parameter< bool >::type compute_derivative(compute_derivativeSEXP);
-    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
-    rcpp_result_gen = Rcpp::wrap(nonstat_vecchia_Linv(log_range, covfun_name, sphere, locs, NNarray, compute_derivative, nu));
+    rcpp_result_gen = Rcpp::wrap(nonstat_vecchia_Linv(log_range, covfun_name, sphere, locs, NNarray, num_threads, compute_derivative));
     return rcpp_result_gen;
 END_RCPP
 }
