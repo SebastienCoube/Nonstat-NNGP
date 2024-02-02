@@ -23,6 +23,18 @@ run_name = run_names[1]
 mcmc_nngp_list = readRDS(paste("res/", run_name, sep=""))
 print(run_name)
 
+# plotting range log scale
+pdf("range_var.pdf")
+Bidart::plot_log_scale(
+  log_scale_arrays = list(
+     mcmc_nngp_list$records$chain_1$range_log_scale, 
+     mcmc_nngp_list$records$chain_2$range_log_scale
+     ), 
+  iterations = mcmc_nngp_list$iterations$thinning, 
+  starting_proportion = .5, varname = "Variance matrix of the range PP"
+)
+dev.off()
+
 ###############
 # Predictions #
 ###############
@@ -138,7 +150,7 @@ pdf("ellipses.pdf")
 Bidart::plot_pointillist_painting(
   rbind(mcmc_nngp_list$data$locs, predicted_locs),
   c(estimated_parameters$summaries$field["mean",,], preds_field$summaries$field["mean",,]), 
-  cex = .1
+  cex = .2
 )
 
 locs_4_ellipses = as.matrix(expand.grid(seq(.02, 1.08, .05), seq(.02, 1.08, .05)))

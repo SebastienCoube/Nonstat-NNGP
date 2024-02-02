@@ -98,17 +98,17 @@ gridmaps[[paste("field_ns_sd")]][non_na_indices] = prediction_ns$summaries[["fie
 
 # plotting mean
 pdf("Heavy_metals/field_mean.pdf", width = 13, height = 4)
-zlim = c(-2, 4)
+zlim = c(min(gridmaps$field_ns_mean, gridmaps$field_stat_mean, na.rm = T), max(gridmaps$field_ns_mean, gridmaps$field_stat_mean, na.rm = T))
 layout(matrix(1:3, 1, 3), widths = c(5,5,1))
 sp::plot(gridmaps["field_ns_mean"], what = "image", zlim = zlim, main = "nonstationary" )
 sp::plot(usa_aea, add = T)
-sp::plot(gridmaps["field_stat"], what = "image", zlim = zlim, main = "stationary" )
+sp::plot(gridmaps["field_stat_mean"], what = "image", zlim = zlim, main = "stationary" )
 sp::plot(usa_aea, add = T)
-sp::plot(gridmaps["field_stat"], what = "scale", zlim = zlim )
+sp::plot(gridmaps["field_stat_mean"], what = "scale", zlim = zlim )
 dev.off()
 # plotting mean
-zlim = c(-2, 4)
 layout(matrix(1:3, 1, 3), widths = c(5,5,1))
+zlim = c(min(gridmaps$field_ns_mean, gridmaps$field_stat_mean, na.rm = T), max(gridmaps$field_ns_mean, gridmaps$field_stat_mean, na.rm = T))
 pdf("Heavy_metals/field_mean_ns.pdf", width = 5, height = 5)
 sp::plot(gridmaps["field_ns_mean"], what = "image", zlim = zlim, main = "nonstationary" )
 sp::plot(usa_aea, add = T)
@@ -118,13 +118,13 @@ sp::plot(gridmaps["field_stat_mean"], what = "image", zlim = zlim, main = "stati
 sp::plot(usa_aea, add = T)
 dev.off()
 pdf("Heavy_metals/field_mean_scale.pdf", width = 2, height = 5)
-sp::plot(gridmaps["field_stat"], what = "scale", zlim = zlim )
+sp::plot(gridmaps["field_stat_mean"], what = "scale", zlim = zlim )
 dev.off()
 
 
 # plotting sd
 pdf("Heavy_metals/field_sd.pdf", width = 13, height = 4)
-zlim = c(0, 1.15)
+zlim = c(min(gridmaps$field_ns_sd, gridmaps$field_stat_sd, na.rm = T), max(gridmaps$field_ns_sd, gridmaps$field_stat_sd, na.rm = T))
 layout(matrix(1:3, 1, 3), widths = c(5,5,1), heights = c(5,5,5))
 sp::plot(gridmaps["field_ns_sd"], what = "image", zlim = zlim, main = "nonstationary" )
 sp::plot(usa_aea, add = T)
