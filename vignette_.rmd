@@ -128,7 +128,7 @@ Later we say a word about [smoothness](#smoothness) of the latent process, which
 
 ## The Russian Doll range model. {#range_model}
 
-This subsection treats how the possibly **nonstationary correlation** is modeled.
+This subsection treats how the possibly **nonstationary correlation** is modeled. This is the biggest lump. 
 Correlation is specified through the **range parameter(s)**, even though a nonstarionary smoothness is possible.
 Our range model is **organized like Russian dolls**.
 The simplest model is the **stationary** model.
@@ -136,17 +136,25 @@ This model is encompassed into the **locally isotropic** model, *isotropic* mean
 This model behaves like a stationary isotropic model if you zoom up a small region, but its behavior changes if you take a bigger picture.
 This model is itself embedded into the **locally anisotropic** model, that is a model where not only the process correlation range is susceptible to change, but also where the **correlation changes with the orientation**.
 
+```{r,fig.width = 3, fig.height=3, echo=FALSE}
+img = (png::readPNG("dolls.png"))
+plot(1,1)
+grid::grid.raster(img)
+```
+
+
 ### The logarithmic parametrization of the range. {#log_range}
 
-In both case, a **logarithmic parametrization** (or matrix-logarithmic parametrization in the case of range ellipses) is used: $$log(\alpha) = X_\alpha\beta_\alpha$$ in the scalar case, $\alpha$ being the range parameter, and $$vech(logM(A)) = X_A\beta_A$$ in the matrix case, $A$ being the (matrix) range parameter, $vech$ being the [half-vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)#Half-vectorization) and $logM$ being the [matrix logarithm](https://en.wikipedia.org/wiki/Logarithm_of_a_matrix).
-Here, $\beta_A$ is a **matrix with** $3$ columns.\
-In the parametrization of our model, the **first column** changes the **range of the process**, while the second and third columns change the **orientation of the correlation**.
+This subsection tells how the range is parametrized and gives some explanations about matrix logarithm. Intuitions about how those parametrizations impact the model come in the next sections. 
+
+In both case, a **logarithmic parametrization** (or matrix-logarithmic parametrization in the case of range ellipses) is used: $$log(\alpha(s)) = x_\alpha(s)\beta_\alpha$$ in the scalar case, $\alpha$ being the range parameter. This is the middle doll. We use $$vech(logM(A(s))) = x_A(s)\beta_A$$ in the matrix case, $A$ being the (matrix) range parameter, $vech$ being the [half-vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)#Half-vectorization) and $logM$ being the [matrix logarithm](https://en.wikipedia.org/wiki/Logarithm_of_a_matrix).
+Here, $\beta_A$ is a **matrix with** $3$ columns. This is the left-hand doll. 
+Note that the range parameters $\alpha(s)$ or $A(s)$ are **local**, they depend on the **spatial site $s$**. Therefore, they enforce a **local behavior of the Gaussian process** w(s). 
 
 We chose this parametrization because **spatial ranges are essentially sizes**, making the logarithm a [relevant tool](https://en.wikipedia.org/wiki/Positive_real_numbers#Ratio_scale).
 The matrix logarithm, in turn, generalizes the properties of scalar logarithm to the matrix-valued anisotropic range parameters.
 
-Matrix logarithm, unlike scalar logarithm, is not a familiar thing for everybody.
-Let's focus on a restricted case of use for the model: the matrix logarithm of **symmetric matrices**.
+Note that $A(s)$ is parametrized using **matrix logarithm**. What does it imply ? 
 A symmetric matrix $A$ of size $2\times 2$ has an [**eigendecomposition**](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix) of the shape $$A = U~diag(\lambda_1, \lambda_2) U^T, \text{ with } U^T U = U U^T = diag(1,1). $$ The [**matrix exponential**](https://en.wikipedia.org/wiki/Matrix_exponential) of $A$ is just $$exp(A) = U~diag(exp(\lambda_1), exp(\lambda_2)) U^T. $$ Note that $exp(\lambda_1)$ and $exp(\lambda_2)$ are greater than $0$, making $exp(A)$ [**positive-definite**](https://en.wikipedia.org/wiki/Definite_matrix).
 The matrix exponential **maps the symmetric matrices to the positive-definite matrices**, just like the scalar exponential maps the real numbers to the positive nubers.
 Positive-definite matrices define [**ellipses**](https://en.wikipedia.org/wiki/Ellipse) on the plane using the modified circle equation $(x, y)A^{-1}(x, y)=1$, $x$ and $y$ being the two coordinates on the plane (The usual circle equation is $x^2 + y^2 = 1$, that is $A = diag(1,1)$).\
@@ -238,7 +246,7 @@ This means that the other two parameters will **not change the overall correlati
 As a conclusion, we need only **three components** to specify **any range ellipse**.
 The first component controls the correlation **range**, while the other two control the correlation **shape**.
 If all the components are constant, we get a [**stationary**](#stat_correlation) correlation model.
-If only the first component is allowed to move, we get a [**nonstationary, locally isotropic**](#locally_iso) model.
+If only the first component is allowed to move and the two other are set to $0$, we get a [**nonstationary, locally isotropic**](#locally_iso) model.
 If everybody is allowed to move, we have a [**nonstationary, locally anisotropic**](#locally_aniso) model.
 
 ### The stationary model. {#stat_correlation}
