@@ -2,7 +2,7 @@
 
 This repository contains the implementation of nonstationary NNGPs from Coube-Sisqueille, Banerjee, and Liquet. It features : 
 
-* A **VIGNETTE** which you must **download** and **open from your laptop** because it is too big for Github's preview. To do this, **right-click [here](](https://raw.githubusercontent.com/SebastienCoube/Nonstat-NNGP/master/vignette_.html)** and select **save link as**. 
+* A **VIGNETTE** which you must **download** and **open from your laptop** because it is too big for Github's preview. To do this, **right-click [here](https://raw.githubusercontent.com/SebastienCoube/Nonstat-NNGP/master/vignette_.html)** and select **save link as...** . 
 * The source code of the package **Bidart** for nonstationary NNGPs.
 * The compressed package for installation.
 * Scripts to analyze a lead contamination data set and the required data in the folder **Heavy_metals**.
