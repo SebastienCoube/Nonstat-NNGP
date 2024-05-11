@@ -30,7 +30,9 @@ Rcpp::List nonstat_vecchia_Linv(
     arma::mat NNarray, 
     int num_threads,
     bool compute_derivative){
+#if _OPENMP
   omp_set_num_threads(num_threads);
+#endif
   // data dimensions
   int n = locs.n_rows;
   int m = NNarray.n_cols;
