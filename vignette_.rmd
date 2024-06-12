@@ -26,7 +26,7 @@ text-align: justify}
 
 ## Who, Where, When ?
 
-This vignette is an illustration of *Nonstationary Spatial Process Models with Spatially Varying Covariance Kernels*, a paper by XXXX, XXXX, and XXXX.
+This vignette is an illustration of *Nonstationary Spatial Process Models with Spatially Varying Covariance Kernels*, a paper by Sébastien Coube-Sisqueille, Sudipto Banerjee, and Benoît Liquet.
 
 ## Whom, Why ?
 
@@ -202,7 +202,7 @@ print(list(e1 = e1, e2 = e2, e3 = e3))
 
 Then, we plot the ellipse associated with a symmetric matrix built using the basis.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 M1 = -3*e1 + 2*e2 -1*e3 # symmetric matrix
 exp_M1 = expm::expm(M1) # exponential
 ell = ellipse::ellipse(exp_M1) # ellipse
@@ -212,7 +212,7 @@ plot(ell, type = 'l', main = "ellipse generated from coordinates (-3,2,-1)")
 Good.
 Now, let's **change only the first coefficient** of the basis, and leave the other alone.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 M1 = -3*e1 + 2*e2 -1*e3
 M2 = M1 +1*e1
 M3 = M1 -1*e1
@@ -229,7 +229,7 @@ But **the direction and shape of the range will not change** !
 
 Now, we change the **two other coefficients**:
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 M1 = -3*e1 + 2*e2 -1*e3
 M2 = M1 +1*e2
 M3 = M1 +1*e3
@@ -1186,7 +1186,7 @@ par(mfrow=  c(1,1))
 We now create a **nonstationary noise**, depending on an **PP** and **covariates as well**, including the **intercept**.
 Note that here, **the covariates do not need to be spatially smooth**.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 true_noise_beta = c(1,1,.2)
 noise_var = 
   PP_noise + cbind(1, as.matrix(X)) %*% true_noise_beta
@@ -1199,7 +1199,7 @@ Bidart::plot_pointillist_painting(locs, noise_var, main = "log noise variance")
 Eventually, we can [**combine**](#what) all those components to get an **observed signal**.
 Note that we have regression coefficients for the **fixed effects** as well.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 # regression coefficients for the fixed effects
 fixed_beta = c(1,5,3)
 
@@ -1606,7 +1606,7 @@ Let's **simulate an anisotropic latent field**, using the same spatial locations
 We have 50 PPs, and we also need an intercept.
 *range_beta* is therefore a $50\times 3$ matrix.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 range_beta = rbind(
   c(-1, 0, 0), # intercept
   matrix(.5*rnorm(150), 50)
@@ -1640,7 +1640,7 @@ aniso_observed_field = aniso_latent_field + .8*rnorm(10000)
 Let's have a look at this latent field.
 We can see the anisotropy indeed.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 Bidart::plot_pointillist_painting(locs[seq(10000),], aniso_latent_field, cex = 1)
 ```
 
@@ -1706,7 +1706,7 @@ Its arguments are:
 
 Here is an example:
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 estimation = Bidart::estimate_parameters(
   mcmc_nngp_list = mcmc_nngp_list, 
   burn_in = .5, 
@@ -1723,7 +1723,7 @@ The depth is usually one, except in the case of **anisotropic range**, where the
 Here is a little example.
 Let's visualize the standard deviation of the latent field at the observed locations, for the heteroskedastic model we set up and ran in the [previous section](#running).
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 Bidart::plot_pointillist_painting(
   mcmc_nngp_list$data$locs, 
   estimation$summaries$field["sd",,], 
@@ -1740,7 +1740,7 @@ I have 200 MCMC samples of the noise variance parameter with one intercept, 10 c
 The sample will have dimension $31\times 1 \times 200$.
 Let's, for example, plot samples of the latent field variance intercept against those of the range intercept.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
   plot(
     estimation$samples$scale_beta[1,1,], 
     estimation$samples$range_beta[1,1,], 
@@ -1768,7 +1768,7 @@ Aside of *mcmc_nngp_list*, its arguments are:
 
 Let's predict the latent field on the test locations.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 predicted_locs = locs[-seq(10000),]
 prediction_field = Bidart::predict_latent_field(
   mcmc_nngp_list = mcmc_nngp_list, 
@@ -1788,7 +1788,7 @@ The outputs are:
 
 Let's plot a prediction of the latent field 97.5% quantile.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 Bidart::plot_pointillist_painting(
   locs = prediction_field$predicted_locs_unique, 
   field = prediction_field$summaries$field["q0.975",,1], 
@@ -1799,7 +1799,7 @@ Bidart::plot_pointillist_painting(
 
 Let's now represent the **mean predicted log variance of the latent field** (a little subtelty here is that the summaries are indexed with respect to the input locations for the range and scale, but with respect to the *predicted_locs_unique* output for the latent field).
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 Bidart::plot_pointillist_painting(
   locs = locs[-seq(10000),], 
   field = prediction_field$summaries$log_scale["mean",,1], 
@@ -1819,7 +1819,7 @@ There are however additional subtle yet important **differences** with respect t
 
 Let's predict the noise on **all locations**.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 prediction_noise = Bidart::predict_noise(
   mcmc_nngp_list = mcmc_nngp_list, 
   predicted_locs = locs, # NB !
@@ -1831,7 +1831,7 @@ prediction_noise = Bidart::predict_noise(
 We obtain a *list* containig two *arrays*, one of *summaries*, another of *samples*, and a *matrix* of predicted spatial coordinates.
 Let's visualize the **mean log-noise variance at the test locations**.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 Bidart::plot_pointillist_painting(
   locs = prediction_noise$predicted_locs[-seq(10000),], # removing the train locations
   field = prediction_noise$summaries["mean",-seq(10000),1], 
@@ -1849,7 +1849,7 @@ Like in the [noise prediction](#pred_noise), of course, it is possible to predic
 
 Let's do that: predicting the fixed effects at **both the train and test locations**.
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 5, fig.height=5}
 prediction_fixed = Bidart::predict_fixed_effects(
   mcmc_nngp_list = mcmc_nngp_list, 
   X_pred = X,
@@ -1872,7 +1872,7 @@ It is, however, known to be prone to selecting **overfit models**.
 
 It is computed as follows:
 
-```{r,fig.width = 9, fig.height=5}
+```{r,fig.width = 9, fig.height=9}
 Bidart::DIC(mcmc_nngp_list)
 ```
 
@@ -1992,7 +1992,7 @@ Bidart::plot_ellipses(
 The one on the left is a pointillist painting of a sample of the PP, with the knots coordinates added as black crosses.
 The one on the right is a full NNGP.
 
-```{r,fig.width = 9, fig.height=9}
+```{r,fig.width = 9, fig.height=5}
 Bidart::compare_PP_NNGP(
   PP
 )
