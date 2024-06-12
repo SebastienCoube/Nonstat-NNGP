@@ -1,0 +1,106 @@
+# Connect
+
+P4sswordUCLAtatato!!
+ssh sebcs@hoffman2.idre.ucla.edu
+
+
+# install the packages
+
+qrsh -l h_rt=4:00:00,h_data=1G -pe shared 12
+module load gcc/10.2.0
+module load R/4.4.0
+module load gdal/3.1.3 
+module load geos/3.11.1
+module load sqlite/3.33.0
+module load proj/7.1.1 
+cd project-biostat-chair/
+Rscript install.packages.R
+ 
+# rsync heterosk
+cd Documents/Nonstat-NNGP/UCLA/heterosk/
+rsync -r --progress benchmark_heterosk_Hoffman.R   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/heterosk/
+
+rsync -r --progress   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/heterosk/  heterosk/
+
+
+# rsync range
+cd Documents/Nonstat-NNGP/UCLA/range/
+rsync -r --progress benchmark_range_Hoffman.R sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/range/
+
+rsync -r --progress   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/range/ range/
+
+# rsync Bidart
+cd Documents/Nonstat-NNGP/
+rsync -r --progress Bidart_1.1.tar.gz   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/
+
+ 
+ 
+# submit 1 batch job
+qsub -l h_rt=24:00:00,h_data=1G -pe shared 12 -cwd -e error.txt -o output.txt  Rscript.sh 
+
+# list processes
+qstat -u sebcs
+# delete all processes
+qdel -u sebcs 
+ 
+
+# delete stuff
+ls | grep RDS | xargs rm
+ls | grep txt | xargs rm
+ls | grep pdf | xargs rm
+
+# launch experiments het
+for i in $(seq 1 50);
+do
+    qsub -l h_rt=24:00:00,h_data=1G -pe shared 12 -cwd -e error$i.txt -o output$i.txt  Rscript_h.sh 
+    sleep 10s
+done
+
+# delete stuff
+ls | grep RDS | xargs rm
+ls | grep txt | xargs rm
+ls | grep pdf | xargs rm
+# launch experiments range
+for i in $(seq 1 50);
+do
+    qsub -l h_rt=24:00:00,h_data=1G -pe shared 12 -cwd -e error$i.txt -o output$i.txt  Rscript_r.sh 
+    sleep 10s
+done
+
+
+
+
+
+# rsync NDVI
+cd Documents/Nonstat-NNGP/NDVI_r2/
+
+# NNGP run
+rsync -r --progress run.R   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/NDVI/
+qsub -l h_rt=36:00:00,h_data=1G,highp -pe shared 30 -cwd -e error$i.txt -o output$i.txt  Rscript_NDVI.sh 
+
+# rsync everything from Hoffman2
+rsync -r --progress sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/NDVI/ res/
+
+# INLA nonstat noise
+rsync -r --progress inla_nonstat_noise_new.R   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/NDVI/
+rm outputINLA_noise.txt
+rm errorINLA_noise.txt
+qsub -l h_rt=24:00:00,h_data=3G -pe shared 12 -cwd -e errorINLA_noise.txt -o outputINLA_noise.txt  Rscript_NDVI_INLA_noise.sh
+qsub -l h_rt=36:00:00,h_data=7G,highp -pe shared 30 -cwd -e errorINLA_noise.txt -o outputINLA_noise.txt  Rscript_NDVI_INLA_noise.sh
+vi outputINLA_noise.txt
+vi errorINLA_noise.txt
+
+# INLA nonstat both
+rsync -r --progress inla_noise_range.R   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/NDVI/
+rm outputINLA_noise_range.txt
+rm errorINLA_noise_range.txt
+qsub -l h_rt=24:00:00,h_data=3G -pe shared 12 -cwd -e errorINLA_noise_range.txt -o outputINLA_noise_range.txt  Rscript_NDVI_INLA_noise_range.sh
+qsub -l h_rt=36:00:00,h_data=4G,highp -pe shared 30 -cwd -e errorINLA_noise_range.txt -o outputINLA_noise_range.txt  Rscript_NDVI_INLA_noise_range.sh
+vi outputINLA_noise_range.txt
+vi errorINLA_noise_txt.range
+
+
+# Local GPs
+rsync -r --progress local_GPs.R   sebcs@hoffman2.idre.ucla.edu://u/home/s/sebcs/project-biostat-chair/NDVI/
+qsub -l h_rt=24:00:00,h_data=2G,highp -pe shared 30 -cwd -e errorlocal_GPs.txt -o outputlocal_GPs.txt  Rscript_local_GPs.sh
+
