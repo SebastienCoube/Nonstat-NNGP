@@ -20,14 +20,14 @@ train_data_set = readRDS("Heavy_metals/validation_train.RDS")
 # DIC #
 #######
 
-DICs = lapply(runs, Bidart::DIC, burn_in = .15)
+DICs = lapply(runs, Bidart::DIC, burn_in = .25)
 
 ##################################
 # Smoothing (observed locations) #
 ###################################
 
 # estimate the parameters (in particular the latent field at the observed locations)
-params_estimation = lapply(runs, Bidart::estimate_parameters, get_samples = T, burn_in = .15)
+params_estimation = lapply(runs, Bidart::estimate_parameters, get_samples = T, burn_in = .25)
 gc()
 # predict the fixed effects at observed locations
 fixed_effects_smooth = lapply(
@@ -35,7 +35,7 @@ fixed_effects_smooth = lapply(
   function(x)Bidart::predict_fixed_effects(
     mcmc_nngp_list = x, # MCMC samples
     X_pred = x$data$covariates$X$arg, # covariates used for prediction, here observe covariates
-    burn_in = .15
+    burn_in = .25
   )
 )
                               
@@ -48,7 +48,7 @@ noise_smooth = lapply(
     mcmc_nngp_list = x, 
     X_noise_pred = x$data$covariates$noise_X$arg, 
     predicted_locs = x$data$observed_locs,
-    burn_in = .15
+    burn_in = .25
     )
 )
 gc()
@@ -87,7 +87,7 @@ latent_field_preds =
         num_threads_per_chain = 10, parallel = T,
         X_range_pred = X_range_pred,
         X_scale_pred = X_scale_pred,
-        burn_in = .15
+        burn_in = .25
       )
     })
 
@@ -100,7 +100,7 @@ fixed_effects_pred =
     function(x)Bidart::predict_fixed_effects(
       mcmc_nngp_list = x, 
       X_pred = test_data_set$test_X, 
-      burn_in = .15
+      burn_in = .25
     ))
 gc()
 
@@ -115,7 +115,7 @@ noise_pred = lapply(runs,
                         mcmc_nngp_list = x, # MCMC samples
                         predicted_locs = test_data_set$test_locs,
                         X_noise_pred = X_noise_pred, # covariates used for prediction, here observed covariates
-                        burn_in = .15
+                        burn_in = .25
                       )
                     })
 gc()
@@ -138,10 +138,11 @@ res = cbind(
   DIC = round(unlist(DICs)),
   time= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 2]))),
   n.iter= unname(sapply(runs, function(x)round(x$iterations$checkpoints[nrow(x$iterations$checkpoints), 1]))), 
-  "min ESS"= round(unname(sapply(runs, function(x)min(unlist(Bidart::ESS(x, .15)))))),
+  "min ESS"= round(unname(sapply(runs, function(x)min(unlist(Bidart::ESS(x, .25)))))),
   "nonstat noise"= sapply(runs, function(x)x$hierarchical$noise_PP),
   "nonstat scale"= sapply(runs, function(x)x$hierarchical$scale_PP)
 )
 saveRDS(
 res, "Heavy_metals/NNGP.RDS"
 )
+

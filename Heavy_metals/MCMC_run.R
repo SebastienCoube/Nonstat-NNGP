@@ -51,7 +51,7 @@ for(scale_nonstat in c(TRUE, FALSE)){
    scale_PP = scale_nonstat, scale_X = scale_X, scale_log_scale_prior = c(-10, 10),
  ) 
  for(iter in seq(20))mcmc_nngp_list = Bidart::mcmc_nngp_run_nonstationary_socket(
-   mcmc_nngp_list, seed = 2, n_cores = 4, num_threads_per_chain = 10
+   mcmc_nngp_list, seed = 2, n_cores = 2, num_threads_per_chain = 10
  )
  saveRDS(mcmc_nngp_list, paste("Heavy_metals/run_noise", noise_nonstat, "scale", scale_nonstat, ".RDS", sep ="_"))
 }
