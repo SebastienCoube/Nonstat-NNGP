@@ -474,11 +474,11 @@ samples = get_samples(
   )
 par(mfrow = c(1,3))
 Bidart::plot_pointillist_painting(locs, samples$stat_sample, main = "stationary")
-Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$iso_sample, main = "locally isotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$aniso_sample, main = "locally anisotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .5)
 ```
 
 We can see that **the three samples are the same**.
@@ -502,11 +502,11 @@ samples = get_samples(
   )
 par(mfrow = c(1,3))
 Bidart::plot_pointillist_painting(locs, samples$stat_sample, main = "stationary")
-Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$iso_sample, main = "locally isotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$aniso_sample, main = "locally anisotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .5)
 ```
 
 We can see that the spatial range now depends on the location.
@@ -540,11 +540,11 @@ samples = get_samples(
   )
 par(mfrow = c(1,3))
 Bidart::plot_pointillist_painting(locs, samples$stat_sample, main = "stationary")
-Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = matrix(-3.5, nrow(locs), 1), add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$iso_sample, main = "locally isotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%iso_range_beta, add = T, shrink = .5)
 Bidart::plot_pointillist_painting(locs, samples$aniso_sample, main = "locally anisotropic")
-Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .02)
+Bidart::plot_ellipses(locs[seq(100),], log_range = cbind(1, locs)%*%aniso_range_beta, add = T, shrink = .5)
 ```
 
 We can see that, the **anisotropy** (specifically, the Matrix logarithm of the range ellipse) **depends linearly on the spatial coordinates**.
@@ -996,7 +996,7 @@ Sigma_PP_demo = function(Sigma_PP, sample_num){
     triangular = T
   ) %>% Matrix::solve(seed_vec) %>% as.vector()
   Bidart::plot_pointillist_painting(locs, aniso_sample, cex = .5, main = paste("latent fiend and ellipses, sample", sample_num))
-  Bidart::plot_ellipses(locs[seq(200),], cbind(1, PP[seq(200),]) %*% rbind(c(-3,0,0), PP_beta), add = T, shrink = .05)
+  Bidart::plot_ellipses(locs[seq(200),], cbind(1, PP[seq(200),]) %*% rbind(c(-3,0,0), PP_beta), add = T, shrink = .5)
 }
 ```
 
@@ -1878,36 +1878,17 @@ Bidart::DIC(mcmc_nngp_list)
 
 ### Log-score at observed locations. {#log_dens_train}
 
-#### A glorified Mean Squared Error.
+The log-score is the **empirical log predictive pointwise density (elpd)**, and is written as
 
-The log-score is the **log-density of the observations knowing the model**, and is written as
-
-$$ \int log(p(y_{obs}|w, \beta, \tau)) p(w, \beta, \tau|y_{obs})d(w, \beta, \tau),$$ $y_{obs}$ being the observations, $w$ being the latent field, $\beta$ the regression coefficients, and $\tau$ the noise standard deviation.
-$log(p(y_{obs}|w, \beta, \tau))$ tells how well a combination of parameters $(w, \beta, \tau)$ explains the observations $y_{obs}$.
-$p(w, \beta, \tau|y_{obs})$ is the *a posteriori* distribution of the parameters.
-The above integral means "in average, does the *a posteriori* distributions of the parameters explain well the observed data ?".
-Since we are measuring how well the model explains the data, **the bigger the log-density, the better**.
-
-In the **Gaussian noise** model, $p(y_{obs}|w, \beta, \tau)$ can be written as $$\Pi_{i\in obs}exp((y_i-w_i-X_i\beta)^2/\tau_i^2)/(\sqrt{2\pi}\tau_i)$$ After passing to the log and dividing by the number of observations $n$, we obtain\
-$$\frac{1}{n}\Sigma_{i\in obs}(y_i-w_i-X_i\beta)^2/\tau_i^2 - log(\sqrt{2\pi}) -log(\tau_i)$$
-
-this criterion can be connected with the so-called **[Mean Squared Error](<https://en.wikipedia.org/wiki/Mean_squared_error>**, who writes $\frac{1}{n}\Sigma_{i\in obs}(y_i-w_i-X_i\beta)^2$, with the addition of some heteroskedasticity and spatial effects.
-The advantage with respect to the MSE is that this method takes into account the **incertitude of the distribution**.
-The MSE be happy when square be small, and be angry when square be big; on the other hand, the log-score and its noise penalty **penalize both wrong and confident, and correct but hesitant predictions**, while it is softer on wrong and hesitant predictions and, of course, happiest with correct and confident predictions.
+$$ log(p(y_{obs}| y_{obs}, model)),$$ $y_{obs}$ being the observations of the interest variables. This tells us how well the data is fit using the chosen model. 
 Like criteria based on observations, it is prone to **over-fitting**.
-
 This over-fitting may of course be due to the addition of **too many covariates**.
 However, with nonstationary spatial modeling, there are other traps.
 The first is [**too complex model specification of the spatial effects**](#identification).
 The second is that a **low [smoothness](#smoothness)** may cause the latent field to adjust better the observed locations, but deteriorate the prediction of locations that are not observed.
 
 #### Implementation
-
-In the above formula, we have an integral, so we will need **MCMC samples**.
-One may ask: "Cannot we just plug summaries in ?", but the answer is "No".
-The parameters of the model are correlated, and summaries eliminate the correlation.
-For this reason, the *burn_in* parameters of the predictions must be the same in order to guarantee that the samples are well-aligned.
-Those samples are obtained through three functions:
+The above density is computed using MCMC samples:
 
 -   *predict_fixed_effects* gives samples of the **fixed effects**, called *fixed_effects_samples*.
 -   *estimate_parameters* gives samples of the **latent field**, called *latent_field_samples*.
@@ -1994,14 +1975,14 @@ Bidart::plot_pointillist_painting(locs[seq(10000),], latent_field, cex = 1)
 *plot_ellipses* takes as arguments a *matrix* of spatial coordinates called *locs* and a *vector* or a *matrix* of log-matrix values observed at those coordinates called *log_range*.
 The log-matrices are then passed to the matrix exponential to obtain the ellipses.
 Optionally, it admits a *character* called *main* working like in *plot*.
-It also has an option *shrink* working like *cex* in *plot*
+It also has an option *shrink* working like *cex* in *plot*. If *shrink* $=\sqrt{8\nu}$, the ellipse goes as far as the place where **correlation drops to 0.1**.
 
 ```{r,fig.width = 9, fig.height=9}
 Bidart::plot_ellipses(
   locs = as.matrix(expand.grid(seq(10), seq(10))), 
   log_range = cbind(1, as.matrix(expand.grid(seq(10), seq(10)))) %*%
     matrix(c(-1, .01,.05, .2, -.1, .1, -.1, .1, .03), 3), 
-  shrink = .05, main = "Some ellipses"
+  shrink = .1, main = "Some ellipses"
 ) 
 ```
 
@@ -2109,13 +2090,18 @@ grid::grid.raster(img)
 
 NDVI data from [Spatial factor modeling: A Bayesian matrix-normal approach for misaligned data](https://arxiv.org/abs/2006.00595) presents interesting anisotropy and heteroskedasticity patterns.
 It features over **one million observations**, but a **coordinate rounding** allowed to use all of the observations while reducing the number of distinct spatial locations to one hundred thousand.
-After a **train-test split** (90% of the observations being used for training, the test observations being selected using a **max-min heuristic**), several models were tested, using several combinations of stationary and nonstationary noise and range.
-The model with nonstationary anisotropic range and nonstationary noise was selected.
+A **train-test split** was done by : 
 
-Let's have a look at the raw data.
+- plucking some observations in a **Leave One Out** scheme.
+- Carving **spatial lumps** out and predicting only their centers. This allows to test **mid-range** prediction. 
+
+Several models were tested, using several combinations of stationary and nonstationary noise and range.
+The model with nonstationary anisotropic range and nonstationary noise was selected.
+ 
+Let's have a look at the raw data with a blue layer to see the gaps.
 
 ```{r,fig.width = 9, fig.height=9, echo=FALSE}
-img = (png::readPNG("NDVI/observed-1.png"))
+img = (png::readPNG("NDVI_r2/maps/observed.png"))
 plot(1,1)
 grid::grid.raster(img)
 title(main = "Observed NDVI")
@@ -2128,7 +2114,7 @@ The anisotropic model allows to retrieve the **range ellipses**.
 We represent them, overlaid on the **smoothed latent field**.
 
 ```{r,fig.width = 9, fig.height=9, echo=FALSE}
-img = (png::readPNG("NDVI/ellipses-1.png"))
+img = (png::readPNG("NDVI_r2/maps/ellipses.png"))
 plot(1,1)
 grid::grid.raster(img)
 title(main = "Smoothed field and range ellipses")
@@ -2142,7 +2128,7 @@ In the troubled region of the left, they are much smaller.
 The **mean predicted noise variance** also has its interest:
 
 ```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI/noise-1.png"))
+img = (png::readPNG("NDVI_r2/maps/noise.png"))
 plot(1,1)
 grid::grid.raster(img)
 title(main = "Log noise variance")
@@ -2153,20 +2139,20 @@ Clearly, the peaceful regions have low noise, while the fuzzy zones have a high 
 There is a strong connection of the noise with the **smoothing and prediction standard deviation**.
 
 ```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI/log_sd-1.png"))
+img = (png::readPNG("NDVI_r2/maps/log_sd.png"))
 plot(1,1)
 grid::grid.raster(img)
 title(main = "Log smoothing and prediction standard deviation")
 ```
 
-The **bright dots** correspond to the **test locations**, who have **higher variance**.
+The **bright dots** correspond to the **test locations** and the **briht gaps** correspond to the **lumps**, who have **higher variance**.
 We can see that the standard deviation **follows the noise variance**.
 The heteroskedastic model allows to **predict confidently where the observations are reliable**, and to **predict cautiously where the observations are fuzzy**.
 
 An interesting point is the interpretation of the [**variance of the PP**](#PP_cov) for the **anisotropic range parameters**. The MCMC samples are presented as curves, as detailed in the [run on simulated data](#aniso_run). Let's have a look at those samples.
 
 ```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI/range_var-1.png"))
+img = (png::readPNG("NDVI_r2/range_var.png"))
 plot(1,1)
 grid::grid.raster(img)
 ```
