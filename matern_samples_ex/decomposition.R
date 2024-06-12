@@ -1,0 +1,16 @@
+locs = cbind(seq(0, 1, .005), 1)
+X = ceiling(10 * locs[,1] + .01) %% 2
+noise = .4 * rnorm(nrow(locs))
+w = GpGp::fast_Gp_sim(c(1, .1, 1, 0), locs= locs)
+
+setwd("matern_samples_ex")
+pdf("GP.pdf")
+plot(locs[,1], 3*X + noise + w, pch = 16, ylab = "z", xlab = "spatial position", cex = 1)
+dev.off()
+pdf("GP_decomposition.pdf")
+plot(locs[,1], 3*X + noise + w, pch = 16, ylab = "",  xlab = "spatial position", type ="n")
+points(locs[,1], 3*X, cex = .5, pch = 16)
+points(locs[,1], w, cex = .5, col=2, pch = 16)
+points(locs[,1], noise, cex = .5, col=4, pch = 16)
+legend("topleft", fill = c(1,2,4), legend = c(expression(paste("X", beta)), "w", expression(epsilon)))
+dev.off()
