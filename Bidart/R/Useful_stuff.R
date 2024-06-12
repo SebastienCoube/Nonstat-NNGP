@@ -1,9 +1,9 @@
 #' @export
 derivative_sandwiches = function(
-  derivatives, 
-  left_vector, 
-  right_vector, 
-  NNarray
+    derivatives, 
+    left_vector, 
+    right_vector, 
+    NNarray
 )
 {
   M = matrix(0, length(left_vector), length(derivatives))
@@ -198,9 +198,9 @@ beta_prior_log_dens = function(beta, n_PP, beta_mean, beta_precision, log_scale)
     return(
       (
         # PP coefficients follow N(0, scale_mat)
-          +.5 * n_PP * determinant(scale_mat, logarithm = T)$mod # determinant is changed by log scale
-          -sum(.5 * (c(t(beta[seq(nrow(beta)-n_PP),, drop = F])-t(beta_mean)) %*% beta_precision) * c(t(beta[seq(nrow(beta)-n_PP),,drop = F])-t(beta_mean)))
-          -sum(.5 * (beta[-seq(nrow(beta)-n_PP),,drop = F] %*% scale_mat) * beta[-seq(nrow(beta)-n_PP),,drop = F])
+        +.5 * n_PP * determinant(scale_mat, logarithm = T)$mod # determinant is changed by log scale
+        -sum(.5 * c(c(t(beta[seq(nrow(beta)-n_PP),, drop = F])-t(beta_mean)) %*% beta_precision) * c(t(beta[seq(nrow(beta)-n_PP),,drop = F])-t(beta_mean)))
+        -sum(.5 * c(beta[-seq(nrow(beta)-n_PP),,drop = F] %*% scale_mat) * beta[-seq(nrow(beta)-n_PP),,drop = F])
       )
     )
   }
@@ -307,19 +307,19 @@ X_PP_crossprod = function(X, PP = NULL, use_PP = F,  Y, locs_idx = NULL)
   if(use_PP)
   {
     res = 
-    rbind(
-      res, 
-      Matrix::solve(
-        Matrix::t(PP$sparse_chol), 
-        rbind(
-          matrix(0, nrow(PP$knots), ncol(Y)), 
-          (
-            Matrix::sparseMatrix(x = 1, i = PP$idx, j = seq(length(PP$idx))) %*% # matrix for redunant locations and reordering in PP
-              Matrix::sparseMatrix(i = locs_idx, j = seq(nrow(Y)), dims = c(length(PP$idx), nrow(Y)))  # matrix for redunant locations and reordering between Y and PP
-          )%*%
-            Y
-      ))[1:PP$n_PP,,drop=F]
-    )
+      rbind(
+        res, 
+        Matrix::solve(
+          Matrix::t(PP$sparse_chol), 
+          rbind(
+            matrix(0, nrow(PP$knots), ncol(Y)), 
+            (
+              Matrix::sparseMatrix(x = 1, i = PP$idx, j = seq(length(PP$idx))) %*% # matrix for redunant locations and reordering in PP
+                Matrix::sparseMatrix(i = locs_idx, j = seq(nrow(Y)), dims = c(length(PP$idx), nrow(Y)))  # matrix for redunant locations and reordering between Y and PP
+            )%*%
+              Y
+          ))[1:PP$n_PP,,drop=F]
+      )
   }
   as.matrix(res)
 }

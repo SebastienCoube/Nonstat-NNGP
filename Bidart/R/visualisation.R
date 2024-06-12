@@ -20,35 +20,137 @@ compare_PP_NNGP = function(PP){
 #' @param log_range log_range at the ellipse centers, can hae 1 or 3 columns
 #' @param main main title
 #' @param add ad on existing plot ? cancels main
-#' @param shrink shrinks or inflates the ellipses
+#' @param shrink shrinks or inflates the ellipses. shrink = 1 gives the 
+#' Mahalanobis distance = 1. Shrink = sqrt(8*nu) gives the ellipses corresponding to 
+#' correlation  = .1 (rho following INLA's terminology)
 plot_ellipses = function(locs, log_range, shrink = .1, main = "ellipses", add  =F)
 {
   if(ncol(log_range) ==3){
-    
+    #to match parametrization in compute sparse chol
     log_range = log_range %*% matrix(
       c(1/sqrt(2), 1/sqrt(2),  0, 
         1/sqrt(2), -1/sqrt(2), 0,
-        0,       0,        1), 3)
+        0,       0,        1), 3)*sqrt(2)
     matrices = lapply(split(log_range, row(log_range)), Bidart::expmat)
   }
-  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)diag(exp(x/sqrt(2)), 2))
+  if(ncol(log_range) ==1)matrices = lapply(log_range, function(x)diag(exp(x#/sqrt(2)
+                                                                          ), 2))
   if(!add)plot(locs, type = "n", xlab = "", ylab = "", main = main)
   for(i in seq(nrow(locs)))
   {
-    ell = ellipse::ellipse(matrices[[i]])[seq(25 * 4),] * shrink
+    # 2.447747 must be some bivariate confidence interval
+    # shrink = 1 gives the package's Mahalanobis distance
+    matrices[[i]] = eigen(matrices[[i]])
+    matrices[[i]] = (matrices[[i]])$vec %*% diag(matrices[[i]]$val^2) %*% t(matrices[[i]]$vec)/(2.447747)^2
+    ell = ellipse::ellipse(matrices[[i]]) * shrink
     ell[,1] = ell[,1]+locs[i, 1]
     ell[,2] = ell[,2]+locs[i, 2]
     lines(ell)
   }
 }
 
-## locs = as.matrix(expand.grid(seq(0, 1, .1), seq(0, 1, .1)))
-## log_range = locs[,1,drop=F]
-## plot_ellipses(locs, log_range, shrink = .01)
-## log_range = locs[,c(1,1,1)] %*% diag(c(1,0,0))
-## plot_ellipses(locs, log_range, shrink = .01)
-## log_range = locs[,c(1,1,2)]
-## plot_ellipses(locs, log_range, shrink = .01)
+
+
+# # test
+# nu = .5
+# locs = as.matrix(expand.grid(seq(0, 1, .02), seq(0, 1, .02)))
+# locs = locs[GpGp::order_maxmin(locs),]
+# locs = rbind(c(.501, .501), locs)
+# range_beta = .3*matrix(rnorm(3), 1)
+# range_beta[1,1] = -3
+# NNarray = GpGp::find_ordered_nn(locs, 10)
+# 
+# sparse_chol_aniso = 
+#   Matrix::sparseMatrix(
+#     i = row(NNarray)[!is.na(NNarray)], 
+#     j = NNarray[!is.na(NNarray)], 
+#     x = 
+#       Bidart::compute_sparse_chol(
+#         range_beta = range_beta, 
+#         NNarray = NNarray, locs = locs, 
+#         anisotropic = T, 
+#         sphere = F,
+#         PP = NULL, use_PP = F, 
+#         range_X = matrix(1, nrow(locs)), 
+#         compute_derivative = F, 
+#         nu = nu, 
+#         locs_idx = NULL, 
+#         num_threads = 10
+#       )[[1]][!is.na(NNarray)], 
+#     triangular = T
+#   )
+# sparse_chol_iso = 
+#   Matrix::sparseMatrix(
+#     i = row(NNarray)[!is.na(NNarray)], 
+#     j = NNarray[!is.na(NNarray)], 
+#     x = 
+#       Bidart::compute_sparse_chol(
+#         range_beta = range_beta[,1,drop=F], 
+#         NNarray = NNarray, locs = locs, 
+#         anisotropic = F, 
+#         sphere = F,
+#         PP = NULL, use_PP = F, 
+#         range_X = matrix(1, nrow(locs)), 
+#         compute_derivative = F, 
+#         nu = nu, 
+#         locs_idx = NULL, 
+#         num_threads = 10
+#       )[[1]][!is.na(NNarray)], 
+#     triangular = T
+#   )
+# 
+# log_range = 
+#   (
+#     Bidart::X_PP_mult_right(
+#       X = matrix(1, nrow(locs)), 
+#       PP = 0, use_PP = F, 
+#       locs_idx = NULL, 
+#       Y = range_beta
+#     )
+#   )
+# 
+# 
+# # tatato = GpGp::fast_Gp_sim(covparms = c(.5, .1, 1.5, 0), locs = locs, m = 10, covfun_name = "matern_isotropic")-4
+# # log_range = cbind(tatato, tatato, 0)
+# 
+# z = rnorm(nrow(locs))
+# w_aniso = as.vector(Matrix::solve(sparse_chol_aniso, z))
+# cor_aniso = Matrix::tcrossprod(Matrix::solve(sparse_chol_aniso))[,1]
+# w_iso = as.vector(Matrix::solve(sparse_chol_iso, z))
+# cor_iso = Matrix::tcrossprod(Matrix::solve(sparse_chol_iso))[,1]
+# Bidart::plot_pointillist_painting(locs, log_range[,1])
+# Bidart::plot_pointillist_painting(locs, w_aniso)
+# Bidart::plot_pointillist_painting(locs, w_iso)
+# Bidart::plot_pointillist_painting(locs, cor_aniso)
+# Bidart::plot_pointillist_painting(locs, cor_iso)
+# 
+# plot(locs, pch = 16, col = 1+(cor_iso < .1), cex=  .5, main  = "cor = .1 ellipse for anisotropic")
+# plot(locs, pch = 16, col = 1+(cor_aniso < .1), cex=  .5)
+# plot_ellipses(
+#   locs = locs[1,,drop=F], log_range = log_range[1,,drop=F], 
+#   shrink = sqrt(8*nu), add=  T)
+# legend("topleft", legend = c("cor > .1", "cor < .1"), fill = c(1,2))
+# plot(locs, pch = 16, col = 1+(cor_iso < .1), cex=  .5, main  = "cor = .1 ellipse for isotropic")
+# plot_ellipses(
+#   locs = locs[1,,drop=F], log_range = log_range[1,1,drop=F], 
+#   shrink = sqrt(8*nu), add=  T)
+# legend("topleft", legend = c("cor > .1", "cor < .1"), fill = c(1,2))
+
+
+
+## test with GpGp, the empirical rho is always greater than theoretical rho
+# ra = .1
+# locs = cbind(seq(0, 8*ra, .01), 0)
+# nu = .5
+# cors = GpGp::matern_isotropic(c(1, ra, nu, 0), locs)[,1]
+# plot(locs[,1], cors)
+# abline(h = .1)
+# abline(v = locs[match(T, cors<.1), 1])
+# print(paste("empirical rho = ", locs[match(T, cors<.1), 1]))
+# print(paste("theorhetical rho = ", round(ra * sqrt(8*nu), 3)))
+
+
+
 
 
 #' @export
@@ -64,9 +166,10 @@ get_colors = function(x){
 #' @param field interest variable
 #' @param main main title
 #' @param cex shrinks or inflates the points
-plot_pointillist_painting = function(locs, field, cex = 1, main = NULL)
+plot_pointillist_painting = function(locs, field, cex = 1, main = NULL, add = F)
 {
-  plot(locs, col = get_colors(field), main = main, pch = 15, cex = cex, xlab  ="", ylab = "")
+  if(!add)plot(locs, col = get_colors(field), main = main, pch = 15, cex = cex, xlab  ="", ylab = "")
+  if(add)points(locs, col = get_colors(field), pch = 15, cex = cex, xlab  ="", ylab = "")
 }
 
 #' @export

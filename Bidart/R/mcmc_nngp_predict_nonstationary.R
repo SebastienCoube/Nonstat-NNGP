@@ -174,7 +174,7 @@ predict_latent_field = function(mcmc_nngp_list, predicted_locs, X_range_pred = N
                           fun = get_samples
       )
   }
-  if(parallel){
+  if(!parallel){
     predicted_samples = 
       lapply(
         X = mcmc_nngp_list$records,
@@ -422,16 +422,45 @@ log_score_Gaussian = function(observed_field, latent_field_samples, log_noise_sa
   samples = dnorm(
     observed_field, 
     latent_field_samples + fixed_effects_samples, 
-    exp(.5 * log_noise_samples), 
-    log = T
+    exp(.5 * log_noise_samples)
   )
+  log_score_per_obs = log(apply(samples, 1, mean))
+  log_score_total = sum(log_score_per_obs)
   list(
-  "samples" =   samples, 
-  "per_obs" =   apply(samples, 1, mean), 
-  "total" = 
-    sum(
-      samples
-    )/nsamples
+    "per_obs" =   log_score_per_obs,
+    "total" = log_score_total
   )
 }
+
+### #' Log-density of observations with respect to the model.
+### #' Gives a training score when the observations are used in the model.
+### #' Gives a validation score when the observations are not used in the model.
+### #' @param mcmc_nngp_list A mcmc_nngp_list object generated using mcmc_nngp_initialize and ran using mcmc_nngp_run
+### #' @param burn_in MCMC burn-in
+### #' @param latent_field_samples Samples of the latent field, either given by predict_latent_field or estimate_parameters
+### #' @param log_noise_samples Samples of the log noise variance, given by predict_noise
+### #' @param fixed_effects_samples Samples of the fixed effects, given by predict_fixed_effects
+### #' @export
+### scoring = function(observed_field, latent_field_samples, log_noise_samples, fixed_effects_samples)
+### {
+###   nsamples =  dim(latent_field_samples)[3]
+###   
+###   response_pred = array(0, c(dim(latent_field_samples), ceiling(1000 / dim(latent_field_samples)[3])))
+###   for(iii in seq(dim(response_pred)[4])){
+###     response_pred[,,,iii] = latent_field_samples + fixed_effects_samples +  rnorm(length(latent_field_samples)) * exp(.5*log_noise_samples)
+###   }
+###   
+###   cl = parallel::makeCluster(parallel::detectCores())
+###   densities = parallel::parApply(cl, response_pred, 1, function(x)approxfun(density(x)))
+###   densities_eval = log(mapply(function(z, dens)dens(z), z = observed_field, dens = densities))
+###   remove(densities)
+###   
+###   list(
+###   "per_obs" =   apply(samples, 1, mean), 
+###   "total" = 
+###     sum(
+###       samples
+###     )/nsamples
+###   )
+### }
 
