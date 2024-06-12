@@ -1,6 +1,6 @@
 # Bidart-Nonstat-NNGP
 
-This repository contains the implementation of nonstationary NNGPs from Coube-Sisqueille, Banerjee, and Liquet. It features : 
+This repository contains the implementation of nonstationary NNGPs from Sébastien Coube-Sisqueille, Sudipto Banerjee, and Benoît Liquet. It features : 
 
 * A **VIGNETTE** which you must **download** and **open from your laptop** because it is too big for Github's preview. To do this, **right-click [here](https://raw.githubusercontent.com/SebastienCoube/Nonstat-NNGP/master/vignette_.html)** and select **save link as...** . 
 * The source code of the package **Bidart** for nonstationary NNGPs.
