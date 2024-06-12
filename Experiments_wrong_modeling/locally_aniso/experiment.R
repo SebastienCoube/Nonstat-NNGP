@@ -1,19 +1,21 @@
-install.packages("/home/user/s/scoube/Bidart_1.0.tar.gz", lib = "/home/user/s/scoube/R_packages/")
+Sys.sleep(rpois(1, 20))
 
-
-library(GpGp, lib.loc = "/home/user/s/scoube/R_packages/")
-library(FNN, lib.loc = "/home/user/s/scoube/R_packages/")
-library(Bidart, lib.loc = "/home/user/s/scoube/R_packages/")
-library(abind, lib.loc = "/home/user/s/scoube/R_packages/")
-library(irlba, lib.loc = "/home/user/s/scoube/R_packages/")
-library(parallel)
-library(Matrix)
+libraries_dir = "../R_packages"
+library(GpGp, lib.loc = libraries_dir)
+library(FNN, lib.loc = libraries_dir)
+library(Bidart, lib.loc = libraries_dir)
+library(abind, lib.loc = libraries_dir)
+library(parallel, lib.loc = libraries_dir)
+library(Matrix, lib.loc = libraries_dir)
+library(Rcpp, lib.loc = libraries_dir)
+library(RcppArmadillo, lib.loc = libraries_dir)
+library(magrittr)
 
 
 model_range = c("stat", "nonstat_circular", "nonstat_elliptic")
 data_range  = c("stat", "nonstat_circular", "nonstat_elliptic")
 
-seed = seq(1, 30)
+seed = seq(1, 60)
 
 inputs  = expand.grid(
   "model_range" = model_range,
@@ -27,67 +29,96 @@ for(tatato in seq(nrow(inputs)))
   i = seq(nrow(inputs)) [sapply(sapply(seq(nrow(inputs)), function(i)paste("res", i, "started.RDS", sep = "")), function(x)!x%in%list.files())][1]
   saveRDS("tatato", paste("res", i, "started.RDS", sep = ""))
   
+  res = list()
   set.seed(inputs$seed[i])
   # locations and latent fields
   locs = 5 * matrix(runif(24000), ncol = 2)
   locs = locs[GpGp::order_maxmin(locs),]
-  if(inputs$data_range[i]=="stat")             range_beta  = cbind(c(log(.1), rep(0, 25)), c(0, rep(0, 25)), c(0, rep(0,25))) 
-  if(inputs$data_range[i]=="nonstat_circular") range_beta  = cbind(c(log(.1), rnorm(25)),  c(0, rep(0, 25)), c(0, rep(0,25)))
-  if(inputs$data_range[i]=="nonstat_elliptic") range_beta  = cbind(c(log(.1), rnorm(25)),  c(0, rnorm(25)),  c(0, rnorm(25)))
   
-  n_KL = 25
-  KL_covfun = "matern_isotropic"
-  KL_covparms = c(1, .5, 1.5, 0.001)
-  KL = get_KL_basis(locs = locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
+  # getting PP basis
+  n_PP = 49
+  PP_range = .5
+  data_PP = Bidart::get_PP(observed_locs = locs, matern_range = PP_range, lonlat = F, n_PP = n_PP, m = 15)
+  res$inputs$data_PP = data_PP
   
-  # observing observations, with duplicates
-  n_obs = 20000
-  observation_idx = c(sample(10000, 10000 , replace =F), sample(10000, n_obs - 10000 , replace =T))
-  observed_locs = locs[observation_idx,]
+  ###  Visualisation of the PP basis
+  ###  comparison between PP and NNGP
+  seed_vector =  rnorm(data_PP$n_PP + nrow(data_PP$unique_reordered_locs))
+  par(mfrow = c(1,2))
+  Bidart::plot_pointillist_painting(locs, Bidart::X_PP_mult_right(PP = data_PP, use_PP = T, Y = seed_vector[seq(data_PP$n_PP)]), cex = .3, main ="NNGP into PP")
+  points(data_PP$knots, pch = 3, cex = .3)
+  Bidart::plot_pointillist_painting(rbind(data_PP$knots, data_PP$unique_reordered_locs), as.vector(Matrix::solve(data_PP$sparse_chol, seed_vector)), cex = .3, main = "NNGP")
+  par(mfrow = c(1,1))
+  
+  
+  # model settings
+  range_PP = F
+  anisotropic  = F
+  range_beta = matrix(0, n_PP+1, 3)
+  range_beta_1_1 =  log(.1)
+  range_beta[1, 1] =  range_beta_1_1
+  range_var = 1
+  if(inputs$data_range[i] == "nonstat_circular") 
+  {
+    range_beta[-1,1] = sqrt(range_var)*rnorm(n_PP)
+  }
+  if(inputs$data_range[i] == "nonstat_elliptic") 
+  {
+    range_beta[-1,] = sqrt(range_var)*rnorm(3*n_PP)
+  }
   
   # computing sparse chol
   NNarray = GpGp::find_ordered_nn(locs, 5)
-  sparse_chol = Bidart::compute_sparse_chol(covfun_name = "nonstationary_exponential_anisotropic", range_beta = range_beta, locs = locs, NNarray = NNarray, KL = KL, use_KL = T, range_X = matrix(rep(1, nrow(locs))))
+  sparse_chol = Bidart::compute_sparse_chol(
+    range_beta = range_beta, 
+    NNarray = NNarray, 
+    locs = locs, 
+    range_X = matrix(1, nrow(locs)), 
+    PP = data_PP, 
+    use_PP = T, 
+    compute_derivative = T, 
+    nu = .5, 
+    anisotropic = T, 
+    sphere = F, 
+    num_threads = parallel::detectCores(), 
+    locs_idx = NULL
+  )
   
   # latent field
   scaled_latent_field = GpGp::fast_Gp_sim_Linv(Linv = sparse_chol[[1]], NNarray = NNarray)
-  #plot_pointillist_painting(locs, scaled_latent_field, cex = .5)
-  observed_field = as.vector(scaled_latent_field[observation_idx] * sqrt(10)) + rnorm(n_obs) * sqrt(10)
-  
+  Bidart::plot_pointillist_painting(locs, scaled_latent_field, cex = .5)
+  # doing observations, with duplicates
+  n_obs = 20000
+  observation_idx = c(seq(10000), sample(10000, n_obs - 10000 , replace =T))
+  observed_locs = locs[observation_idx,]
+  observed_field = as.vector(scaled_latent_field[observation_idx]) + rnorm(n_obs)
+  Bidart::plot_pointillist_painting(observed_locs, observed_field, cex = .5)
   
   # storing inputs
-  res = list()
   res$inputs = list()
   res$inputs$inputs = inputs[i,]
   res$inputs$sparse_chol         = sparse_chol[[1]]
   res$inputs$observed_field      = observed_field
   res$inputs$locs                = locs
   res$inputs$observation_idx     = observation_idx
+  res$inputs$range_beta     = range_beta
   
-  # model settings
-  covfun = "nonstationary_exponential_isotropic"
-  range_KL = F
-  if(inputs$model_range[i] == "nonstat_circular") 
-  {
-    range_KL = T
-  }
-  if(inputs$model_range[i] == "nonstat_elliptic") 
-  {
-    range_KL = T
-    covfun = "nonstationary_exponential_anisotropic"
-  }
-  KL_ = get_KL_basis(locs = observed_locs, covparms = KL_covparms, covfun_name = KL_covfun, n_KL = n_KL)
-  
+
   # initializing the model
-  mcmc_nngp_list = mcmc_nngp_initialize_nonstationary (
+  PP = Bidart::get_PP(
+    observed_locs = observed_locs,
+    matern_range = PP_range, 
+    lonlat = F, n_PP = n_PP, m = 15)
+    
+  mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary (
     observed_locs = observed_locs, #spatial locations
     observed_field = c(observed_field), # Response variable
     X = NULL, # Covariates per observation
     m = 5, #number of Nearest Neighbors
-    reordering = c("maxmin"), #Reordering
-    covfun = covfun, 
-    range_X = NULL, 
-    range_KL = range_KL, KL = KL_, range_log_scale_prior = c(-8, 3),
+    nu = .5, 
+    anisotropic = inputs$model_range[i] == "nonstat_elliptic",
+    sphere = F, PP = PP, 
+    range_PP = !inputs$model_range[i] == "stat",
     n_chains = 2,  # number of MCMC chains
     seed = 1
   )
@@ -95,29 +126,113 @@ for(tatato in seq(nrow(inputs)))
   # running the model
   print(inputs[i,])
   res$run = mcmc_nngp_list
-  for(j in seq(60))
-  {
-    res$run = mcmc_nngp_run_nonstationary(res$run, n_cores = 3, debug_outfile = NULL, big_range = T)
+  for(j in seq(15)){
+    res$run = Bidart::mcmc_nngp_run_nonstationary_socket(
+      res$run, n_cores = 2,
+      debug_outfile = NULL, 
+      num_threads_per_chain = parallel::detectCores()/2, 
+      thinning = .1, 
+      lib.loc = libraries_dir, 
+      burn_in = .5
+        )
   }
   
   # analysis of performance
   res$performance = list()
-  param_field_mse = function(estimated_field, true_field, estimated_intercept, true_intercept)
-  {
-    if(!is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_field + true_intercept))^2))
-    if(is.null(estimated_field) & !is.null(true_field))return(mean(((estimated_intercept) -  (true_field + true_intercept))^2))
-    if(!is.null(estimated_field) & is.null(true_field))return(mean(((estimated_field + estimated_intercept) -  (true_intercept))^2))
-    if(is.null(estimated_field) & is.null(true_field))return(mean(((estimated_intercept) -  (true_intercept))^2))
-  }
   true_field = as.vector(scaled_latent_field)
+  
   # estimation
-  res$estimation = estimate_parameters(mcmc_nngp_list = res$run)
-  res$performance$smooth_field_mse = param_field_mse(estimated_field = res$estimation$summaries$field[1,,], true_field = true_field[observation_idx][res$run$vecchia_approx$hctam_scol_1], estimated_intercept = res$estimation$summaries$beta[1,,], true_intercept = 0)
-  # prediction
-  res$pred = predict_latent_field(mcmc_nngp_list = res$run, predicted_locs = locs[10001:12000,], n_cores = 3)
-  res$performance$pred_field_mse = mean(((res$pred$summaries$field[1,] + res$estimation$summaries$beta[1,,]) -  true_field[10001:12000])^2)
+  res$estimation = Bidart::estimate_parameters(mcmc_nngp_list = res$run, get_samples = T, burn_in = .5)
+  
+  # field MSE at observed locations
+  res$performance$smooth_field_mse = 
+    mean((res$estimation$summaries$field_at_observed_locs[1,,1] - true_field[observation_idx])^2)
+  #plot(res$estimation$summaries$field_at_observed_locs[1,,1] , true_field[observation_idx])
+  
+  # prediction of the latent field
+  res$pred = Bidart::predict_latent_field(mcmc_nngp_list = res$run, predicted_locs = locs[10001:12000,], num_threads_per_chain = parallel::detectCores(), lib.loc = libraries_dir, parallel = T, burn_in = .5)
+  res$performance$pred_field_mse = mean((res$pred$summaries$field[1,,1] - true_field[seq(10001, 12000)])^2)
+  #plot(res$pred$summaries$field[1,,1], true_field[seq(10001, 12000)])
+  
   # DIC
-  res$performance$DIC = DIC(res$run)
+  res$performance$DIC = Bidart::DIC(res$run)
+  
+  
+  # estimation of log-range field
+  true_log_range = Bidart::X_PP_mult_right(
+    X = matrix(1, nrow(observed_locs)), PP = data_PP, 
+    use_PP = inputs$data_range[i]!="stat", 
+    Y = range_beta
+  )
+  estimated_log_range = apply(res$estimation$samples$range_beta, 3, function(x)
+    Bidart::X_PP_mult_right(
+      X = matrix(1, nrow(observed_locs)), PP = PP, 
+      use_PP = inputs$model_range[i]!="stat", 
+      Y = x
+    ), simplify = F
+  ) 
+  estimated_log_range = Reduce(function(x, y)abind::abind(x, y, along = 3), estimated_log_range) %>% 
+    apply(MARGIN = c(1,2), FUN = mean, simplify = T) 
+  ## Bidart::plot_pointillist_painting(locs[observation_idx,], true_log_range[observation_idx,1])
+  ## Bidart::plot_pointillist_painting(observed_locs, estimated_log_range[,1])
+  ## plot(estimated_log_range[,1],  true_log_range[observation_idx,1])
+  ## plot(estimated_log_range[,2],  true_log_range[observation_idx,2])
+  res$performance$log_range_det_mse = mean((unlist(estimated_log_range[,1,drop=F]) - true_log_range[observation_idx,1])^2)
+  if(inputs$model_range[i]=="nonstat_elliptic"){
+    res$performance$log_range_aniso_mse = (
+      mean(((estimated_log_range[,2]) - true_log_range[observation_idx,2])^2) + 
+        mean(((estimated_log_range[,3]) - true_log_range[observation_idx,3])^2) 
+    )/2
+  }
+  if(inputs$model_range[i]=="nonstat_circular"){
+    res$performance$log_range_aniso_mse = (
+      mean((true_log_range[observation_idx,2])^2) + 
+        mean((true_log_range[observation_idx,3])^2) 
+    )/2
+  }
+  if(inputs$model_range[i]=="stat"){
+    res$performance$log_range_aniso_mse = (
+      mean((true_log_range[observation_idx,2])^2) + 
+        mean((true_log_range[observation_idx,3])^2) 
+    )/2
+  }
+  
+  # credible intervals coverage
+  res$coverage = list()
+  res$coverage$range =  
+    (c(range_beta_1_1, 0, 0 )>=c(res$estimation$summaries$range_beta[2,1,], rep(0, 3-length(res$estimation$summaries$range_beta[2,1,]))))&
+    (c(range_beta_1_1, 0, 0 )<=c(res$estimation$summaries$range_beta[4,1,], rep(0, 3-length(res$estimation$summaries$range_beta[4,1,]))))
+  res$coverage$scale =  
+    (0>res$estimation$summaries$scale_beta[2,1,1])&
+    (0<res$estimation$summaries$scale_beta[4,1,1])
+  res$coverage$noise =  
+    (0>res$estimation$summaries$noise_beta[2,1,1])&
+    (0<res$estimation$summaries$noise_beta[4,1,1])
+  
+  true_range_var = rep(0, 6)
+  if(inputs$data_range[i] == "nonstat_elliptic")true_range_var[c(1,4,6)] = range_var
+  if(inputs$data_range[i] == "nonstat_circular")true_range_var[c(1)] = range_var
+  
+  if(inputs$model_range[i]=="nonstat_elliptic"){
+    range_var_quantiles = 
+      apply(res$estimation$samples$range_log_scale, 3, Bidart::expmat, simplify = F) %>% 
+      lapply(function(x)x[lower.tri(x, T)]) %>% 
+      do.call(what = rbind) %>% 
+      apply(2, quantile, probs = c(.025, .975))
+  }
+  if(inputs$model_range[i]=="nonstat_circular"){
+    range_var_quantiles = 
+      apply(res$estimation$samples$range_log_scale, 3, Bidart::expmat, simplify = F) %>% 
+      lapply(function(x)x[lower.tri(x, T)]) %>% 
+      do.call(what = rbind) %>% 
+      apply(2, quantile, probs = c(.025, .975))
+    range_var_quantiles = cbind(range_var_quantiles, matrix(0, 2,5))
+  }
+  if(inputs$model_range[i]=="stat")range_var_quantiles = matrix(0, 2,6)
+  
+  res$coverage$range_var = (true_range_var>= range_var_quantiles[1,])&(true_range_var<= range_var_quantiles[2,])
+  
+  # saving the run (or not)
   if(inputs$seed[i]>3)res$run = NULL
   
   saveRDS(res, paste("res", i, "complete.RDS", sep = ""))
