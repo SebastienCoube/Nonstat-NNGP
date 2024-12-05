@@ -1,0 +1,5494 @@
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+range_log_scale_prior was automatically set to an uniform on (-6, 2)
+Setup done, 83.3827772140503 s elapsed
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+rm: write error: No space left on device
+rm: write error: No space left on device
+rm: write error: No space left on device
+rm: write error: No space left on device
+rm: write error: No space left on device
+rm: write error: No space left on device
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+Setup done, 77.0734405517578 s elapsed
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Setup done, 79.3197059631348 s elapsed
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                            Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                            Setup done, 87.4542422294617 s elapsed
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                            Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                            Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+range_log_scale_prior was automatically set to an uniform on (-6, 2)
+Setup done, 90.4218323230743 s elapsed
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Warning message:
+did not converge in 30 iterations 
+Setup done, 73.7321066856384 s elapsed
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Setup done, 88.9571681022644 s elapsed
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Setup done, 100.933741092682 s elapsed
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+range_log_scale_prior was automatically set to an uniform on (-6, 2)
+Setup done, 102.111401796341 s elapsed
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+
+Attaching package: 'Bidart'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    mcmc_nngp_update_Gaussian
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+

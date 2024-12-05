@@ -1,0 +1,184 @@
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Error in gzfile(file, mode) : cannot open the connection
+Calls: saveRDS -> gzfile
+In addition: Warning message:
+In gzfile(file, mode) :
+  cannot open compressed file 'maps/preds_field.RDS', probable reason 'No such file or directory'
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Error in saveRDS(estimated_fixed, "maps/estimated_fixed.RDS") : 
+  error writing to connection
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Error in setwd("NDVI_r2") : cannot change working directory
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Error in gzfile(file, "rb") : cannot open the connection
+Calls: readRDS -> gzfile
+In addition: Warning message:
+In gzfile(file, "rb") :
+  cannot open compressed file 'res/NNGP_full_monty.RDS', probable reason 'No such file or directory'
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: Matrix
+Loading required package: Matrix
+
+Attaching package: 'expm'
+
+
+Attaching package: 'expm'
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+The following object is masked from 'package:Matrix':
+
+    expm
+
+Error in Bidart::plot_pointillist_painting(mcmc_nngp_list$data$observed_locs,  : 
+  unused argument (add = T)
+Execution halted

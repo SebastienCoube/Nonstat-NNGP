@@ -1,0 +1,121 @@
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: spam
+Spam version 2.10-0 (2023-10-23) is loaded.
+Type 'help( Spam)' or 'demo( spam)' for a short introduction 
+and overview of this package.
+Help for individual functions is also obtained by adding the
+suffix '.spam' to the function name, e.g. 'help( chol.spam)'.
+
+Attaching package: 'spam'
+
+The following objects are masked from 'package:base':
+
+    backsolve, forwardsolve
+
+Loading required package: viridisLite
+
+Try help(fields) to get started.
+
+Attaching package: 'Matrix'
+
+The following object is masked from 'package:spam':
+
+    det
+
+This is INLA_24.05.01-1 built 2024-05-01 18:49:50 UTC.
+ - See www.r-inla.org/contact-us for how to get help.
+ - List available models/likelihoods/etc with inla.list.models()
+ - Use inla.doc(<NAME>) to access documentation
+
+Attaching package: 'INLA'
+
+The following object is masked from 'package:spam':
+
+    Oral
+
+Error in inla.binary.install() : Not a valid choice. Exit.
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: spam
+Spam version 2.10-0 (2023-10-23) is loaded.
+Type 'help( Spam)' or 'demo( spam)' for a short introduction 
+and overview of this package.
+Help for individual functions is also obtained by adding the
+suffix '.spam' to the function name, e.g. 'help( chol.spam)'.
+
+Attaching package: 'spam'
+
+The following objects are masked from 'package:base':
+
+    backsolve, forwardsolve
+
+Loading required package: viridisLite
+
+Try help(fields) to get started.
+
+Attaching package: 'Matrix'
+
+The following object is masked from 'package:spam':
+
+    det
+
+This is INLA_24.05.01-1 built 2024-05-01 18:49:50 UTC.
+ - See www.r-inla.org/contact-us for how to get help.
+ - List available models/likelihoods/etc with inla.list.models()
+ - Use inla.doc(<NAME>) to access documentation
+
+Attaching package: 'INLA'
+
+The following object is masked from 'package:spam':
+
+    Oral
+
+Failed to query server: Connection timed out
+Error in Bidart::plot_pointillist_painting(coords_lump, res$summary.fitted.values$mean[seq(nrow(coords) +  : 
+  unused argument (add = T)
+Execution halted
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+Loading R/4.4.0
+  Loading requirement: intel/2022.1.1 java/jdk-11.0.14 glpk/5.0
+Loading required package: spam
+Spam version 2.10-0 (2023-10-23) is loaded.
+Type 'help( Spam)' or 'demo( spam)' for a short introduction 
+and overview of this package.
+Help for individual functions is also obtained by adding the
+suffix '.spam' to the function name, e.g. 'help( chol.spam)'.
+
+Attaching package: 'spam'
+
+The following objects are masked from 'package:base':
+
+    backsolve, forwardsolve
+
+Loading required package: viridisLite
+
+Try help(fields) to get started.
+
+Attaching package: 'Matrix'
+
+The following object is masked from 'package:spam':
+
+    det
+
+This is INLA_24.05.01-1 built 2024-05-01 18:49:50 UTC.
+ - See www.r-inla.org/contact-us for how to get help.
+ - List available models/likelihoods/etc with inla.list.models()
+ - Use inla.doc(<NAME>) to access documentation
+
+Attaching package: 'INLA'
+
+The following object is masked from 'package:spam':
+
+    Oral
+
+Failed to query server: Connection timed out

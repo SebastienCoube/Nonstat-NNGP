@@ -1,0 +1,1210 @@
+* Looking for Version_24.05.01-1 and os='<choose interactively>'
+  Available alternatives:
+  Chose alternative [1:0]
+	[1] 130520
+
+
+*************************************************************************** 
+CONTAINS Runtime Modules of Parallel Sparse Linear Solver PARDISO Vers. 8.2
+Copyright Panua Technologies, Switzerland [2022-2023], All Rights Reserved.
+No license file found. Please see                                  
+            https://www.panua.ch/products/pardiso                         
+where to place the license file panua.lic 
+*************************************************************************** 
+	Read ntt 36 1 with max.threads 36
+	Found num.threads = 36:1 max_threads = 36
+
+	4ceb3890a81e413f04f9bb0b74bf415eacdcbf13 - Wed May 1 21:31:26 2024 +0300
+Report bugs to <help@r-inla.org>
+Set reordering to id=[0] and name=[default]
+Process file[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/Model.ini] threads[36] max.threads[36] blas_threads[1] nested[36:1]
+inla_build...
+	number of sections=[12]
+	parse section=[0] name=[INLA.libR] type=[LIBR]
+	inla_parse_libR...
+		section[INLA.libR]
+			R_HOME=[/u/local/apps/R/4.4.0/gcc10.2.0_intel2023.1.0/lib64/R]
+	parse section=[9] name=[INLA.Expert] type=[EXPERT]
+	inla_parse_expert...
+		section[INLA.Expert]
+			disable.gaussian.check=[0]
+			Measure dot.product.gain=[No]
+			cpo.manual=[0]
+			jp.file=[(null)]
+			jp.model=[(null)]
+	parse section=[1] name=[INLA.Model] type=[PROBLEM]
+	inla_parse_problem...
+		name=[INLA.Model]
+		R-INLA version = [24.05.01-1]
+		R-INLA build date = [19844]
+		Build tag = [devel]
+		System memory = [172.8Gb]
+		Cores = (Physical= 36, Logical= 36)
+		'char' is signed
+		BUFSIZ is 8192
+		openmp.strategy=[default]
+		pardiso-library installed and working? = [no]
+		smtp = [taucs]
+		strategy = [default]
+		store results in directory=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/results.files]
+		output:
+			gcpo=[0]
+				num.level.sets=[-1]
+				size.max=[32]
+				strategy=[Posterior]
+				correct.hyperpar=[1]
+				epsilon=[0.005]
+				prior.diagonal=[0.0001]
+				keep=[]
+				remove.fixed=[1]
+				remove=[]
+			cpo=[1]
+			po=[0]
+			dic=[1]
+			kld=[1]
+			mlik=[1]
+			q=[0]
+			graph=[0]
+			hyperparameters=[1]
+			config=[0]
+			config.lite=[0]
+			likelihood.info=[0]
+			internal.opt=[1]
+			save.memory=[0]
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[3] name=[Predictor] type=[PREDICTOR]
+	inla_parse_predictor ...
+		section=[Predictor]
+		dir=[predictor]
+		PRIOR->name=[loggamma]
+		hyperid=[53001|Predictor]
+		PRIOR->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR->PARAMETERS=[1, 1e-05]
+		initialise log_precision[13.8155]
+		fixed=[1]
+		user.scale=[1]
+		n=[253079]
+		m=[938809]
+		ndata=[938809]
+		compute=[1]
+		read offsets from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b]
+		read n=[2383776] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b]
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 0/1191888  (idx,y) = (0, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 1/1191888  (idx,y) = (1, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 2/1191888  (idx,y) = (2, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 3/1191888  (idx,y) = (3, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 4/1191888  (idx,y) = (4, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 5/1191888  (idx,y) = (5, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 6/1191888  (idx,y) = (6, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 7/1191888  (idx,y) = (7, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 8/1191888  (idx,y) = (8, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46517be5b] 9/1191888  (idx,y) = (9, 0)
+		A=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b475c318eb]
+		Aext=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45c12142d]
+		AextPrecision=[3.269e+06]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[2] name=[INLA.Data1] type=[DATA]
+	inla_parse_data [section 1]...
+		tag=[INLA.Data1]
+		family=[GAUSSIAN]
+		likelihood=[GAUSSIAN]
+		file->name=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b43afa388f]
+		file->name=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46549d99e]
+		file->name=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b46bdd75e6]
+		file->name=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4779b1854]
+		read n=[2761074] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b43afa388f]
+		mdata.nattributes = 0
+			0/920358  (idx,a,y,d) = (0, 1, 3.03293, 1)
+			1/920358  (idx,a,y,d) = (1, 1, 2.76336, 1)
+			2/920358  (idx,a,y,d) = (2, 1, 2.87266, 1)
+			3/920358  (idx,a,y,d) = (3, 1, 2.8895, 1)
+			4/920358  (idx,a,y,d) = (4, 1, 2.80992, 1)
+			5/920358  (idx,a,y,d) = (5, 1, 2.7429, 1)
+			6/920358  (idx,a,y,d) = (6, 1, 2.69129, 1)
+			7/920358  (idx,a,y,d) = (7, 1, 2.76419, 1)
+			8/920358  (idx,a,y,d) = (8, 1, 2.32965, 1)
+			9/920358  (idx,a,y,d) = (9, 1, 1.91836, 1)
+		likelihood.variant=[0]
+		initialise log_precision[4]
+		fixed0=[0]
+		PRIOR0->name=[loggamma]
+		hyperid=[65001|INLA.Data1]
+		PRIOR0->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR0->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR0->PARAMETERS0=[1, 5e-05]
+		initialise log_precision offset[72.0873]
+		fixed1=[1]
+		PRIOR1->name=[none]
+		hyperid=[65002|INLA.Data1]
+		PRIOR1->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR1->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR1->PARAMETERS1=[]
+		Link model   [IDENTITY]
+		Link order   [-1]
+		Link variant [-1]
+		Link a       [1]
+		Link ntheta  [0]
+		mix.use[0]
+	parse section=[7] name=[spatial.field] type=[FFIELD]
+	inla_parse_ffield...
+		section=[spatial.field]
+		dir=[random.effect00000001]
+		model=[spde2]
+		PRIOR0->name=[mvnorm]
+		hyperid=[23001|spatial.field]
+		PRIOR0->from_theta=[function (x) <<NEWLINE>>x]
+		PRIOR0->to_theta = [function (x) <<NEWLINE>>x]
+		PRIOR0->PARAMETERS0[0]=[-3.36557]
+		PRIOR0->PARAMETERS0[1]=[2.10006]
+		PRIOR0->PARAMETERS0[2]=[0.1]
+		PRIOR0->PARAMETERS0[3]=[0]
+		PRIOR0->PARAMETERS0[4]=[0]
+		PRIOR0->PARAMETERS0[5]=[0.1]
+		vb.correct n[1]  -1
+		correct=[-1]
+		constr=[0]
+		diagonal=[0]
+		id.names=<not present>
+		compute=[1]
+		nrep=[1]
+		ngroup=[1]
+		Alocal=[no]
+		read covariates from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c]
+		read n=[506158] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c]
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 0/253079  (idx,y) = (0, 8)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 1/253079  (idx,y) = (1, 9)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 2/253079  (idx,y) = (2, 10)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 3/253079  (idx,y) = (3, 11)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 4/253079  (idx,y) = (4, 12)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 5/253079  (idx,y) = (5, 13)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 6/253079  (idx,y) = (6, 14)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 7/253079  (idx,y) = (7, 15)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 8/253079  (idx,y) = (8, 16)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b45999ba5c] 9/253079  (idx,y) = (9, 17)
+		spde2.prefix = [/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b421948f5d/file88b47af8e5b0.]
+		spde2.transform = [identity]
+		ntheta (max) = [2]
+		initialise theta[0]=[-3.36557]
+		fixed[0]=[0]
+		initialise theta[1]=[2.10006]
+		fixed[1]=[0]
+		ntheta (used) = [2]
+		computed/guessed rank-deficiency = [0]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[4] name=[(Intercept)] type=[LINEAR]
+	inla_parse_linear...
+		section[(Intercept)]
+		dir=[fixed.effect00000001]
+		file for covariates=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09]
+		read n=[506158] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09]
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 0/253079  (idx,y) = (0, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 1/253079  (idx,y) = (1, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 2/253079  (idx,y) = (2, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 3/253079  (idx,y) = (3, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 4/253079  (idx,y) = (4, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 5/253079  (idx,y) = (5, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 6/253079  (idx,y) = (6, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 7/253079  (idx,y) = (7, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 8/253079  (idx,y) = (8, 1)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b413101c09] 9/253079  (idx,y) = (9, 1)
+		prior mean=[0]
+		prior precision=[0]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[5] name=[coord_1] type=[LINEAR]
+	inla_parse_linear...
+		section[coord_1]
+		dir=[fixed.effect00000002]
+		file for covariates=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab]
+		read n=[506158] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab]
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 0/253079  (idx,y) = (0, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 1/253079  (idx,y) = (1, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 2/253079  (idx,y) = (2, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 3/253079  (idx,y) = (3, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 4/253079  (idx,y) = (4, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 5/253079  (idx,y) = (5, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 6/253079  (idx,y) = (6, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 7/253079  (idx,y) = (7, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 8/253079  (idx,y) = (8, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b4943b8ab] 9/253079  (idx,y) = (9, 0)
+		prior mean=[0]
+		prior precision=[0.001]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[6] name=[coord_2] type=[LINEAR]
+	inla_parse_linear...
+		section[coord_2]
+		dir=[fixed.effect00000003]
+		file for covariates=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88]
+		read n=[506158] entries from file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88]
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 0/253079  (idx,y) = (0, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 1/253079  (idx,y) = (1, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 2/253079  (idx,y) = (2, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 3/253079  (idx,y) = (3, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 4/253079  (idx,y) = (4, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 5/253079  (idx,y) = (5, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 6/253079  (idx,y) = (6, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 7/253079  (idx,y) = (7, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 8/253079  (idx,y) = (8, 0)
+		file=[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/data.files/file88b414960f88] 9/253079  (idx,y) = (9, 0)
+		prior mean=[0]
+		prior precision=[0.001]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[11] name=[INLA.pardiso] type=[PARDISO]
+	inla_parse_pardiso...
+		section[INLA.pardiso]
+		verbose[0]
+		debug[0]
+		parallel.reordering[1]
+		nrhs[-1]
+	parse section=[10] name=[INLA.lp.scale] type=[LP.SCALE]
+	inla_parse_lp_scale...
+		section[INLA.lp.scale]
+
+	Index table: number of entries[6], total length[1322411]
+		tag                            start-index     length
+		APredictor                              0     938809
+		Predictor                          938809     253079
+		spatial.field                     1191888     130520
+		(Intercept)                       1322408          1
+		coord_1                           1322409          1
+		coord_2                           1322410          1
+	List of hyperparameters: 
+		theta[0] = [Log precision for the Gaussian observations]
+		theta[1] = [Theta1 for spatial.field]
+		theta[2] = [Theta2 for spatial.field]
+
+	parse section=[8] name=[INLA.Parameters] type=[INLA]
+	inla_parse_INLA...
+		section[INLA.Parameters]
+			lincomb.derived.correlation.matrix = [No]
+		global_node.factor = 2.000
+		global_node.degree = 2147483647
+		reordering = -1
+		constr.marginal.diagonal = 1.49e-08
+Contents of ai_param 0x4ea28d40
+	Optimiser: DEFAULT METHOD
+		Option for GSL-BFGS2: tol  = 0.1
+		Option for GSL-BFGS2: step_size = 1
+		Option for GSL-BFGS2: epsx = 0.001
+		Option for GSL-BFGS2: epsf = 0.002
+		Option for GSL-BFGS2: epsg = 0.005
+		Restart: 0
+		Optimise: try to be smart: Yes
+		Optimise: use directions: Yes
+		Mode known: No
+		parallel linesearch [0]
+	Gaussian approximation:
+		tolerance_func = 0.002
+		tolerance_step = 0.0005
+		optpar_fp = 0
+		optpar_nr_step_factor = -0.1
+	Gaussian data: Yes
+	Strategy: 	Use an adaptive strategy (max=25)
+	Fast mode: 	On
+	Use linear approximation to log(|Q +c|)? Yes
+		Method:	 Compute the derivative exact
+	Parameters for improved approximations
+		Number of points evaluate:	 9
+		Step length to compute derivatives numerically:	 0.0001
+		Stencil to compute derivatives numerically:	 5
+		Cutoff value to construct local neigborhood:	 0.0001
+	Log calculations:	 On
+	Log calculated marginal for the hyperparameters:	 On
+	Integration strategy:	 Automatic (GRID for dim(theta)=1 and 2 and otherwise CCD)
+		f0 (CCD only):	 1.100
+		dz (GRID only):	 0.750
+		Adjust weights (GRID only):	 On
+		Difference in log-density limit (GRID only):	 6.000
+		Skip configurations with (presumed) small density (GRID only):	 On
+	Gradient is computed using Central difference with step-length 0.005000
+	Hessian is computed using Central difference with step-length 0.070711
+	Hessian matrix is forced to be a diagonal matrix? [No]
+	Compute effective number of parameters? [Yes]
+	Perform a Monte Carlo error-test? [No]
+	Interpolator [Auto]
+	CPO required diff in log-density [3]
+	Stupid search mode:
+		Status     [On]
+		Max iter   [1000]
+		Factor     [1.05]
+	Numerical integration of hyperparameters:
+		Maximum number of function evaluations [100000]
+		Relative error ....................... [1e-05]
+		Absolute error ....................... [1e-06]
+	To stabilise the numerical optimisation:
+		Minimum value of the -Hessian [-inf]
+		Strategy for the linear term [Keep]
+	CPO manual calculation[No]
+	VB correction is [Enabled]
+		strategy                    = [mean]
+		verbose                     = [Yes]
+		f_enable_limit_mean         = [30]
+		f_enable_limit_var          = [25]
+		f_enable_limit_mean_max     = [1024]
+		f_enable_limit_variance_max = [768]
+		iter_max                    = [25]
+		emergency                   = [25.00]
+		hessian_update              = [2]
+		hessian_strategy            = [full]
+	Misc options: 
+		Hessian correct skewness only [1]
+inla_build: check for unused entries in[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/Model.ini]
+inla_INLA_preopt_experimental...
+	Strategy = [DEFAULT]
+	Mode....................... [Compact]
+	Setup...................... [9.48s]
+	Sparse-matrix library...... [taucs]
+	sort L..................... [no]
+	OpenMP strategy............ [huge]
+	num.threads................ [36:1]
+	blas.num.threads........... [1]
+	Density-strategy........... [Low]
+	Size of graph.............. [130523]
+	Number of constraints...... [0]
+	Optimizing sort2_id........ [195]
+	Optimizing sort2_dd........ [298]
+	Optimizing Qx-strategy..... serial[0.467] parallel [0.533] choose[serial]
+	Optimizing pred-strategy... plain [0.634] data-rich[0.366] choose[data-rich]
+	Found optimal reordering=[metis] nnz(L)=[14762107] and use_global_nodes(user)=[no]
+
+	List of hyperparameters: 
+		theta[0] = [Log precision for the Gaussian observations]
+		theta[1] = [Theta1 for spatial.field]
+		theta[2] = [Theta2 for spatial.field]
+
+
+Compute initial values...
+	Iter[0] RMS(err) = 1.000, update with step-size = 1.039
+	Iter[1] RMS(err) = 0.295, update with step-size = 0.379
+	Iter[2] RMS(err) = 0.923, update with step-size = 0.525
+	Iter[3] RMS(err) = 0.971, update with step-size = 0.391
+	Initial values computed in 0.4187 seconds
+		x[0] = 0.0000
+		x[1] = 0.0000
+		x[2] = 0.0000
+		x[3] = 0.0000
+		x[4] = 0.0000
+		x[130518] = 0.0000
+		x[130519] = 0.0000
+		x[130520] = -0.0060
+		x[130521] = -0.1485
+		x[130522] = 0.2296
+
+Optimise using DEFAULT METHOD
+Smart optimise part I: estimate gradient using forward differences
+maxld= -1359111.1239 fn=  1 theta= 4.0000 -3.3656 2.1001 [2.14, 10.733]
+maxld= -400279.1403 fn=  5 theta= 3.0475 -3.6701 2.0997 [2.13, 9.169]
+maxld= -400279.1403 fn=  8 theta= 3.0475 -3.6701 2.0997 [2.13, 6.794]
+maxld= -276897.2413 fn= 12 theta= 2.0824 -3.9786 2.0993 [2.13, 5.381]
+maxld= -276287.5367 fn= 14 theta= 2.0874 -3.9786 2.0993 [2.13, 4.994]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.953	 -0.305	   . 
+	  0.305	  0.953	   . 
+	   . 	   . 	  1.000
+Iter=1 |grad|=1.39e+05 |dx|=1.16 |best.dx|=1.16 |df|=1.08e+06 |best.df|=1.08e+06 
+maxld= -198217.8721 fn= 17 theta= 2.3331 -4.9467 2.0984 [2.75, 4.577]
+maxld= -198217.4238 fn= 19 theta= 2.3331 -4.9467 2.1034 [2.75, 4.366]
+maxld= -197765.7188 fn= 20 theta= 2.3379 -4.9452 2.0984 [2.75, 4.283]
+maxld= -186736.1000 fn= 22 theta= 2.5839 -5.9147 2.0974 [3.81, 4.120]
+maxld= -186565.3268 fn= 23 theta= 2.5824 -5.9100 2.0974 [3.80, 4.047]
+maxld= -186442.1718 fn= 24 theta= 2.5887 -5.9132 2.0974 [3.81, 3.989]
+maxld= -179821.9808 fn= 27 theta= 2.4928 -5.5629 2.0978 [3.53, 3.825]
+maxld= -179821.9808 fn= 29 theta= 2.4928 -5.5629 2.0978 [3.53, 3.743]
+maxld= -179821.6412 fn= 31 theta= 2.4928 -5.5629 2.1028 [3.53, 3.681]
+maxld= -179443.7236 fn= 31 theta= 2.4975 -5.5613 2.0978 [3.53, 3.681]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	 -0.248	  0.969	   . 
+	  0.969	  0.248	   . 
+	   . 	   . 	  1.000
+Iter=2 |grad|=7.58e+04 |dx|=0.944 |best.dx|=0.944 |df|=9.71e+04 |best.df|=9.68e+04 
+maxld= -171418.1596 fn= 33 theta= 2.6525 -5.4719 2.0980 [3.52, 3.595]
+maxld= -171345.4491 fn= 34 theta= 2.6574 -5.4706 2.0980 [3.52, 3.567]
+maxld= -171060.3473 fn= 38 theta= 2.6880 -5.4517 2.0981 [3.52, 3.467]
+maxld= -171041.6249 fn= 40 theta= 2.6868 -5.4468 2.0981 [3.52, 3.419]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.867	 -0.499	   . 
+	  0.499	  0.867	   . 
+	   . 	   . 	  1.000
+Iter=3 |grad|=3.77e+03 |dx|=0.127 |best.dx|=0.128 |df|=8.76e+03 |best.df|=8.4e+03 
+maxld= -170991.8309 fn= 44 theta= 2.6778 -5.4027 2.0991 [3.47, 3.334]
+maxld= -170988.5983 fn= 46 theta= 2.6821 -5.4002 2.0991 [3.47, 3.298]
+maxld= -170983.9754 fn= 49 theta= 2.6803 -5.4148 2.0989 [3.48, 3.249]
+maxld= -170980.5700 fn= 51 theta= 2.6847 -5.4123 2.0989 [3.48, 3.220]
+maxld= -170980.5692 fn= 70 theta= 2.6847 -5.4124 2.0989 [3.48, 2.996]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	 -0.197	  0.980	   . 
+	  0.980	  0.197	   . 
+	   . 	   . 	  1.000
+Iter=4 |grad|=1.13e+03 |dx|=0.019 |best.dx|=0.0199 |df|=76.4 |best.df|=61.1 
+maxld= -170980.2389 fn= 87 theta= 2.6850 -5.4119 2.1045 [3.48, 2.897]
+maxld= -170980.0519 fn= 93 theta= 2.6841 -5.4125 2.1044 [3.48, 2.874]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.906	 -0.258	  0.335
+	  0.258	  0.965	   . 
+	 -0.334	   . 	  0.941
+Iter=5 |grad|=796 |dx|=0.000754(pass) |best.dx|=0.0032(pass) |df|=3.41 |best.df|=0.517 
+Smart optimise part II: estimate gradient using central differences
+Smart optimise part II: restart optimiser
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.748	  0.628	  0.212
+	 -0.653	  0.640	  0.406
+	   . 	 -0.442	  0.889
+Iter=1 |grad|=438 |dx|=0.00165 |best.dx|=0(pass) |df|=3.12 |best.df|=0(pass) 
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	   . 	  0.751	  0.659
+	   . 	 -0.658	  0.751
+	  0.998	   . 	   . 
+Iter=2 |grad|=85.6 |dx|=0.00225 |best.dx|=0(pass) |df|=0.588 |best.df|=0(pass) 
+Optim: Number of function evaluations = 134
+Compute the Hessian using central differences and step_size[0.0707107]. Matrix-type [dense]
+Smart optimise part IV: estimate Hessian using central differences
+maxld= -170974.9100 fn=135 theta= 2.6826 -5.4087 2.1750 [3.46, 2.827]
+Mode not sufficient accurate; switch to a stupid local search strategy.
+maxld= -170970.9669 fn=142 theta= 2.6811 -5.4046 2.2491 [3.42, 2.849]
+maxld= -170968.4246 fn=149 theta= 2.6796 -5.4006 2.3232 [3.38, 2.858]
+maxld= -170967.1819 fn=156 theta= 2.6781 -5.3966 2.3973 [3.33, 2.857]
+maxld= -170967.1307 fn=163 theta= 2.6766 -5.3925 2.4715 [3.26, 2.857]
+
+GMRFLib_opt_estimate_hessian: ensure spd for Hessian: mode seems fine
+GMRFLib_opt_estimate_hessian: set tol=[0.2525]. number of negative eigenvalues=[1]
+
+ 401921.034  30702.430     22.147
+  30702.430 105406.695      2.269
+     22.147      2.269 102261.002
+Eigenvectors of the Hessian
+	  0.995	  0.102	  0.000
+	  0.102	 -0.995	 -0.001
+	  0.000	 -0.001	  1.000
+Eigenvalues of the Hessian
+	  405066.731
+	  102261.000
+	  102261.000
+StDev/Correlation matrix (scaled inverse Hessian)
+   0.002  -0.149  -0.000
+           0.003  -0.000
+                   0.003
+maxld= -170958.5929 fn=190 theta= 2.6770 -5.3969 2.4715 [3.27, 2.837]
+Compute corrected stdev for theta[0]: negative 0.639  positive 1.564
+Compute corrected stdev for theta[1]: negative 0.555  positive 1.802
+Compute corrected stdev for theta[2]: negative 1.111  positive 0.900
+maxld= -170952.5356 fn=196 theta= 2.6817 -5.3965 2.4715 [3.27, 2.834]
+maxld= -170946.2104 fn=200 theta= 2.6781 -5.4076 2.4715 [3.28, 2.864]
+maxld= -170945.9952 fn=206 theta= 2.6803 -5.4028 2.4676 [3.28, 3.126]
+maxld= -170944.9627 fn=209 theta= 2.6803 -5.4028 2.4746 [3.27, 3.313]
+config  0/15=[  2.980  0.000 -0.000 ] log(rel.dens)= 14.595, [1] accept, compute, 22.28s
+config  1/15=[  0.000 -0.000  1.715 ] log(rel.dens)=  9.340, [5] accept, compute, 23.76s
+config  2/15=[  0.000  3.433 -0.000 ] log(rel.dens)= 20.920, [3] accept, compute, 28.40s
+config  3/15=[ -0.000  0.000 -2.117 ] log(rel.dens)=  7.556, [6] accept, compute, 30.12s
+config  4/15=[ -0.000 -1.057 -0.000 ] log(rel.dens)=  2.343, [4] accept, compute, 32.67s
+config  5/15=[ -1.218  0.000 -0.000 ] log(rel.dens)=  3.504, [2] accept, compute, 34.37s
+config  6/15=[  0.000  0.000  0.000 ] log(rel.dens)=  8.538, [0] accept, compute, 37.28s
+config  7/15=[  1.720  1.982 -1.222 ] log(rel.dens)= 21.136, [13] accept, compute, 28.99s
+config  8/15=[ -0.703  1.982  0.990 ] log(rel.dens)= 14.871, [10] accept, compute, 29.59s
+config  9/15=[  1.720 -0.610 -1.222 ] log(rel.dens)=  9.114, [11] accept, compute, 29.62s
+config 10/15=[  1.720  1.982  0.990 ] log(rel.dens)= 22.168, [14] accept, compute, 29.93s
+config 11/15=[  1.720 -0.610  0.990 ] log(rel.dens)= 10.144, [12] accept, compute, 31.41s
+config 12/15=[ -0.703 -0.610 -1.222 ] log(rel.dens)=  1.805, [7] accept, compute, 30.76s
+config 13/15=[ -0.703 -0.610  0.990 ] log(rel.dens)=  2.835, [8] accept, compute, 32.11s
+config 14/15=[ -0.703  1.982 -1.222 ] log(rel.dens)= 13.838, [9] accept, compute, 31.62s
+
+Combine the densities with relative weights:
+config  0/15=[  0.000  0.000  0.000 ] weight=  0.000 adjusted weight=  0.000
+config  1/15=[  2.980  0.000 -0.000 ] weight=  0.001 adjusted weight=  0.001
+config  2/15=[ -1.218  0.000 -0.000 ] weight=  0.000 adjusted weight=  0.000
+config  3/15=[  0.000  3.433 -0.000 ] weight=  0.287 adjusted weight=  0.287
+config  4/15=[ -0.000 -1.057 -0.000 ] weight=  0.000 adjusted weight=  0.000
+config  5/15=[  0.000 -0.000  1.715 ] weight=  0.000 adjusted weight=  0.000
+config  6/15=[ -0.000  0.000 -2.117 ] weight=  0.000 adjusted weight=  0.000
+config  7/15=[ -0.703 -0.610 -1.222 ] weight=  0.000 adjusted weight=  0.000
+config  8/15=[ -0.703 -0.610  0.990 ] weight=  0.000 adjusted weight=  0.000
+config  9/15=[ -0.703  1.982 -1.222 ] weight=  0.000 adjusted weight=  0.000
+config 10/15=[ -0.703  1.982  0.990 ] weight=  0.001 adjusted weight=  0.001
+config 11/15=[  1.720 -0.610 -1.222 ] weight=  0.000 adjusted weight=  0.000
+config 12/15=[  1.720 -0.610  0.990 ] weight=  0.000 adjusted weight=  0.000
+config 13/15=[  1.720  1.982 -1.222 ] weight=  0.356 adjusted weight=  0.356
+config 14/15=[  1.720  1.982  0.990 ] weight=  1.000 adjusted weight=  1.000
+approx-inference.c:2300: {cur,peak}-Mem used: Real[22574.8, 22591.5]Mb, Virt[24408.8, 24654.6]Mb
+approx-inference.c:2363: {cur,peak}-Mem used: Real[33961.4, 33961.4]Mb, Virt[37016.8, 37016.8]Mb
+
+DIC:
+	Mean of Deviance ................. 138916
+	Deviance at Mean ................. 60373.7
+	Effective number of parameters ... 78542
+	DIC .............................. 217458
+DIC (Saturated):
+	Mean of Deviance ................. 913884
+	Deviance at Mean ................. 835732
+	Effective number of parameters ... 78542
+	DIC .............................. 992426
+Marginal likelihood: Integration -170984.912 Gaussian-approx -170982.365
+Compute the marginal for each of the 3 hyperparameters
+Interpolation method: Auto
+	Compute the marginal for theta[0] to theta[2] using numerical integration...
+	Compute the marginal for theta[0] to theta[2] using numerical integration... Done.
+Compute the marginal for the hyperparameters... done.
+approx-inference.c:2964: {cur,peak}-Mem used: Real[33990.2, 33990.2]Mb, Virt[37046.0, 37046.0]Mb
+Store results in directory[/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/results.files]
+
+Wall-clock time used on [/work/5191609.1.sudipto_pod_gold.q/Rtmpv4P2wF/file88b4338345e8/Model.ini]
+	Preparations             :   3.637 seconds
+	Approx inference (stage1): 308.304 seconds
+	Approx inference (stage2):   0.015 seconds
+	Approx inference (total) : 308.319 seconds
+	Output                   :  19.184 seconds
+	------------------------------------------
+	Total                    : 331.140 seconds
+
+Stage1:	Number of fn-calls= 210 with 1.4681 sec/fn-call
+Stage2:	Number of fn-calls= 0 with 308.3193 sec/fn-call
+Stage1:	Accumulated CPU-time is equivalent to 6.51 threads running at 100%
+	Efficiency using 36 threads = 18.07%
+Stage2:	Accumulated CPU-time is equivalent to 1.12 threads running at 100%
+	Efficiency using 36 threads = 3.11%
+Total:	Accumulated CPU-time is equivalent to 6.51 threads running at 100%
+	Efficiency using 36 threads = 18.08%
+
+[1] 130520
+
+
+*************************************************************************** 
+CONTAINS Runtime Modules of Parallel Sparse Linear Solver PARDISO Vers. 8.2
+Copyright Panua Technologies, Switzerland [2022-2023], All Rights Reserved.
+No license file found. Please see                                  
+            https://www.panua.ch/products/pardiso                         
+where to place the license file panua.lic 
+*************************************************************************** 
+	Read ntt 36 1 with max.threads 36
+	Found num.threads = 36:1 max_threads = 36
+
+	4ceb3890a81e413f04f9bb0b74bf415eacdcbf13 - Wed May 1 21:31:26 2024 +0300
+Report bugs to <help@r-inla.org>
+Set reordering to id=[0] and name=[default]
+Process file[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/Model.ini] threads[36] max.threads[36] blas_threads[1] nested[36:1]
+inla_build...
+	number of sections=[12]
+	parse section=[0] name=[INLA.libR] type=[LIBR]
+	inla_parse_libR...
+		section[INLA.libR]
+			R_HOME=[/u/local/apps/R/4.4.0/gcc10.2.0_intel2023.1.0/lib64/R]
+	parse section=[9] name=[INLA.Expert] type=[EXPERT]
+	inla_parse_expert...
+		section[INLA.Expert]
+			disable.gaussian.check=[0]
+			Measure dot.product.gain=[No]
+			cpo.manual=[0]
+			jp.file=[(null)]
+			jp.model=[(null)]
+	parse section=[1] name=[INLA.Model] type=[PROBLEM]
+	inla_parse_problem...
+		name=[INLA.Model]
+		R-INLA version = [24.05.01-1]
+		R-INLA build date = [19844]
+		Build tag = [devel]
+		System memory = [188.6Gb]
+		Cores = (Physical= 36, Logical= 36)
+		'char' is signed
+		BUFSIZ is 8192
+		openmp.strategy=[default]
+		pardiso-library installed and working? = [no]
+		smtp = [taucs]
+		strategy = [default]
+		store results in directory=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/results.files]
+		output:
+			gcpo=[0]
+				num.level.sets=[-1]
+				size.max=[32]
+				strategy=[Posterior]
+				correct.hyperpar=[1]
+				epsilon=[0.005]
+				prior.diagonal=[0.0001]
+				keep=[]
+				remove.fixed=[1]
+				remove=[]
+			cpo=[1]
+			po=[0]
+			dic=[1]
+			kld=[1]
+			mlik=[1]
+			q=[0]
+			graph=[0]
+			hyperparameters=[1]
+			config=[0]
+			config.lite=[0]
+			likelihood.info=[0]
+			internal.opt=[1]
+			save.memory=[0]
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[3] name=[Predictor] type=[PREDICTOR]
+	inla_parse_predictor ...
+		section=[Predictor]
+		dir=[predictor]
+		PRIOR->name=[loggamma]
+		hyperid=[53001|Predictor]
+		PRIOR->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR->PARAMETERS=[1, 1e-05]
+		initialise log_precision[13.8155]
+		fixed=[1]
+		user.scale=[1]
+		n=[253079]
+		m=[938809]
+		ndata=[938809]
+		compute=[1]
+		read offsets from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d]
+		read n=[2383776] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d]
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 0/1191888  (idx,y) = (0, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 1/1191888  (idx,y) = (1, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 2/1191888  (idx,y) = (2, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 3/1191888  (idx,y) = (3, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 4/1191888  (idx,y) = (4, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 5/1191888  (idx,y) = (5, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 6/1191888  (idx,y) = (6, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 7/1191888  (idx,y) = (7, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 8/1191888  (idx,y) = (8, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ec14a2d] 9/1191888  (idx,y) = (9, 0)
+		A=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30271bc7abc1]
+		Aext=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027628fb357]
+		AextPrecision=[3.269e+06]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[2] name=[INLA.Data1] type=[DATA]
+	inla_parse_data [section 1]...
+		tag=[INLA.Data1]
+		family=[GAUSSIAN]
+		likelihood=[GAUSSIAN]
+		file->name=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ce0f66c]
+		file->name=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027b331353]
+		file->name=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302714d70df4]
+		file->name=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30274d24edec]
+		read n=[2761074] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027ce0f66c]
+		mdata.nattributes = 0
+			0/920358  (idx,a,y,d) = (0, 1, 3.03293, 1)
+			1/920358  (idx,a,y,d) = (1, 1, 2.76336, 1)
+			2/920358  (idx,a,y,d) = (2, 1, 2.87266, 1)
+			3/920358  (idx,a,y,d) = (3, 1, 2.8895, 1)
+			4/920358  (idx,a,y,d) = (4, 1, 2.80992, 1)
+			5/920358  (idx,a,y,d) = (5, 1, 2.7429, 1)
+			6/920358  (idx,a,y,d) = (6, 1, 2.69129, 1)
+			7/920358  (idx,a,y,d) = (7, 1, 2.76419, 1)
+			8/920358  (idx,a,y,d) = (8, 1, 2.32965, 1)
+			9/920358  (idx,a,y,d) = (9, 1, 1.91836, 1)
+		likelihood.variant=[0]
+		initialise log_precision[4]
+		fixed0=[0]
+		PRIOR0->name=[loggamma]
+		hyperid=[65001|INLA.Data1]
+		PRIOR0->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR0->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR0->PARAMETERS0=[1, 5e-05]
+		initialise log_precision offset[72.0873]
+		fixed1=[1]
+		PRIOR1->name=[none]
+		hyperid=[65002|INLA.Data1]
+		PRIOR1->from_theta=[function (x) <<NEWLINE>>exp(x)]
+		PRIOR1->to_theta = [function (x) <<NEWLINE>>log(x)]
+		PRIOR1->PARAMETERS1=[]
+		Link model   [IDENTITY]
+		Link order   [-1]
+		Link variant [-1]
+		Link a       [1]
+		Link ntheta  [0]
+		mix.use[0]
+	parse section=[7] name=[spatial.field] type=[FFIELD]
+	inla_parse_ffield...
+		section=[spatial.field]
+		dir=[random.effect00000001]
+		model=[spde2]
+		PRIOR0->name=[mvnorm]
+		hyperid=[23001|spatial.field]
+		PRIOR0->from_theta=[function (x) <<NEWLINE>>x]
+		PRIOR0->to_theta = [function (x) <<NEWLINE>>x]
+		PRIOR0->PARAMETERS0[0]=[-3.36557]
+		PRIOR0->PARAMETERS0[1]=[2.10006]
+		PRIOR0->PARAMETERS0[2]=[0.1]
+		PRIOR0->PARAMETERS0[3]=[0]
+		PRIOR0->PARAMETERS0[4]=[0]
+		PRIOR0->PARAMETERS0[5]=[0.1]
+		vb.correct n[1]  -1
+		correct=[-1]
+		constr=[0]
+		diagonal=[0]
+		id.names=<not present>
+		compute=[1]
+		nrep=[1]
+		ngroup=[1]
+		Alocal=[no]
+		read covariates from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec]
+		read n=[506158] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec]
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 0/253079  (idx,y) = (0, 8)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 1/253079  (idx,y) = (1, 9)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 2/253079  (idx,y) = (2, 10)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 3/253079  (idx,y) = (3, 11)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 4/253079  (idx,y) = (4, 12)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 5/253079  (idx,y) = (5, 13)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 6/253079  (idx,y) = (6, 14)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 7/253079  (idx,y) = (7, 15)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 8/253079  (idx,y) = (8, 16)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027638b44ec] 9/253079  (idx,y) = (9, 17)
+		spde2.prefix = [/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30272be3268f/file302743b164ff.]
+		spde2.transform = [identity]
+		ntheta (max) = [2]
+		initialise theta[0]=[-3.36557]
+		fixed[0]=[0]
+		initialise theta[1]=[2.10006]
+		fixed[1]=[0]
+		ntheta (used) = [2]
+		computed/guessed rank-deficiency = [0]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[4] name=[(Intercept)] type=[LINEAR]
+	inla_parse_linear...
+		section[(Intercept)]
+		dir=[fixed.effect00000001]
+		file for covariates=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d]
+		read n=[506158] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d]
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 0/253079  (idx,y) = (0, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 1/253079  (idx,y) = (1, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 2/253079  (idx,y) = (2, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 3/253079  (idx,y) = (3, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 4/253079  (idx,y) = (4, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 5/253079  (idx,y) = (5, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 6/253079  (idx,y) = (6, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 7/253079  (idx,y) = (7, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 8/253079  (idx,y) = (8, 1)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file30273e81803d] 9/253079  (idx,y) = (9, 1)
+		prior mean=[0]
+		prior precision=[0]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[5] name=[coord_1] type=[LINEAR]
+	inla_parse_linear...
+		section[coord_1]
+		dir=[fixed.effect00000002]
+		file for covariates=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc]
+		read n=[506158] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc]
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 0/253079  (idx,y) = (0, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 1/253079  (idx,y) = (1, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 2/253079  (idx,y) = (2, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 3/253079  (idx,y) = (3, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 4/253079  (idx,y) = (4, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 5/253079  (idx,y) = (5, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 6/253079  (idx,y) = (6, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 7/253079  (idx,y) = (7, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 8/253079  (idx,y) = (8, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file302736944fdc] 9/253079  (idx,y) = (9, 0)
+		prior mean=[0]
+		prior precision=[0.001]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	section=[6] name=[coord_2] type=[LINEAR]
+	inla_parse_linear...
+		section[coord_2]
+		dir=[fixed.effect00000003]
+		file for covariates=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1]
+		read n=[506158] entries from file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1]
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 0/253079  (idx,y) = (0, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 1/253079  (idx,y) = (1, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 2/253079  (idx,y) = (2, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 3/253079  (idx,y) = (3, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 4/253079  (idx,y) = (4, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 5/253079  (idx,y) = (5, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 6/253079  (idx,y) = (6, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 7/253079  (idx,y) = (7, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 8/253079  (idx,y) = (8, 0)
+		file=[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/data.files/file3027300d93d1] 9/253079  (idx,y) = (9, 0)
+		prior mean=[0]
+		prior precision=[0.001]
+		compute=[1]
+		output:
+			summary=[1]
+			return.marginals=[1]
+			return.marginals.predictor=[0]
+			nquantiles=[3]  [ 0.025 0.5 0.975 ]
+			ncdf=[0]  [ ]
+	parse section=[11] name=[INLA.pardiso] type=[PARDISO]
+	inla_parse_pardiso...
+		section[INLA.pardiso]
+		verbose[0]
+		debug[0]
+		parallel.reordering[1]
+		nrhs[-1]
+	parse section=[10] name=[INLA.lp.scale] type=[LP.SCALE]
+	inla_parse_lp_scale...
+		section[INLA.lp.scale]
+
+	Index table: number of entries[6], total length[1322411]
+		tag                            start-index     length
+		APredictor                              0     938809
+		Predictor                          938809     253079
+		spatial.field                     1191888     130520
+		(Intercept)                       1322408          1
+		coord_1                           1322409          1
+		coord_2                           1322410          1
+	List of hyperparameters: 
+		theta[0] = [Log precision for the Gaussian observations]
+		theta[1] = [Theta1 for spatial.field]
+		theta[2] = [Theta2 for spatial.field]
+
+	parse section=[8] name=[INLA.Parameters] type=[INLA]
+	inla_parse_INLA...
+		section[INLA.Parameters]
+			lincomb.derived.correlation.matrix = [No]
+		global_node.factor = 2.000
+		global_node.degree = 2147483647
+		reordering = -1
+		constr.marginal.diagonal = 1.49e-08
+Contents of ai_param 0x4ee10d40
+	Optimiser: DEFAULT METHOD
+		Option for GSL-BFGS2: tol  = 0.1
+		Option for GSL-BFGS2: step_size = 1
+		Option for GSL-BFGS2: epsx = 0.001
+		Option for GSL-BFGS2: epsf = 0.002
+		Option for GSL-BFGS2: epsg = 0.005
+		Restart: 0
+		Optimise: try to be smart: Yes
+		Optimise: use directions: Yes
+		Mode known: No
+		parallel linesearch [0]
+	Gaussian approximation:
+		tolerance_func = 0.002
+		tolerance_step = 0.0005
+		optpar_fp = 0
+		optpar_nr_step_factor = -0.1
+	Gaussian data: Yes
+	Strategy: 	Use an adaptive strategy (max=25)
+	Fast mode: 	On
+	Use linear approximation to log(|Q +c|)? Yes
+		Method:	 Compute the derivative exact
+	Parameters for improved approximations
+		Number of points evaluate:	 9
+		Step length to compute derivatives numerically:	 0.0001
+		Stencil to compute derivatives numerically:	 5
+		Cutoff value to construct local neigborhood:	 0.0001
+	Log calculations:	 On
+	Log calculated marginal for the hyperparameters:	 On
+	Integration strategy:	 Automatic (GRID for dim(theta)=1 and 2 and otherwise CCD)
+		f0 (CCD only):	 1.100
+		dz (GRID only):	 0.750
+		Adjust weights (GRID only):	 On
+		Difference in log-density limit (GRID only):	 6.000
+		Skip configurations with (presumed) small density (GRID only):	 On
+	Gradient is computed using Central difference with step-length 0.005000
+	Hessian is computed using Central difference with step-length 0.070711
+	Hessian matrix is forced to be a diagonal matrix? [No]
+	Compute effective number of parameters? [Yes]
+	Perform a Monte Carlo error-test? [No]
+	Interpolator [Auto]
+	CPO required diff in log-density [3]
+	Stupid search mode:
+		Status     [On]
+		Max iter   [1000]
+		Factor     [1.05]
+	Numerical integration of hyperparameters:
+		Maximum number of function evaluations [100000]
+		Relative error ....................... [1e-05]
+		Absolute error ....................... [1e-06]
+	To stabilise the numerical optimisation:
+		Minimum value of the -Hessian [-inf]
+		Strategy for the linear term [Keep]
+	CPO manual calculation[No]
+	VB correction is [Enabled]
+		strategy                    = [mean]
+		verbose                     = [Yes]
+		f_enable_limit_mean         = [30]
+		f_enable_limit_var          = [25]
+		f_enable_limit_mean_max     = [1024]
+		f_enable_limit_variance_max = [768]
+		iter_max                    = [25]
+		emergency                   = [25.00]
+		hessian_update              = [2]
+		hessian_strategy            = [full]
+	Misc options: 
+		Hessian correct skewness only [1]
+inla_build: check for unused entries in[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/Model.ini]
+inla_INLA_preopt_experimental...
+	Strategy = [DEFAULT]
+	Mode....................... [Compact]
+	Setup...................... [8.64s]
+	Sparse-matrix library...... [taucs]
+	sort L..................... [no]
+	OpenMP strategy............ [huge]
+	num.threads................ [36:1]
+	blas.num.threads........... [1]
+	Density-strategy........... [Low]
+	Size of graph.............. [130523]
+	Number of constraints...... [0]
+	Optimizing sort2_id........ [198]
+	Optimizing sort2_dd........ [299]
+	Optimizing Qx-strategy..... serial[0.486] parallel [0.514] choose[serial]
+	Optimizing pred-strategy... plain [0.645] data-rich[0.355] choose[data-rich]
+	Found optimal reordering=[metis] nnz(L)=[14762107] and use_global_nodes(user)=[no]
+
+	List of hyperparameters: 
+		theta[0] = [Log precision for the Gaussian observations]
+		theta[1] = [Theta1 for spatial.field]
+		theta[2] = [Theta2 for spatial.field]
+
+
+Compute initial values...
+	Iter[0] RMS(err) = 1.000, update with step-size = 1.039
+	Iter[1] RMS(err) = 0.295, update with step-size = 0.379
+	Iter[2] RMS(err) = 0.923, update with step-size = 0.525
+	Iter[3] RMS(err) = 0.971, update with step-size = 0.391
+	Initial values computed in 0.3505 seconds
+		x[0] = 0.0000
+		x[1] = 0.0000
+		x[2] = 0.0000
+		x[3] = 0.0000
+		x[4] = 0.0000
+		x[130518] = 0.0000
+		x[130519] = 0.0000
+		x[130520] = -0.0060
+		x[130521] = -0.1485
+		x[130522] = 0.2296
+
+Optimise using DEFAULT METHOD
+Smart optimise part I: estimate gradient using forward differences
+maxld= -1361690.8094 fn=  1 theta= 4.0000 -3.3606 2.1001 [2.14, 10.342]
+maxld= -1359111.1239 fn=  2 theta= 4.0000 -3.3656 2.1001 [2.14, 10.371]
+maxld= -400279.1402 fn=  5 theta= 3.0475 -3.6701 2.0997 [2.13, 8.872]
+maxld= -400279.1402 fn=  8 theta= 3.0475 -3.6701 2.0997 [2.13, 6.532]
+maxld= -276897.2417 fn= 12 theta= 2.0824 -3.9786 2.0993 [2.13, 5.127]
+maxld= -276897.2417 fn= 14 theta= 2.0824 -3.9786 2.0993 [2.13, 4.736]
+maxld= -276287.5371 fn= 15 theta= 2.0874 -3.9786 2.0993 [2.13, 4.589]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.953	 -0.305	   . 
+	  0.305	  0.953	   . 
+	   . 	   . 	  1.000
+Iter=1 |grad|=1.39e+05 |dx|=1.16 |best.dx|=1.16 |df|=1.08e+06 |best.df|=1.08e+06 
+maxld= -198217.8726 fn= 17 theta= 2.3331 -4.9467 2.0984 [2.75, 4.328]
+maxld= -197765.7191 fn= 20 theta= 2.3379 -4.9452 2.0984 [2.75, 4.055]
+maxld= -186736.0995 fn= 22 theta= 2.5839 -5.9147 2.0974 [3.81, 3.903]
+maxld= -186565.3253 fn= 23 theta= 2.5824 -5.9100 2.0974 [3.80, 3.829]
+maxld= -186442.1712 fn= 24 theta= 2.5887 -5.9132 2.0974 [3.81, 3.766]
+maxld= -179821.9813 fn= 27 theta= 2.4928 -5.5629 2.0978 [3.53, 3.607]
+maxld= -179821.6416 fn= 28 theta= 2.4928 -5.5629 2.1028 [3.53, 3.562]
+maxld= -179443.7241 fn= 30 theta= 2.4975 -5.5613 2.0978 [3.53, 3.484]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	 -0.248	  0.969	   . 
+	  0.969	  0.248	   . 
+	   . 	   . 	  1.000
+Iter=2 |grad|=7.58e+04 |dx|=0.944 |best.dx|=0.944 |df|=9.71e+04 |best.df|=9.68e+04 
+maxld= -171418.1616 fn= 33 theta= 2.6525 -5.4719 2.0980 [3.52, 3.361]
+maxld= -171345.4494 fn= 34 theta= 2.6574 -5.4706 2.0980 [3.52, 3.328]
+maxld= -171060.3486 fn= 38 theta= 2.6880 -5.4517 2.0981 [3.52, 3.219]
+maxld= -171059.9424 fn= 39 theta= 2.6880 -5.4517 2.1031 [3.52, 3.194]
+maxld= -171041.6253 fn= 40 theta= 2.6868 -5.4468 2.0981 [3.52, 3.172]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.867	 -0.499	   . 
+	  0.499	  0.867	   . 
+	   . 	   . 	  1.000
+Iter=3 |grad|=3.77e+03 |dx|=0.127 |best.dx|=0.128 |df|=8.76e+03 |best.df|=8.4e+03 
+maxld= -170991.8296 fn= 44 theta= 2.6778 -5.4027 2.0991 [3.47, 3.083]
+maxld= -170988.5974 fn= 45 theta= 2.6821 -5.4002 2.0991 [3.47, 3.066]
+maxld= -170983.9752 fn= 49 theta= 2.6803 -5.4148 2.0989 [3.48, 3.002]
+maxld= -170983.5684 fn= 50 theta= 2.6803 -5.4148 2.1039 [3.48, 2.987]
+maxld= -170980.5694 fn= 52 theta= 2.6847 -5.4123 2.0989 [3.48, 2.960]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	 -0.197	  0.980	   . 
+	  0.980	  0.197	   . 
+	   . 	   . 	  1.000
+Iter=4 |grad|=1.13e+03 |dx|=0.019 |best.dx|=0.0199 |df|=76.4 |best.df|=61.1 
+maxld= -170980.2392 fn= 80 theta= 2.6850 -5.4119 2.1045 [3.48, 2.687]
+maxld= -170980.0522 fn= 85 theta= 2.6841 -5.4125 2.1044 [3.48, 2.663]
+maxld= -170980.0521 fn= 98 theta= 2.6841 -5.4125 2.1044 [3.48, 2.612]
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.903	 -0.269	  0.335
+	  0.270	  0.962	   . 
+	 -0.334	   . 	  0.941
+Iter=5 |grad|=796 |dx|=0.000754(pass) |best.dx|=0.0032(pass) |df|=3.41 |best.df|=0.517 
+Smart optimise part II: estimate gradient using central differences
+Smart optimise part II: restart optimiser
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	  0.748	  0.630	  0.209
+	 -0.653	  0.642	  0.403
+	   . 	 -0.438	  0.891
+Iter=1 |grad|=438 |dx|=0.00165 |best.dx|=0(pass) |df|=3.12 |best.df|=0(pass) 
+New directions for numerical gradient
+	  dir01	  dir02	  dir03
+	   . 	  0.751	  0.660
+	   . 	 -0.658	  0.751
+	  0.998	   . 	   . 
+Iter=2 |grad|=85.6 |dx|=0.00225 |best.dx|=0(pass) |df|=0.589 |best.df|=0(pass) 
+Optim: Number of function evaluations = 129
+Compute the Hessian using central differences and step_size[0.0707107]. Matrix-type [dense]
+Smart optimise part IV: estimate Hessian using central differences
+maxld= -170974.9208 fn=133 theta= 2.6826 -5.4087 2.1750 [3.46, 2.719]
+enable early_stop ff < f0: 170974.920829 < 170980.052145 (diff -5.13132)
+Mode not sufficient accurate; switch to a stupid local search strategy.
+maxld= -170971.0106 fn=140 theta= 2.6810 -5.4047 2.2491 [3.42, 2.766]
+maxld= -170968.5225 fn=145 theta= 2.6795 -5.4006 2.3232 [3.38, 2.783]
+enable early_stop ff < f0: 170968.522491 < 170971.010647 (diff -2.48816)
+maxld= -170967.3552 fn=155 theta= 2.6780 -5.3966 2.3973 [3.33, 2.807]
+
+GMRFLib_opt_estimate_hessian: ensure spd for Hessian: mode seems fine
+GMRFLib_opt_estimate_hessian: set tol=[0.2525]. number of negative eigenvalues=[1]
+
+maxld= -170967.3552 fn=177 theta= 2.6780 -5.3966 2.3973 [3.33, 2.818]
+ 402368.109  30477.347     19.219
+  30477.347 105483.726      1.953
+     19.219      1.953 102387.300
+Eigenvectors of the Hessian
+	  0.995	  0.101	  0.000
+	  0.101	 -0.995	 -0.001
+	  0.000	 -0.001	  1.000
+Eigenvalues of the Hessian
+	  405464.537
+	  102387.299
+	  102387.299
+StDev/Correlation matrix (scaled inverse Hessian)
+   0.002  -0.148  -0.000
+           0.003  -0.000
+                   0.003
+maxld= -170960.7616 fn=179 theta= 2.6784 -5.4010 2.3973 [3.33, 2.816]
+Compute corrected stdev for theta[0]: negative 0.665  positive 1.503
+Compute corrected stdev for theta[1]: negative 0.584  positive 1.712
+Compute corrected stdev for theta[2]: negative 1.144  positive 0.874
+maxld= -170960.7616 fn=185 theta= 2.6784 -5.4010 2.3973 [3.33, 2.826]
+maxld= -170956.5520 fn=186 theta= 2.6829 -5.4006 2.3973 [3.33, 2.835]
+maxld= -170953.2011 fn=187 theta= 2.6794 -5.4112 2.3973 [3.34, 2.844]
+maxld= -170952.1891 fn=197 theta= 2.6816 -5.4066 2.3934 [3.34, 3.304]
+maxld= -170951.2660 fn=198 theta= 2.6816 -5.4066 2.4003 [3.34, 3.365]
+config  0/15=[  2.864 -0.000  0.000 ] log(rel.dens)= 10.803, [1] accept, compute, 68.25s
+config  1/15=[ -0.000 -1.113  0.000 ] log(rel.dens)=  1.574, [4] accept, compute, 67.40s
+config  2/15=[  0.000  3.262 -0.000 ] log(rel.dens)= 14.154, [3] accept, compute, 67.73s
+config  3/15=[  0.000 -0.000 -2.179 ] log(rel.dens)=  5.693, [6] accept, compute, 67.65s
+config  4/15=[ -0.000  0.000  1.666 ] log(rel.dens)=  7.289, [5] accept, compute, 68.10s
+config  5/15=[ -1.268 -0.000 -0.000 ] log(rel.dens)=  2.112, [2] accept, compute, 72.20s
+config  6/15=[  1.653 -0.642 -1.258 ] log(rel.dens)=  6.760, [11] accept, compute, 61.93s
+config  7/15=[ -0.732  1.884  0.962 ] log(rel.dens)= 10.274, [10] accept, compute, 61.84s
+config  8/15=[ -0.732 -0.642  0.962 ] log(rel.dens)=  1.855, [8] accept, compute, 62.34s
+config  9/15=[ -0.732  1.884 -1.258 ] log(rel.dens)=  9.350, [9] accept, compute, 62.16s
+config 10/15=[  0.000  0.000  0.000 ] log(rel.dens)=  6.594, [0] accept, compute, 73.80s
+config 11/15=[ -0.732 -0.642 -1.258 ] log(rel.dens)=  0.934, [7] accept, compute, 62.39s
+config 12/15=[  1.653  1.884  0.962 ] log(rel.dens)= 16.089, [14] accept, compute, 62.81s
+config 13/15=[  1.653  1.884 -1.258 ] log(rel.dens)= 15.166, [13] accept, compute, 63.00s
+config 14/15=[  1.653 -0.642  0.962 ] log(rel.dens)=  7.681, [12] accept, compute, 63.78s
+
+Combine the densities with relative weights:
+config  0/15=[  0.000  0.000  0.000 ] weight=  0.000 adjusted weight=  0.000
+config  1/15=[  2.864 -0.000  0.000 ] weight=  0.005 adjusted weight=  0.005
+config  2/15=[ -1.268 -0.000 -0.000 ] weight=  0.000 adjusted weight=  0.000
+config  3/15=[  0.000  3.262 -0.000 ] weight=  0.144 adjusted weight=  0.144
+config  4/15=[ -0.000 -1.113  0.000 ] weight=  0.000 adjusted weight=  0.000
+config  5/15=[ -0.000  0.000  1.666 ] weight=  0.000 adjusted weight=  0.000
+config  6/15=[  0.000 -0.000 -2.179 ] weight=  0.000 adjusted weight=  0.000
+config  7/15=[ -0.732 -0.642 -1.258 ] weight=  0.000 adjusted weight=  0.000
+config  8/15=[ -0.732 -0.642  0.962 ] weight=  0.000 adjusted weight=  0.000
+config  9/15=[ -0.732  1.884 -1.258 ] weight=  0.001 adjusted weight=  0.001
+config 10/15=[ -0.732  1.884  0.962 ] weight=  0.003 adjusted weight=  0.003
+config 11/15=[  1.653 -0.642 -1.258 ] weight=  0.000 adjusted weight=  0.000
+config 12/15=[  1.653 -0.642  0.962 ] weight=  0.000 adjusted weight=  0.000
+config 13/15=[  1.653  1.884 -1.258 ] weight=  0.397 adjusted weight=  0.397
+config 14/15=[  1.653  1.884  0.962 ] weight=  1.000 adjusted weight=  1.000
+approx-inference.c:2300: {cur,peak}-Mem used: Real[22670.8, 22670.8]Mb, Virt[24273.6, 24327.4]Mb
+approx-inference.c:2363: {cur,peak}-Mem used: Real[33965.6, 33965.6]Mb, Virt[37329.6, 37329.6]Mb
+
+DIC:
+	Mean of Deviance ................. 138530
+	Deviance at Mean ................. 59844.2
+	Effective number of parameters ... 78686.2
+	DIC .............................. 217217
+DIC (Saturated):
+	Mean of Deviance ................. 914823
+	Deviance at Mean ................. 836358
+	Effective number of parameters ... 78686.2
+	DIC .............................. 993509
+Marginal likelihood: Integration -170985.197 Gaussian-approx -170982.591
+Compute the marginal for each of the 3 hyperparameters
+Interpolation method: Auto
+	Compute the marginal for theta[0] to theta[2] using numerical integration...
+	Compute the marginal for theta[0] to theta[2] using numerical integration... Done.
+Compute the marginal for the hyperparameters... done.
+approx-inference.c:2964: {cur,peak}-Mem used: Real[33980.2, 33980.2]Mb, Virt[37344.2, 37344.2]Mb
+Store results in directory[/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/results.files]
+
+Wall-clock time used on [/work/5215145.1.sudipto_pod_gold.q/RtmpSAv44a/file3027696b61b4/Model.ini]
+	Preparations             :   3.180 seconds
+	Approx inference (stage1): 324.824 seconds
+	Approx inference (stage2):   0.015 seconds
+	Approx inference (total) : 324.840 seconds
+	Output                   :  24.001 seconds
+	------------------------------------------
+	Total                    : 352.021 seconds
+
+Stage1:	Number of fn-calls= 198 with 1.6405 sec/fn-call
+Stage2:	Number of fn-calls= 0 with 324.8397 sec/fn-call
+Stage1:	Accumulated CPU-time is equivalent to 6.79 threads running at 100%
+	Efficiency using 36 threads = 18.87%
+Stage2:	Accumulated CPU-time is equivalent to 1.13 threads running at 100%
+	Efficiency using 36 threads = 3.15%
+Total:	Accumulated CPU-time is equivalent to 6.79 threads running at 100%
+	Efficiency using 36 threads = 18.87%
+

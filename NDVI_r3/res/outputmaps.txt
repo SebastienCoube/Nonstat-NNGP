@@ -1,0 +1,25 @@
+starting worker pid=22537 on localhost:11955 at 19:55:08.307
+starting worker pid=22538 on localhost:11955 at 19:55:08.307
+starting worker pid=33977 on localhost:11751 at 00:46:30.823
+starting worker pid=33976 on localhost:11751 at 00:46:30.824
+starting worker pid=7958 on localhost:11751 at 01:15:48.074
+starting worker pid=7957 on localhost:11751 at 01:15:48.074
+starting worker pid=12866 on localhost:11751 at 01:21:03.093
+starting worker pid=12867 on localhost:11751 at 01:21:03.093
+starting worker pid=20645 on localhost:11730 at 05:34:29.332
+starting worker pid=20644 on localhost:11730 at 05:34:29.332
+starting worker pid=30989 on localhost:11730 at 05:56:51.084
+starting worker pid=30988 on localhost:11730 at 05:56:51.084
+starting worker pid=37816 on localhost:11730 at 06:01:31.829
+starting worker pid=37818 on localhost:11730 at 06:01:31.840
+starting worker pid=40692 on localhost:11730 at 06:12:14.149
+starting worker pid=40693 on localhost:11730 at 06:12:14.149
+starting worker pid=14065 on localhost:11825 at 02:14:23.165
+starting worker pid=14064 on localhost:11825 at 02:14:23.165
+null device 
+          1 
+null device 
+          1 
+             used   (Mb) gc trigger    (Mb)   max used   (Mb)
+Ncells    2778946  148.5    5344805   285.5    3149740  168.3
+Vcells 1283993431 9796.1 1583982207 12084.9 1283995407 9796.2
