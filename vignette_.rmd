@@ -13,6 +13,7 @@ editor_options:
 
 ```{r, echo=FALSE}
 library(magrittr)
+knitr::opts_chunk$set(fig.align = 'center')
 set.seed(1)
 ```
 
@@ -114,7 +115,7 @@ Well, it seems that you need a **nonstationary geostatistical model**, which mea
 
 ## How ?
 
-You need a machine with a decent amount of RAM (16 Gb is good, 32 Gb is better), and a good CPU.
+You need a machine with a decent amount of RAM (16 Gb is OK, 32 Gb is better, 64 Gb is nice), and a good CPU.
 You can also use a SLURM cluster.
 It is not necessary but very useful to install [OpenBLAS](https://www.openblas.net/), which accelerates some matrix operations.
 Then, go the [NonstatNNGP github page](https://github.com/SebastienCoube/Nonstat-NNGP), download the compressed package Bidart_1.0.tar.gz, and install it using *install.packages("Bidart_1.0.tar.gz", dependencies = TRUE)* in the Terminal of Rstudio.
@@ -128,7 +129,7 @@ Later we say a word about [smoothness](#smoothness) of the latent process, which
 
 ## The Russian Doll range model. {#range_model}
 
-This subsection treats how the possibly **nonstationary correlation** is modeled. This is the biggest lump. 
+This subsection treats how the possibly **nonstationary correlation** is modeled. This is the biggest lump, it will get easier later. 
 Correlation is specified through the **range parameter(s)**, even though a nonstarionary smoothness is possible.
 Our range model is **organized like Russian dolls**.
 The simplest model is the **stationary** model.
@@ -136,25 +137,39 @@ This model is encompassed into the **locally isotropic** model, *isotropic* mean
 This model behaves like a stationary isotropic model if you zoom up a small region, but its behavior changes if you take a bigger picture.
 This model is itself embedded into the **locally anisotropic** model, that is a model where not only the process correlation range is susceptible to change, but also where the **correlation changes with the orientation**.
 
-```{r,fig.width = 3, fig.height=3, echo=FALSE}
-img = (png::readPNG("dolls.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![](dolls.png)
 
 
 ### The logarithmic parametrization of the range. {#log_range}
 
-This subsection tells how the range is parametrized and gives some explanations about matrix logarithm. Intuitions about how those parametrizations impact the model come in the next sections. 
+This subsection tells how the range is parametrized and gives some explanations about matrix logarithm. 
 
-In both case, a **logarithmic parametrization** (or matrix-logarithmic parametrization in the case of range ellipses) is used: $$log(\alpha(s)) = x_\alpha(s)\beta_\alpha$$ in the scalar case, $\alpha$ being the range parameter. This is the middle doll. We use $$vech(logM(A(s))) = x_A(s)\beta_A$$ in the matrix case, $A$ being the (matrix) range parameter, $vech$ being the [half-vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)#Half-vectorization) and $logM$ being the [matrix logarithm](https://en.wikipedia.org/wiki/Logarithm_of_a_matrix).
-Here, $\beta_A$ is a **matrix with** $3$ columns. This is the left-hand doll. 
-Note that the range parameters $\alpha(s)$ or $A(s)$ are **local**, they depend on the **spatial site $s$**. Therefore, they enforce a **local behavior of the Gaussian process** w(s). 
+**The smallest doll, aka the stationary, isotropic correlation**
 
-We chose this parametrization because **spatial ranges are essentially sizes**, making the logarithm a [relevant tool](https://en.wikipedia.org/wiki/Positive_real_numbers#Ratio_scale).
-The matrix logarithm, in turn, generalizes the properties of scalar logarithm to the matrix-valued anisotropic range parameters.
+If you are familiar with Matérn, exponential, or squared-exponental covariance functions (again, if you are not, you will have a hard time here), then you should know that they have **range parameters** who are **positive numbers**. 
+In the **usual model**, we have 
+$$\alpha = constant$$
+$\alpha$ being the range parameter.  
 
-Note that $A(s)$ is parametrized using **matrix logarithm**. What does it imply ? 
+**The medium doll, aka the nonstationary, locally isotropic correlation**
+
+Now, we want to work with nonstationarity, and let the range parameter vary. We use the following : 
+$$log(\alpha(s)) = x_\alpha(s)\beta_\alpha$$
+$\alpha(s)$ being the range parameter, $x_\alpha(s)$ being a vector of **covariates**, $\beta_\alpha$ being a vector of **regression coefficients**  and $s$ being the **spatial site**. This is just like a **linear model** ! (Except that **there is a log** and that the data is indexed on spatial locations). 
+Those covariates can be, for example, an Intercept and the elevation. Note that the range parameters are local. Therefore, they enforce a **local behavior of the Gaussian process** w(s). 
+
+**Why are we using a log ?**  Well, first, $\alpha(s)$ must be **positive**, and there is no guarantee that $x_\alpha(s)\beta_\alpha$ is. With that formula, we have $\alpha(s) = exp(x_\alpha(s)\beta_\alpha) > 0$, which is nice. But there is more. **Spatial ranges are essentially sizes**, the width of a correlation kernel, making the logarithm a [relevant tool](https://en.wikipedia.org/wiki/Positive_real_numbers#Ratio_scale). 
+
+Why is it the medium doll ? Because $\alpha(s)$ *can* move. But that does not mean it *wants* to. If $\alpha(s)$ does not move, that is, if **all the coefficients of $\beta$ are null, except the intercept** associated then we get the **stationary range**: the little doll is encompassed in the big doll. 
+
+**The big doll, aka the nonstationary, locally anisotropic correlation**
+
+However, we also to have **anisotropic range**, that is parameters who are **ellipses**. An ellipse is equivalent to a **positive-definite matrix**. 
+ Then, we use $$vech(logM(A(s))) = x_A(s)\beta_A$$ $A$ being the (matrix) range parameter, $vech$ being the [half-vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)#Half-vectorization) and $logM$ being the [matrix logarithm](https://en.wikipedia.org/wiki/Logarithm_of_a_matrix).
+Here, $\beta_A$ is a **matrix with $3$ columns**, not a vector anymore. 
+The matrix logarithm **generalizes the properties of scalar logarithm** to the matrix-valued anisotropic range parameters.
+
+
 A symmetric matrix $A$ of size $2\times 2$ has an [**eigendecomposition**](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix) of the shape $$A = U~diag(\lambda_1, \lambda_2) U^T, \text{ with } U^T U = U U^T = diag(1,1). $$ The [**matrix exponential**](https://en.wikipedia.org/wiki/Matrix_exponential) of $A$ is just $$exp(A) = U~diag(exp(\lambda_1), exp(\lambda_2)) U^T. $$ Note that $exp(\lambda_1)$ and $exp(\lambda_2)$ are greater than $0$, making $exp(A)$ [**positive-definite**](https://en.wikipedia.org/wiki/Definite_matrix).
 The matrix exponential **maps the symmetric matrices to the positive-definite matrices**, just like the scalar exponential maps the real numbers to the positive nubers.
 Positive-definite matrices define [**ellipses**](https://en.wikipedia.org/wiki/Ellipse) on the plane using the modified circle equation $(x, y)A^{-1}(x, y)=1$, $x$ and $y$ being the two coordinates on the plane (The usual circle equation is $x^2 + y^2 = 1$, that is $A = diag(1,1)$).\
@@ -163,15 +178,16 @@ Those **ellipses** are later used in the correlation function: the correlation s
 The symmetric matrices are a [**vector space**](https://en.wikipedia.org/wiki/Vector_space).
 If you multiply a symmetric matrix by a number, it is still symmetric.
 If you add two symmetric matrices, the result is a symmetric matrix.
-This vector space admits (**orthonormal bases**)(<https://en.wikipedia.org/wiki/Orthonormal_basis>), which means that you can express any symmetric matrix as a sum of 3 well-chosen symmetric matrices.
+This vector space admits [**orthonormal bases**](<https://en.wikipedia.org/wiki/Orthonormal_basis>), which means that you can express any symmetric matrix as a sum of 3 well-chosen symmetric matrices.
 Note, however, that the positive-definite matrix are not a vector space but a [cone](https://en.wikipedia.org/wiki/Cone).
 There is no basis allowing to reconstruct a positive-definite matrix with a few elements.
 
 Let's recap.
-We want ellipses.
-To get ellipses, we need positive-definite matrices.
-To get positive-definite matrices, we need symmetric matrices.
-To get any symmetric matrix, we only need to sum 3 well-chosen symmetric matrices.
+
+- We want ellipses.
+- To get ellipses, we need positive-definite matrices.
+- To get positive-definite matrices, we need symmetric matrices.
+- To get any symmetric matrix, we only need to sum 3 well-chosen symmetric matrices.
 
 The three matrices we chose are:
 
@@ -188,7 +204,7 @@ $$e1 = \left(\begin{array}{cc}
 
 You might ask: "Why this basis and not any other valid orthonormal basis ?".
 Here is the reason why.
-Let's take generate an ellipse from our basis.
+Let's generate an ellipse from our basis.
 First, we code the basis in R.
 
 ```{r,fig.width = 9, fig.height=5}
@@ -206,20 +222,20 @@ Then, we plot the ellipse associated with a symmetric matrix built using the bas
 M1 = -3*e1 + 2*e2 -1*e3 # symmetric matrix
 exp_M1 = expm::expm(M1) # exponential
 ell = ellipse::ellipse(exp_M1) # ellipse
-plot(ell, type = 'l', main = "ellipse generated from coordinates (-3,2,-1)")
+plot(ell, type = 'l', main = "ellipse generated from coordinates (-3,2,-1)", xlim = c(-3,3), ylim = c(-3,3))
 ```
 
 Good.
-Now, let's **change only the first coefficient** of the basis, and leave the other alone.
+Now, let's **change only the first coefficient** of the basis, and leave the others alone.
 
 ```{r,fig.width = 5, fig.height=5}
 M1 = -3*e1 + 2*e2 -1*e3
 M2 = M1 +1*e1
 M3 = M1 -1*e1
-plot(ellipse::ellipse( expm::expm(M1)), type = 'l', xlim = c(-3, 3), ylim = c(-1, 2))
-lines(ellipse::ellipse(expm::expm(M2)), type = 'l', col=2)
-lines(ellipse::ellipse(expm::expm(M3)), type = 'l', col=3)
-legend("topright" , legend = c("exp(M1)", "exp(M2)", "exp(M3)"), fill = seq(3))
+plot(ellipse::ellipse( expm::expm(M1)), type = 'l', xlim = c(-3,3), ylim = c(-3,3), col = palette.colors(3)[1])
+lines(ellipse::ellipse(expm::expm(M2)), type = 'l', col= palette.colors(3)[2])
+lines(ellipse::ellipse(expm::expm(M3)), type = 'l', col= palette.colors(3)[3])
+legend("topright" , legend = c("exp(M1)", "exp(M2)", "exp(M3)"), fill = palette.colors(3))
 ```
 
 We see that **the ellipse inflates or deflates but does not change in shape, this is an homothety**.
@@ -233,10 +249,10 @@ Now, we change the **two other coefficients**:
 M1 = -3*e1 + 2*e2 -1*e3
 M2 = M1 +1*e2
 M3 = M1 +1*e3
-plot(ellipse::ellipse( expm::expm(M1)), type = 'l', xlim = c(-3, 3), ylim = c(-1, 2))
-lines(ellipse::ellipse(expm::expm(M2)), type = 'l', col=2)
-lines(ellipse::ellipse(expm::expm(M3)), type = 'l', col=3)
-legend("topright" , legend = c("exp(M1)", "exp(M2)", "exp(M3)"), fill = seq(3))
+plot(ellipse::ellipse( expm::expm(M1)), type = 'l', xlim = c(-3,3), ylim = c(-3,3), col = palette.colors(3)[1])
+lines(ellipse::ellipse(expm::expm(M2)), type = 'l', col= palette.colors(3)[2])
+lines(ellipse::ellipse(expm::expm(M3)), type = 'l', col= palette.colors(3)[3])
+legend("topright" , legend = c("exp(M1)", "exp(M2)", "exp(M3)"), fill = palette.colors(3))
 ```
 
 We can see that the **directions and shapes of the ellipses changes**.
@@ -245,172 +261,24 @@ This means that the other two parameters will **not change the overall correlati
 
 As a conclusion, we need only **three components** to specify **any range ellipse**.
 The first component controls the correlation **range**, while the other two control the correlation **shape**.
-If all the components are constant, we get a [**stationary**](#stat_correlation) correlation model.
-If only the first component is allowed to move and the two other are set to $0$, we get a [**nonstationary, locally isotropic**](#locally_iso) model.
-If everybody is allowed to move, we have a [**nonstationary, locally anisotropic**](#locally_aniso) model.
+If all the components are constant and only the first component differs from $0$, we get a **stationary** correlation model.
+If only the first component is allowed to move and the two other are set to $0$, we get a **nonstationary, locally isotropic** model.
+If everybody is allowed to move, we have a **nonstationary, locally anisotropic** model.
+Then, the two previous models are encompassed in the third model. 
+**The three dolls were vector subspaces all along.** 
 
-### The stationary model. {#stat_correlation}
 
-To see that, let's represent the correlation of the Gaussian Process on an axis (so much for anisotropy...).
-We create 3 correlations:
+### How do the range parameters impact the latent field ? {#range_samples}
 
--   the **stationary** Matérn correlation given by GpGp, with range parameter equal to the *scalar* $exp(1)$.
--   the **nonstationary, locally isotropic** Matérn correlation where the range parameter is equal to the *matrix* $(1)$ and the range covariates are equal to a one-column matrix filled with ones (just an intercept).
--   the **nonstationary, locally anisotropic** Matérn correlation where the range parameter is equal to the *matrix* $(1, 0, 0)$ and the range covariates are also just an intercept.
 
-```{r,fig.width = 9, fig.height=5}
-# locations varying between 0 and 5
-locs = cbind(seq(0, 5, .1), 0)
-# covariate for the range
-X_range = matrix(1, nrow(locs))
-# regression coefficients for the range
-beta_iso = matrix(1)
-beta_aniso = matrix(c(1,0,0), 1)
-# NNGP setup
-NNarray = GpGp::find_ordered_nn(locs, 20)
-# locally isotropic covariance
-covmat_iso = 
-  # computing coefficients
-  Bidart::compute_sparse_chol(
-    range_beta = beta_iso, 
-    NNarray = NNarray, 
-    locs = locs, 
-    range_X = X_range)
-  # putting coefficients in precision Cholesly
-covmat_iso = Matrix::sparseMatrix(
-    x = covmat_iso[[1]][!is.na(NNarray)], 
-    i = row(NNarray)[!is.na(NNarray)], 
-    j = (NNarray)[!is.na(NNarray)]
-    ) %>%  
-  # converting to covariance
-  Matrix::solve() %>% 
-  Matrix::tcrossprod()
-# locally anisotropic covariance
-covmat_aniso = 
-  # computing coefficients
-  Bidart::compute_sparse_chol(
-    range_beta = beta_aniso, 
-    NNarray = NNarray, 
-    locs = locs, 
-    range_X = X_range, 
-    anisotropic = T # indicating that the covariance is anisotropic
-    )
-  # putting coefficients in precision Cholesly
-covmat_aniso = Matrix::sparseMatrix(
-    x = covmat_aniso[[1]][!is.na(NNarray)], 
-    i = row(NNarray)[!is.na(NNarray)], 
-    j = (NNarray)[!is.na(NNarray)]
-    ) %>%  
-  # converting to covariance
-  Matrix::solve() %>% 
-  Matrix::tcrossprod()
-# stationary covariance
-stat_cov = GpGp::matern15_isotropic(c(1,exp(1),0), locs)
-# plotting covariance
-plot(locs[,1], stat_cov[,1],pch = 16, cex = .4, xlab = "distance", ylab = "correlation", main = "correlation following the distance")
-points(locs[,1]+.05, covmat_aniso[,1],pch = 16, cex = .4, col=2)
-points(locs[,1]+.025, covmat_aniso[,1] -0.004,pch = 16, cex = .4, col=4)
-legend("topright", legend = c("stat", "locally iso", "locally aniso"), fill = c(1,2,4))
-```
+A simple example allows to see how the nonstationary range parameter changes $w(s)$ from the [geostatistical model](#what).
 
-We can see that the correlations are the same along the line.
-That is because we are using very simple nonstationary models every time, where the covariates for the range are only an intercept.
-The models are in those cases **practically stationary**.
-It means that **the stationary model is just a state of the nonstationary models, like Russian dolls**.
+Let's take $s$ on a square of size $1\times 1$, and let $X_\alpha = (1| coord 1| coord 2)$. That is, the Matérn range will depend on an Intercept, the first coordinate, and the second coordinate. 
 
-### The locally isotropic model. {#locally_iso}
-
-Let's introduce some nonstarionarity.
-We start by making the model **locally isotropic**.
-To do that, we need more than just an intercept.
-We will add the first spatial coordinate as a covariate for the range.
-
-```{r,fig.width = 9, fig.height=5}
-# more locations varying between 0 and 5
-locs = cbind(seq(0, 5, .01), 0)
-# covariate for the range
-X_range = cbind(matrix(1, nrow(locs)), locs[,1])
-```
-
-Now, let's **compare samples** of the nonstationary and the stationary model.
-The following function compares two samples of a stationary model and a locally isotropic model.
-
-```{r}
-compare_stat_iso = function(
-    range_stat, # the stationary range fed to GpGp's function
-    beta_range_iso # the nonstationary range parameter
-    ){
-  # NNGP setup
-  NNarray = GpGp::find_ordered_nn(locs, 20)
-  # locally isotropic covariance
-  nonstat_vecchia_chol = 
-    # computing coefficients
-    Bidart::compute_sparse_chol(
-      range_beta = beta_range_iso, 
-      NNarray = NNarray, 
-      locs = locs, 
-      range_X = X_range)
-  # putting coefficients in precision Cholesly
-  nonstat_vecchia_chol = Matrix::sparseMatrix(
-    x = nonstat_vecchia_chol[[1]][!is.na(NNarray)], 
-    i = row(NNarray)[!is.na(NNarray)], 
-    j = (NNarray)[!is.na(NNarray)]
-  )
-  # stationary covariance
-  stat_cov_chol = GpGp::matern15_isotropic(c(1,range_stat,0), locs) %>% chol
-  # plotting log range
-  plot(locs[order(locs[,1]),1], exp(X_range %*% beta_range_iso + .01)[order(locs[,1])], xlab = "location", ylab = "range parameter", type = "l", col=2, main = "range parameters")
-  lines(locs[order(locs[,1]),1], rep(range_stat, nrow(locs)), col=1)
-  legend("top", legend = c("stationary", "nonstationary locally iso"), fill = c(1,2))  
-  # getting Gaussian Process samples
-  seed_vector = rnorm(nrow(locs)) # shared white noise
-  stat_samples = t(stat_cov_chol) %*% seed_vector# using covariance Cholesky method
-  nonstat_samples = Matrix::solve(nonstat_vecchia_chol, seed_vector)# using precision Cholesky method
-  plot(locs[,1], stat_samples,pch = 16, cex = .4, xlab = "location", ylab = "GP sample", main = "GP samples")
-  points(locs[,1]+.05, nonstat_samples,pch = 16, cex = .4, col=2)
-  legend("topleft", legend = c("stationary", "nonstationary locally iso"), fill = c(1,2))
-}
-```
-
-Let's make a first try.
-
-```{r,fig.width = 9, fig.height=5}
-compare_stat_iso(range_stat = exp(-3), beta_range_iso = matrix(c(-3,0)))
-```
-
-On the first plot, we can see the **field of range parameters**.
-We can see that the field of nonstationary parameters is (almost) the same as the field of stationary parameters (I added an small term to make them distinguishable).
-So, there should be little difference between the actual GP samples, if the parameters are the same.
-The second plot shows the **GP samples**.
-The samples are exactly the same !
-That's because even though we've added a covariate for the range, the associated coefficient is $0$.
-As a consequence, the range parameters do not move.
-Then the field is **practically stationary**, even if the model **formulation is nonstationary**.
-
-Let's put a **positive coefficient.**
-
-```{r,fig.width = 9, fig.height=5}
-compare_stat_iso(range_stat = exp(-3), beta_range_iso = matrix(c(-3,.3)))
-```
-
-Now the **nonstationary range** becomes (exponentially) **bigger with the location**, and the GP sample becomes **more coherent** when the location is farther from the origin.
-
-Let's put a **negative coefficient**.
-
-```{r,fig.width = 9, fig.height=5}
-compare_stat_iso(range_stat = exp(-3), beta_range_iso = matrix(c(-3,-.3)))
-```
-
-The nonstationary range becomes (exponentially) slower with the spatial coordinate, and the sample becomes **less coherent** when the location is farther from the origin.
-
-### The locally anisotropic model. {#locally_aniso}
-
-Now let's add a second dimension to the spatial locations.
-The covariates are now the two spatial dimensions.
 This is the occasion to introduce a **brutish but handy plotting function**: *plot_pointillist_painting*.
 This function takes spatial coordinates and an interest variable, and gives back a representation as a [**pointillist painting**](https://en.wikipedia.org/wiki/Pointillism).
 
-We use another function, *plot_ellipses*, who does **plot ellipses** at specified locations.
+We use another function, *plot_ellipses*, who indeed plots ellipses at specified locations.
 It can overlay with *plot pointillist painting*.
 
 Let's generate samples from the three Process Models and compare them using *plot_pointillist_painting*.
@@ -552,7 +420,7 @@ We can see that, the **anisotropy** (specifically, the Matrix logarithm of the r
 A last remark.
 The **range parameters** for the **elliptic model** have **three columns**, while the range parameters for the locally isotropic model have only one:
 
-```{r,fig.width = 9, fig.height=3.5}
+```{r,fig.width = 9, fig.height=3.5,echo=FALSE}
 cat("Head of the range parameters for the locally isotropic model: \n")
 head(cbind(1, locs)%*%iso_range_beta)
 cat("Head of the range parameters for the locally anisotropic model: \n")
@@ -569,7 +437,7 @@ We can also let vary the **variance of the latent field**.
 This will **inflate** or **shrink** the Gaussian Process.
 Like before, the **logarithm parametrization** is used:
 
-$$log(\sigma^2)  = X_\sigma\beta_\sigma.$$ $\sigma^2$ is the latent field variance, $X_\sigma$ is a matrix of covariates, and $\beta_\sigma$ is the vector of regression coefficients.
+$$log(\sigma^2(s))  = x_\sigma(s)\beta_\sigma.$$ $\sigma^2(s)$ is the latent field variance, $x_\sigma(s)$ is a vector of covariates, and $\beta_\sigma$ is the vector of regression coefficients.
 
 In practice, it can look like this:
 
@@ -612,8 +480,8 @@ The farther from the origin, the higher the variance.
 
 ## Don't bite more than you can chew! Identificability, interpretability issues. {#identification}
 
-Always be sure that the regressors you use to model the range and the variance have a strong spatial coherence.
-More precisely, **the regressors must be much more coherent than the Gaussian latent field**.
+Always be sure that the covariates you use to model the range and the variance have a strong spatial coherence.
+More precisely, **the covariates must be much more coherent than the Gaussian latent field**.
 If that is not the case, the model would be impossible to interpret: for example, in the figure below, one asks "did the nonstationary latent field become bigger because its marginal variance is bigger / its range is smaller, or just because of its intrinsic spatial variation ?".
 This will also cause identification issues and computational breakdowns in the model.
 
@@ -653,6 +521,57 @@ points(locs[,1],exp(.5*(log_scale)), col=4, cex = .2, pch= 16)
 legend("bottomleft", legend = c("stat. field", "nonstat. field", "nonstat. st. dev."), fill = c(1,2,4))
 ```
 
+
+On this second example, $\sigma(s)$ moves much slower thant $w(s)$. Identification is much better. 
+
+```{r,fig.width = 9, fig.height=5, echo = F}
+# locations varying between 0 and 5
+set.seed(1)
+locs = cbind(seq(0, 5, .005), 0)
+
+# variance model
+beta_scale = c(-3, 4)
+
+# parents array for NNGP
+NNarray = GpGp::find_ordered_nn(locs, 10)
+# stationary correlation
+chol_precision_stat = 
+  # computing coefficients
+  GpGp::vecchia_Linv(covparms = c(1,.2, 0), covfun_name = "matern15_isotropic", 
+                     locs = locs, NNarray = NNarray)
+  # putting coefficients in precision Cholesly
+chol_precision_stat = Matrix::sparseMatrix(
+    x = chol_precision_stat[!is.na(NNarray)], 
+    i = row(NNarray)[!is.na(NNarray)], 
+    j = (NNarray)[!is.na(NNarray)], 
+    triangular = T
+    )
+# stationary correlation
+chol_precision_stat_ = 
+  # computing coefficients
+  GpGp::vecchia_Linv(covparms = c(1,.005, 0), covfun_name = "matern15_isotropic", 
+                     locs = locs, NNarray = NNarray)
+  # putting coefficients in precision Cholesly
+chol_precision_stat_ = Matrix::sparseMatrix(
+    x = chol_precision_stat_[!is.na(NNarray)], 
+    i = row(NNarray)[!is.na(NNarray)], 
+    j = (NNarray)[!is.na(NNarray)], 
+    triangular = T
+    )
+
+# sampling a stationary latent field
+stat_latent_field = as.vector(Matrix::solve(chol_precision_stat_, rnorm(nrow(locs))))
+# sampling another stationary latent field used as a regressor for the scale
+X_scale = cbind(1, as.vector(Matrix::solve(chol_precision_stat, rnorm(nrow(locs)))))
+# obtaining log-scale
+log_scale = X_scale %*% beta_scale
+# scaling the latent field to make it nonstationary
+nonstat_latent_field = exp(.5*c(log_scale)) * stat_latent_field
+plot(locs[,1], nonstat_latent_field, pch = 16, cex = .2, col = 2, ylab = "", type = "l", xlab = "spatial location", ylim = c(min(nonstat_latent_field), max(nonstat_latent_field)+1), main = "Decent-ish identification")
+lines(locs[,1],stat_latent_field, pch = 16, cex = .2, col = 1)
+lines(locs[,1],exp(.5*(log_scale)), col=4, cex = .2, pch= 16)
+legend("bottomleft", legend = c("stat. field", "nonstat. field", "nonstat. st. dev."), fill = c(1,2,4))
+```
 There also is a well-known **lack of identification between the Gaussian Process spatial range and its spatial variance**, [even in stationary models](https://www.tandfonline.com/doi/abs/10.1198/016214504000000241).
 Even though we obtained encouraging results on synthetic data sets, on real data sets it is a risky choice to have both nonstationarities.
 
@@ -728,7 +647,8 @@ Here, we assume a **Gaussian link**, who can nonetheless accommodate **heteroske
 Like in the process model, we have a **logarithmic parametrization**:
 
 $$\tau^2 = X_\tau \beta_\tau,$$ $\tau^2$ being the noise variance, $X_\tau$ being covariates, and $\beta_\tau$ being the regression coefficients.
-Unlike the [range and variance](#identification), $X_\tau$ needs not to be spatially smooth.
+Note that before, we indexed $\alpha$ and $\sigma$ on the spatial site $s$. Indeed, having covariance parameters who vary within the same spatial site $s$ would be an extreme case of the identification problem previously [expounded](#identification). 
+However, $X_\tau$ needs not to be spatially smooth, and can even vary within one spatial site. For example, one measurement operator can be "shaky-handed" and commit more errors than the other technicians who operate *at the same site*. As a consequence, we do not index $\tau$  or $X_\tau$ on the site $s$.  
 
 In practice, it can look like this:
 
@@ -807,6 +727,7 @@ plot(locs[,1], fixed_effects, ylab = "", main = "fixed effects", pch = 16, cex =
 plot(locs[,1], nonstat_noise_samples + nonstat_GP_samples + fixed_effects, ylab = "", main = "observed signal", pch = 16, cex = .4, xlab = "spatial position")
 ```
 
+
 # The Predictive Process (PP) prior for spatially-indexed parameters. {#PP}
 
 In the past walkthrough, we have only used the two spatial coordinates as **covariates for the parameter fields**.
@@ -864,13 +785,13 @@ We can see that even though the PP gives a good general idea of the NNGP, some d
 The PPs have themselves covariance parameters.
 In the [original paper](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2008.00663.x), the range, variance, and smoothness of the PPs are estimated.
 In our case, because of the [identification problems](#identification) and [need for simplicity](#bite2), we **estimate only the marginal variance parameter**.
-Of course, we do not any nonstationarity in the PP.
+Of course, we do not put any nonstationarity in the PP.
 
-Therefore, the covariance of the PP is parametrized as: $$\sigma_{PP}\times C_{PP},$$ $\sigma_{PP}$ being the PP variance parameter, and $C_{PP}$ being the user-specified **degenerate correlation matrix** of the PP.
+Therefore, the covariance of the PP is parametrized as: $$\sigma_{PP}\times \zeta,$$ $\sigma_{PP}$ being the PP variance parameter, and $\zeta$ being the user-specified **degenerate correlation matrix** of the PP.
 
 One point you may want to overlook for now, but which is quite important, is that in our model the PP is [parametrized](#regression_coeffs) in terms of **regression coefficients**, just like the covariates who explain the range, the process variance, and the noise variance.
 This may seem incoherent with the above formulation with a **covariance matrix**, but it is not.
-In fact, $C_{PP}$ is **degenerate** and can be written as $C_{PP} = B~B^T$, $B$ being a matrix of PP **basis functions** with as many columns as there are knots, that is in practice much less that the number of spatial locations.
+In fact, $\zeta$ is **degenerate** and can be written as $\zeta = B~B^T$, $B$ being a matrix of PP **basis functions** with as many columns as there are knots, that is in practice much less that the number of spatial locations.
 To [sample](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=759e42e9e29595f9060f842365dee34ad086a33e) from the PP, you need to multiply $B$ by a vector of random coefficients, and it is those coefficients who are estimated by our model for the sake of **parsimony**.
 
 ## Don't bite bigger than you can chew! (again) {#bite2}
@@ -880,8 +801,8 @@ Over-smoothing should therefore nor be too crippling.
 Actually, we remarked that putting many knots caused problems in the MCMC behavior, so **going for an over-smoothed prior is the safer option**.
 We did no sensitivity analysis with respect to the parameters of the PP, but [processes with high range cannot identify the variance](https://www.tandfonline.com/doi/abs/10.1198/016214504000000241), so if the PP range is lowered, the variance should adjust and give an equivalent process.
 The author of the vignette actually experienced this: while doing a run on a synthetic data set, he saw, with displeasure, that the PP variance estimation was completely off.
-Then, he remarked that the PP range, which is a non-estimated user-specified hyperparameter, was off as well.
-The PP variance did compensate the PP range.
+But what happened was that he had set a PP range for the model who was different from the PP range used to generate the data. So actually, the PP variance compensated the PP range !
+However, large changes in the PP range can still affect model performance. 
 
 ## An example of Predictive Process prior for Covariance parameters.
 
@@ -952,7 +873,7 @@ In the case of [**anisotropic range**](log_range), the PP must have **three vari
 The variance of those three parameters is parametrized as a $3\times3$ matrix.
 The [PP covariance](#PP_cov) now becomes
 
-$$\Sigma_{PP}\otimes C_{PP}, $$ $\otimes$ being [Kronecker's product](https://en.wikipedia.org/wiki/Kronecker_product), $\Sigma_{PP}$ now being a $3\times 3$ covariance matrix, and $C_{PP}$ being a correlation matrix like before.
+$$\Sigma_{PP}\otimes \zeta, $$ $\otimes$ being [Kronecker's product](https://en.wikipedia.org/wiki/Kronecker_product), $\Sigma_{PP}$ now being a $3\times 3$ covariance matrix, and $\zeta$ being a correlation matrix like before.
 Since the first component of the matrix logarithm controls the spatial range, the **upper-left coefficient** of $\Sigma_{PP}$ allows the **range to vary in space**.
 Since the other two components of the matrix logarithm control the anisotropy, the **lower-right** $2\times 2$ sub-matrix of $\Sigma_{PP}$allows the **anisotropy** to vary in space.
 Let's make a function that gives a **sample of the PP** and of **the nonstationary Gaussian Process**, given a PP variance parameter.
@@ -1046,15 +967,20 @@ PPs allow to model covariance parameters with some **spatial coherence**.
 They combine the **simplicity** of splines and the **regulation** of Gaussian Processes.
 However, they must be **kept simple** in order to have a good model behavior.
 
+
 # Running the model {#running}
 
 Now that we had a soft tour of the model's framework, let's get into the nitty-gritty of how to run it.
 
 ## Initialization {#initialization}
 
-First, we need to set up the model.
+First, we need to set up the model. We are going to do the following: 
+-  First we are going to expose the format of the data. 
+-  Second, we are going to simulate synthetic data in the needed format. 
+-  Eventually, we are going to initialize a model on this data. 
 
-### The data {#data}
+
+### Format of the data 
 
 You need:
 
@@ -1064,19 +990,25 @@ You need:
 
 The important point is that you need **one spatial site, for one observation of the interest variable, for one observation of the explanatory variables**.
 It is always a good idea to **have a look at your data using *plot pointillist painting*** .
+However, you perfectly have **redundant spatial locations !** That means that you can have data sets with **two or more observations of the response variable, at the same spatial location**. 
+
+
+
+### Let's simulate synthetic data
 
 We are going to **create a synthetic data set** to illustrate the following section.
-It has:
 
+It has:
 -   12000 spatial locations in 2 dimensions.
 -   stationary process spatial correlation.
 -   nonstationary process marginal variance, specified through a PP.
 -   nonstationary noise marginal variance, specified through a PP.
 
+**Simulating spatial locations**
+
 In the following, we **simulate a toy example** with $12000$ observations.
 The first $10000$ will be used for [training](#launching_run), while the rest will be used for [prediction](#prediction) and [comparison](#comparison).
 
-#### Simulating spatial locations
 
 First, let's get some **spatial locations**.
 
@@ -1087,7 +1019,7 @@ locs = cbind(5*runif(12000, 0, 5), 5*runif(12000, 0, 5))
 locs = locs[GpGp::order_maxmin(locs),]
 ```
 
-#### Simulating a Predictive Process for the covariance parameters
+**Simulating a Predictive Process for the covariance parameters **
 
 Let's move on with getting a **Predictive Process** to simulate **nonstationary covariance parameters**.
 Note that we have two parameters, *true_scale_log_scale* and *true_noise_log_scale*, who control the respective [**predictive process variance**](#PP_cov) of the nonstationary marginal variance and noise variance.
@@ -1114,7 +1046,7 @@ PP_scale = as.vector(Matrix::solve(chol_precision,  rnorm(nrow(locs)) * PP_dropo
 PP_noise = as.vector(Matrix::solve(chol_precision,  rnorm(nrow(locs)) * PP_dropout))
 ```
 
-#### Simulating a nonstationary latent field
+**Simulating a nonstationary latent field**
 
 Let's now get a **nonstarionary latent field**.
 Note that here, we have a parameter called *true_scale_beta*, who is the **intercept for the latent process variance**, equivalent to the logarithm of the stationary latent process variance parameter.
@@ -1158,7 +1090,7 @@ par(mfrow=  c(1,1))
 
 We can see that the field has more yellow (high) and red (low) values in the places where the nonstationary variance is high.
 
-#### Simulating covariates
+**Simulating covariates**
 
 We can now create some **covariates**:
 
@@ -1181,7 +1113,7 @@ par(mfrow=  c(1,1))
 
 ```
 
-#### Simulating a nonstationary noise
+**Simulating a nonstationary noise**
 
 We now create a **nonstationary noise**, depending on an **PP** and **covariates as well**, including the **intercept**.
 Note that here, **the covariates do not need to be spatially smooth**.
@@ -1194,7 +1126,7 @@ noise_var =
 Bidart::plot_pointillist_painting(locs, noise_var, main = "log noise variance")
 ```
 
-#### Putting things together
+**Putting things together ** 
 
 Eventually, we can [**combine**](#what) all those components to get an **observed signal**.
 Note that we have regression coefficients for the **fixed effects** as well.
@@ -1209,12 +1141,11 @@ observed_field =
   noise_var * rnorm(nrow((locs))) # noise
 
 Bidart::plot_pointillist_painting(locs, observed_field, main = "Observed field")
-
 ```
 
 It's difficult to tell the ingredients with naked eye !
 
-### The Predictive Processes {#PP_init}
+### Initializing the Predictive Processes {#PP_init}
 
 Let's start with the **Predictive Processes** described [previously](#PP).
 If you want to use PPs, this is the first step of the initialization.
@@ -1223,7 +1154,7 @@ Those PPs are obtained with the fuction *get_PP*.
 Its arguments are:
 
 -   *observed_locs*, the sites where the observations are done.
--   *matern_range*, the Matern range of the PP covariance (the Matern smoothness is always $1.5$).
+-   *matern_range*, the Matern range of the PP covariance (the [Matern smoothness]((#smoothness)) is always $1.5$).
 -   *n_PP*, the number of knots. The knots are automatically placed with a k-means algorithm.
 -   *m*, the number of parents in the NNGP used to construct the PP. It is automatically set, so don't worry about that.
 
@@ -1259,7 +1190,7 @@ PP = Bidart::get_PP(
 Bidart::compare_PP_NNGP(PP)
 ```
 
-### The mcmc_nngp_list {#mcmc_nngp_list_init}
+### Initializing the mcmc_nngp_list {#mcmc_nngp_list_init}
 
 Now that you have a suitable Predictive Process, you need to **initialize the mcmc chains**.
 This is done using the *mcmc_nngp_initialize_nonstationary* function.
@@ -1285,7 +1216,7 @@ We have:
 -   *X*, the **data.frame** of covariates used to model the **response variable**.
 
 There is **no need to put an intercept**, which is added automatically.
-An important point is that **scale_X and range_X must not vary within the same spatial location**.
+An important point is that [**scale_X and range_X must not vary within the same spatial location**](#identification).
 Those arguments are obviously important for the modeler, but can be left empty, in which case there will only be an intercept, and the model will be stationary.
 
 Another important family of arguments are the **Predictive Processes**:
@@ -1297,14 +1228,14 @@ Another important family of arguments are the **Predictive Processes**:
 
 Here comes **a portmanteau of important parameters**.
 
--   *nu* is the Matérn smoothness, only $0.5$ and $1.5$ are accepted. It is equal to $1.5$ by default. This parameter often impacts **prediction**, larger smoothness usually avoiding over-fitting.
+-   *nu* is the [Matérn smoothness](#smoothness), only $0.5$ and $1.5$ are accepted. It is equal to $1.5$ by default. This parameter often impacts **prediction**, larger smoothness usually avoiding over-fitting.
 -   *anisotropic* is a **Boolean** indicating if the covariance is anisotropic. It is false by default.
 -   *sphere* is a **Boolean** indicating if the locations are longitude-latitude coordinates. It is false by default. You can model on the **pole-less sphere**.
 -   *m* is the **integer** number of parents in the NNGP, $10$ or $12$ should be well. It is $10$ by default.
 
 Finally, we have **a portmanteau of un-important parameters**.
 
--   *n_chains* is the number of MCMC chains. It is by default equal to $2$. Due to the burn-in and the memory overhead, it is not advised to have many chains.\
+-   *n_chains* is the number of MCMC chains. It is by default equal to $2$. Due to the burn-in and the memory overhead, it is not advised to have many chains.
 -   *seed*, the random seed. Automatically set to $1$. This parameter may be relevant when some starting points cause crashes early in the run (this is rare).
 -   *noise_beta_mean* is the **matrix** mean of the Normal prior for the regression coefficients associated with *noise_X*. It is automatically set to $0$.
 -   *scale_beta_mean* is the **matrix** mean of the Normal prior for the regression coefficients associated with *scale_X*. It is automatically set to $0$.
@@ -1318,7 +1249,7 @@ Let's play with our data set and try several model settings.
 We start with **the simplest model**.
 
 ```{r,fig.width = 9, fig.height=5}
-# initialization with a complicated range model
+# initialization with a simple range model
 mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary(
   observed_locs = locs[seq(10000),], 
   observed_field = c(observed_field)[seq(10000)]
@@ -1363,14 +1294,18 @@ mcmc_nngp_list = Bidart::mcmc_nngp_initialize_nonstationary(
 
 Now, you see that only the message for *scale_log_scale_prior* appears.
 
-### Model specification recap. {#specification}
+### Specification of the model. {#specification}
 
-Go for **noise heteroskedasticity**, it is computationally **cheap**, and almost always worth it in terms of **model improvement**.
-Don't go for nonstationary marginal variance and range at the same time because of [identification problems](#identification), except if you have a really good reason to.
-Nonstationary marginal variance is computationally cheaper than range and seems to bring similar improvements, even though sometimes one of the two is slightly better.
-Keep in mind that anisotropy costs much more, but may however provide useful insight and some prediction improvement.
-Keep the PP range much higher what you expect the process range to be in order to avoid [identification problems](#identification).
-Like we said [before](#bite2), **don't worry too much about PP spatial range as long as it is high** since there is a mis-identification between range and variance for high spatial ranges.
+That's a **lot of options**. The modeler might feel the **"all-you-can-eat buffet angust"**: so much to eat, but only that much room in the stomach. 
+However, you will not eat French fries with sautéed potatoes and dauphine apples. Well, maybe you will, but that's generally not regarded as a nice meal, except by third-graders. In general, normal people tend to **avoid redundance**. 
+
+The same goes for nonstationary modeling. Combining **theoretical results** about **parameter identification** in stationary models, as well as experience with runs on synthetic and real data, we can arrive to the following **empirical rules**.
+
+- Go for **noise heteroskedasticity**, it is computationally **cheap**, and almost always worth it in terms of **model improvement**.
+- Don't go for nonstationary marginal variance and range at the same time because of [identification problems](#identification), except if you have a really good reason to.
+- Keep in mind that anisotropy costs much more, but may however provide useful insight and some prediction improvement.
+- Keep the PP range much higher what you expect the process range to be in order to avoid [identification problems](#identification).
+- Like we said [before](#bite2), **don't worry too much about PP spatial range as long as it is high** since there is a mis-identification between range and variance for high spatial ranges.
 
 ## Launching the run {#launching_run}
 
@@ -1419,7 +1354,7 @@ for(i in seq(12))mcmc_nngp_list =
     )
 ```
 
-There is noting here because I don't want to make the vignette unreadable, but [**Gelman-Rubin-Brools**](#GRB) **and [Effective Sample Size](#ESS) diagnostics plot automatically**.
+There is nothing here because I don't want to make the vignette unreadable, but [**Gelman-Rubin-Brools**](#GRB) **and [Effective Sample Size](#ESS) diagnostics plot automatically**.
 
 ## MCMC cuisine. {#MCMC}
 
@@ -1597,7 +1532,7 @@ We can see that **the PP log-variance parameters go to very negative values**, l
 
 ### The anisotropic case. {#aniso_run}
 
-In the [anisotropic case](#locally_aniso), the [log-range parameters](#log_range) are symmetric $2\times 2$ matrices.
+In the anisotropic case, the [log-range parameters](#log_range) are symmetric $2\times 2$ matrices.
 Therefore, they have 3 components.
 The associated regression coefficients will not be vectors like in the usual case, but matrices with 3 columns.
 Eventually, **the range PP variance will be a matrix of size** $3\times 3$, as explained [before](#PP_anisotropic).
@@ -1671,11 +1606,11 @@ Let's show the diagnostic plots:
 Bidart::diagnostic_plots(mcmc_ngp_list_aniso)
 ```
 
-We can see that **range_log_scale has now more parameters**, we talked about this before ([here](#log_range),[here](#locally_aniso), and [there](#PP_anisotropic)).
+We can see that **range_log_scale has now more parameters**, we talked about this before ([here](#log_range) and [there](#PP_anisotropic)).
 Those parameters can be summarized in 3 components.
 **Two components regulate the anisotropy, and one component regulates the range**.
 We can see that the trace plots of all those components are quite high: the model is effectively non-stationary.
-In case of **over-modeling**, if the model identifies a nonstationary range but no anisotropy, the two components corresponding to the anisotropy (red and blue) will drop to very negative values, inducing a [simpler model](#locally_iso).
+In case of **over-modeling**, if the model identifies a nonstationary range but no anisotropy, the two components corresponding to the anisotropy (red and blue) will drop to very negative values, inducing a [simpler model where the range is locally isotropic](#log_range) .
 If the model identifies no nonstationarity, all components will become very negative.
 
 ## Conclusion for *Running the model*.
@@ -2037,31 +1972,19 @@ Let's **compare "The Full Monty" and "The Vanilla"**.
 The image below shows the **mean of the latent field**.
 There is **little difference**.
 
-```{r,fig.width = 9, fig.height=3, echo=FALSE}
-img = (png::readPNG("Heavy_metals/field_mean-1.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![]("Heavy_metals/field_mean-1.png)
 
 However, when we show the **standard deviation of the latent field**, there is a **huge difference**.
 Why is that ?
 
-```{r,fig.width = 9, fig.height=3, echo=FALSE}
-img = (png::readPNG("Heavy_metals/field_sd-1.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![](Heavy_metals/field_sd-1.png)
 
 A look at the **sampling sites**, shown below, is useful.
 We can see that there are places with lots of observations, and gaps.
 The **stationary** model **predicts confidently** where there are **dense observations**, and less confidently where there are less observations.
 And that's all.
 
-```{r,fig.width = 9, fig.height=6.5, echo=FALSE}
-img = (png::readPNG("Heavy_metals/sampling_sites.png"))
-plot(1,1, main = "sampling sites")
-grid::grid.raster(img)
-```
+![](Heavy_metals/sampling_sites.png)
 
 The **nonstationary model** must therefore use its nonstationarity to predict differently.
 Let's look at the estimate of the **mean log variance of the latent process**.
@@ -2069,22 +1992,14 @@ We can a correspondence between the estimated mean log-variance and the standard
 For example, there are **gaps** both at the **border with Mexico** and the **Midwest**, incurring **higher predicted variance**.
 However, the gaps at the border have much higher standard deviation, accordingly to the log-variance field.
 
-```{r,fig.width = 9, fig.height=5, echo=FALSE}
-img = (png::readPNG("Heavy_metals/scale_title-1.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![](Heavy_metals/scale_title-1.png)
 
 The last, and **most important** parameter, is the **variance of the noise**.
 The map of the **mean log variance of the noise** exhibits the same general pattern as the field's variance.
 However, we can see that there are **hot spots** corresponding to the **effects of covariates**.
 Those hot spots indicate **cities and main roads**, where one is probably more likely to have some "bad luck" and dig up a punctually contaminated site, such as an industrial wasteland, who does not represent the overall contamination of the region.
 
-```{r,fig.width = 9, fig.height=5, echo=FALSE}
-img = (png::readPNG("Heavy_metals/noise_title-1.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![](Heavy_metals/noise_title-1.png)
 
 ## NDVI with anisotropy and heteroskedastic noise
 
@@ -2100,12 +2015,7 @@ The model with nonstationary anisotropic range and nonstationary noise was selec
  
 Let's have a look at the raw data with a blue layer to see the gaps.
 
-```{r,fig.width = 9, fig.height=9, echo=FALSE}
-img = (png::readPNG("NDVI_r2/maps/observed.png"))
-plot(1,1)
-grid::grid.raster(img)
-title(main = "Observed NDVI")
-```
+![](NDVI_r3/maps_for_JCGS/observed.png)
 
 We see that some regions are **smooth and noiseless**, while other like the left-hand side are **fuzzy**.
 We also see that some regions, like the upper-right corner, present clear **anisotropy**, while other do not.
@@ -2113,12 +2023,7 @@ We also see that some regions, like the upper-right corner, present clear **anis
 The anisotropic model allows to retrieve the **range ellipses**.
 We represent them, overlaid on the **smoothed latent field**.
 
-```{r,fig.width = 9, fig.height=9, echo=FALSE}
-img = (png::readPNG("NDVI_r2/maps/ellipses.png"))
-plot(1,1)
-grid::grid.raster(img)
-title(main = "Smoothed field and range ellipses")
-```
+![](NDVI_r3/maps_for_JCGS/ellipses.png)
 
 The ellipses do **adapt to the terrain**.
 In the upper right corner, they are tight and oriented along the field's anisotropy.
@@ -2127,23 +2032,13 @@ In the troubled region of the left, they are much smaller.
 
 The **mean predicted noise variance** also has its interest:
 
-```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI_r2/maps/noise.png"))
-plot(1,1)
-grid::grid.raster(img)
-title(main = "Log noise variance")
-```
+![](NDVI_r3/maps_for_JCGS/noise.png)
 
 Clearly, the peaceful regions have low noise, while the fuzzy zones have a high noise.
 
 There is a strong connection of the noise with the **smoothing and prediction standard deviation**.
 
-```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI_r2/maps/log_sd.png"))
-plot(1,1)
-grid::grid.raster(img)
-title(main = "Log smoothing and prediction standard deviation")
-```
+![](NDVI_r3/maps_for_JCGS/log_sd.png)
 
 The **bright dots** correspond to the **test locations** and the **briht gaps** correspond to the **lumps**, who have **higher variance**.
 We can see that the standard deviation **follows the noise variance**.
@@ -2151,11 +2046,7 @@ The heteroskedastic model allows to **predict confidently where the observations
 
 An interesting point is the interpretation of the [**variance of the PP**](#PP_cov) for the **anisotropic range parameters**. The MCMC samples are presented as curves, as detailed in the [run on simulated data](#aniso_run). Let's have a look at those samples.
 
-```{r,fig.width = 9, fig.height=9}
-img = (png::readPNG("NDVI_r2/range_var.png"))
-plot(1,1)
-grid::grid.raster(img)
-```
+![](NDVI_r3/maps_for_JCGS/range_var.png)
 
 We can see that the component who regulates the range is much higher than the components who regulate the anisotropy. This can be understood if we look at the maps of the interest variable. The range changes a lot, we do have some regions who are very smooth and other who are really fuzzy. However, the anisotropy changes little, there always is a southwest-northwest orientation of the interest field. 
 
