@@ -172,6 +172,19 @@ plot_pointillist_painting = function(locs, field, cex = 1, main = NULL, add = F)
   if(add)points(locs, col = get_colors(field), pch = 15, cex = cex, xlab  ="", ylab = "")
 }
 
+pointillist_colorscale = function(field, scalename = ""){
+  par(mar = c(0,0,0,0))
+  plot(0,0, type = "n", xaxt='n', yaxt='n', xlim = c(-.007, .005), ylim = c(0, 100), frame=FALSE, xlab ="", ylab="")
+  barplot(rep(.005, 100), col = (heat.colors(101)), width = rep(1, 100),space = 0,
+       xlab = scalename, ylab = "", main = "",  border = T, horiz = T, add = T, axes = F
+       )
+  text(y = 99,   -.004,format(signif(max(field)                               ),trim = 4, width = 4))
+  text(y = 75,  -.004,format(signif(min(field) +(max(field) - min(field))*3/4),trim = 4, width = 4))
+  text(y = 50,  -.004,format(signif(min(field) +(max(field) - min(field))/2  ),trim = 4, width = 4))
+  text(y = 25,  -.004,format(signif(min(field) +(max(field) - min(field))*1/4),trim = 4, width = 4))
+  text(y = 1,  -.004,format(signif(min(field)                               ),trim = 4, width = 4))
+}
+
 #' @export
 array_cumsum = function(x)
 {

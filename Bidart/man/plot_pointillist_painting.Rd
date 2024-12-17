@@ -5,7 +5,7 @@
 \title{Plots a spatial variable like a pointillist painting
 using R base's points. Stupid, but handy.}
 \usage{
-plot_pointillist_painting(locs, field, cex = 1, main = NULL)
+plot_pointillist_painting(locs, field, cex = 1, main = NULL, add = F)
 }
 \arguments{
 \item{locs}{spatial locations}

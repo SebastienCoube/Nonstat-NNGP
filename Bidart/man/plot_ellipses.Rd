@@ -11,7 +11,9 @@ plot_ellipses(locs, log_range, shrink = 0.1, main = "ellipses", add = F)
 
 \item{log_range}{log_range at the ellipse centers, can hae 1 or 3 columns}
 
-\item{shrink}{shrinks or inflates the ellipses}
+\item{shrink}{shrinks or inflates the ellipses. shrink = 1 gives the 
+Mahalanobis distance = 1. Shrink = sqrt(8*nu) gives the ellipses corresponding to 
+correlation  = .1 (rho following INLA's terminology)}
 
 \item{main}{main title}
 
