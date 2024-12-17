@@ -1,6 +1,6 @@
 # NDVI data analysis using NNGP and other state-of-the-art methods
 
-This folder provides scripts for this analysis. 
+This folder provides scripts for the analysis presented in our paper *Nonstationary Spatial Process Models with Spatially Varying Covariance Kernels*. 
 While we do not include full MCMC runs because they are too heavy, we put Gelman-Rubin-Brooks plots and trace plots in order to show that our chains have a sound behavior. 
 They are located at */res*, under the *.pdf* format. 
 
