@@ -3,7 +3,7 @@
 Presented in the annex of the paper. 
 
 If you want to replicate those experiments, get a SLURM cluster. 
-Then copy the two folders on your cluster, cd you way into one of the two folders, and use ./Run_several.sh 
+Then copy the two folders on your cluster, cd you way into one of the two folders, and use ./Run_several.sh.
 This script will replicate experiment.R (into experiment1.R, experiment2.R, etc) and will launch each of them using Run.sh. 
 You may want to change Run_several.sh and Run.sh to adapt the characteristics of your cluster. 
 The results will appear in the foler. 

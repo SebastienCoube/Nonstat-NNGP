@@ -7,5 +7,5 @@ This repository contains the implementation of nonstationary NNGPs from Sébasti
 * The compressed package for installation. You can download it from **[there](https://github.com/SebastienCoube/Nonstat-NNGP/blob/master/Bidart_1.1.tar.gz)**.
 * Scripts to analyze a lead contamination data set and the required data in the folder **Heavy_metals**.
 * The experiments on synthetic data sets presented in the paper, with some instructions to run them, in the folders **Experiments_KL** (Kullback-Leibler between NNGP and full GP), **Experiments_wrong_modelling** (improvements brought by nonstationary models), and **UCLA** (comparison between NNGP and other nonstationary GP methods).
-* Scripts to analyze a NDVI data set and the required data in the folder **NDVI_r2**.
+* Scripts to analyze a NDVI data set and the required data in the folder **NDVI_r3** (*NDVI_r2* is a former version but it was simpler to keep it around).
  
